@@ -2,11 +2,15 @@
 // line_config.php
 // เก็บค่าลับสำหรับ LINE Login
 
-// *** กรุณากรอกค่าจริงที่คุณได้จาก LINE Developers Console ***
-define('LINE_LOGIN_CHANNEL_ID', '2008476166');
-define('LINE_LOGIN_CHANNEL_SECRET', '991a612c343dc2ed766cf399a4913cf5');
+// ==========================================
+// Load Secrets from config/secrets.php
+// ==========================================
+$secretsPath = __DIR__ . '/../../config/secrets.php';
+$secrets = file_exists($secretsPath) ? require $secretsPath : [];
 
-define('LINE_MESSAGING_API_TOKEN', 'dO49wXbHvt22YCTmZFqyVWtBXLgG+HzsvptogPUU7V79hAIbHZ7ik0onvRCbkmhvLsBoEnKV5HxhbhHqpx5L/IE1zc8vA3WsgWYOYSQFLXvcFCgHwEy99DJf4LZeBcyzEYFXjgDENVvj65bH8Nhw4QdB04t89/1O/w1cDnyilFU=');
+define('LINE_LOGIN_CHANNEL_ID', $secrets['EBORROW_LINE_LOGIN_ID'] ?? 'YOUR_EBORROW_ID');
+define('LINE_LOGIN_CHANNEL_SECRET', $secrets['EBORROW_LINE_LOGIN_SECRET'] ?? 'YOUR_EBORROW_SECRET');
+define('LINE_MESSAGING_API_TOKEN', $secrets['EBORROW_LINE_MESSAGE_TOKEN'] ?? 'YOUR_EBORROW_TOKEN');
 
 // 1. (แก้ไข) กำหนด Base URL ให้ถูกต้อง (ตามโฟลเดอร์ของคุณ)
 $base_url = "https://healthycampus.rsu.ac.th/e_Borrow_test";

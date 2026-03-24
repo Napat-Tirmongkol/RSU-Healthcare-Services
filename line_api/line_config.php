@@ -21,21 +21,21 @@ declare(strict_types = 1)
  */
 
 // ============================================================
-// 1. LINE Login Channel (ระบบ Login และ Callback)
+// Load Secrets from config/secrets.php
 // ============================================================
-define('LINE_LOGIN_CHANNEL_ID', '2009560824');
-define('LINE_LOGIN_CHANNEL_SECRET', '50870e1645c14089b28897caaf3a1a84');
+$secretsPath = __DIR__ . '/../config/secrets.php';
+$secrets = file_exists($secretsPath) ? require $secretsPath : [];
+
+// 1. LINE Login Channel
+define('LINE_LOGIN_CHANNEL_ID', $secrets['LINE_LOGIN_CHANNEL_ID'] ?? 'YOUR_LOGIN_CHANNEL_ID');
+define('LINE_LOGIN_CHANNEL_SECRET', $secrets['LINE_LOGIN_CHANNEL_SECRET'] ?? 'YOUR_LOGIN_CHANNEL_SECRET');
 
 // ⚠️ ต้องตรงกับ Callback URL ที่ลงทะเบียนใน LINE Developers Console เป๊ะๆ
 define('LINE_LOGIN_CALLBACK_URL', 'https://healthycampus.rsu.ac.th/e-campaignv2/line_api/callback.php');
 
-// ============================================================
-// 2. LINE Messaging API Channel (Webhook, Push, Reply)
-// ============================================================
-define('LINE_MESSAGING_CHANNEL_ACCESS_TOKEN', 'YOUR_CHANNEL_ACCESS_TOKEN');
-define('LINE_MESSAGING_CHANNEL_SECRET', 'YOUR_MESSAGING_CHANNEL_SECRET');
+// 2. LINE Messaging API Channel
+define('LINE_MESSAGING_CHANNEL_ACCESS_TOKEN', $secrets['LINE_MESSAGING_CHANNEL_ACCESS_TOKEN'] ?? 'YOUR_CHANNEL_ACCESS_TOKEN');
+define('LINE_MESSAGING_CHANNEL_SECRET', $secrets['LINE_MESSAGING_CHANNEL_SECRET'] ?? 'YOUR_MESSAGING_CHANNEL_SECRET');
 
-// ============================================================
-// 3. LIFF (LINE Front-end Framework) — ถ้าใช้ LIFF ควบคู่
-// ============================================================
-define('LINE_LIFF_ID', '2009560824-lblNmWMC'); // เช่น 2008476166-FBKVySKi
+// 3. LIFF (LINE Front-end Framework)
+define('LINE_LIFF_ID', $secrets['LINE_LIFF_ID'] ?? 'YOUR_LIFF_ID');
