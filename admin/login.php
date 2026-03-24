@@ -8,9 +8,10 @@ if (isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] === true
     exit;
 }
 
+require_once __DIR__ . '/../config.php';
+
 $error = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    require_once __DIR__ . '/../config.php';
     validate_csrf_or_die();
     $username = $_POST['username'] ?? '';
     $password = $_POST['password'] ?? '';

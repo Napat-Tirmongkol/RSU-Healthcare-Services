@@ -1,6 +1,7 @@
 <?php
 // line_api/line_config.php
-declare(strict_types=1);
+declare(strict_types = 1)
+;
 
 /**
  * ==========================================
@@ -22,19 +23,19 @@ declare(strict_types=1);
 // ============================================================
 // 1. LINE Login Channel (ระบบ Login และ Callback)
 // ============================================================
-define('LINE_LOGIN_CHANNEL_ID',     '2009560824');
+define('LINE_LOGIN_CHANNEL_ID', '2009560824');
 define('LINE_LOGIN_CHANNEL_SECRET', '50870e1645c14089b28897caaf3a1a84');
 
 // ⚠️ ต้องตรงกับ Callback URL ที่ลงทะเบียนใน LINE Developers Console เป๊ะๆ
-define('LINE_LOGIN_CALLBACK_URL', 'https://healthycampus.rsu.ac.th/e-campaign/campaignv2/line_api/callback.php');
+define('LINE_LOGIN_CALLBACK_URL', 'https://healthycampus.rsu.ac.th/e-campaignv2/line_api/callback.php');
 
 // ============================================================
 // 2. LINE Messaging API Channel (Webhook, Push, Reply)
 // ============================================================
 define('LINE_MESSAGING_CHANNEL_ACCESS_TOKEN', 'YOUR_CHANNEL_ACCESS_TOKEN');
-define('LINE_MESSAGING_CHANNEL_SECRET',       'YOUR_MESSAGING_CHANNEL_SECRET');
+define('LINE_MESSAGING_CHANNEL_SECRET', 'YOUR_MESSAGING_CHANNEL_SECRET');
 
 // ============================================================
 // 3. LIFF (LINE Front-end Framework) — ถ้าใช้ LIFF ควบคู่
 // ============================================================
-define('LINE_LIFF_ID', 'YOUR_LIFF_ID'); // เช่น 2008476166-FBKVySKi
+define('LINE_LIFF_ID', '2009560824-lblNmWMC'); // เช่น 2008476166-FBKVySKi
