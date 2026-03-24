@@ -130,9 +130,16 @@ render_header('ข้อมูลส่วนตัว');
             <i class="fa-solid fa-shield-halved"></i>
             <span>ข้อตกลงและเงื่อนไข (PDPA)</span>
           </div>
-          <div class="bg-gray-50 border border-gray-100 p-4 rounded-xl text-[12px] text-gray-500 font-prompt leading-relaxed h-32 overflow-y-auto custom-scrollbar">
-            <p class="font-bold text-gray-700 mb-1">ยินดีต้อนรับเข้าสู่ระบบจองคิวรับวัคซีน (E-Vax)</p>
-            <p>มหาวิทยาลัยรังสิต ขอขอบพระคุณในความร่วมมือของท่าน ข้อมูลส่วนบุคคลที่จัดเก็บ (ชื่อ-นามสกุล, รหัสนักศึกษา/บุคลากร, เบอร์โทรศัพท์, LINE User ID) จะถูกใช้เพื่อวัตถุประสงค์ในการตรวจสอบสิทธิ์ บริหารจัดการคิว และแจ้งเตือนผ่านช่องทาง LINE เท่านั้น เราให้ความสำคัญกับการรักษาความปลอดภัยตามมาตรฐาน PDPA ข้อมูลของท่านจะไม่ถูกเผยแพร่หรือนำไปใช้ในเชิงพาณิชย์</p>
+          <div class="bg-gray-50 border border-gray-100 p-4 rounded-xl text-[12px] text-gray-500 font-prompt leading-relaxed h-40 overflow-y-auto custom-scrollbar">
+            <p class="font-bold text-gray-800 mb-2">ยินดีต้อนรับเข้าสู่ระบบ E-Campaign (RSU Healthcare Services)</p>
+            <p class="mb-2">มหาวิทยาลัยรังสิต ขอขอบพระคุณในความไว้วางใจใช้บริการ ข้อมูลส่วนบุคคลที่ท่านกรอก (ชื่อ-นามสกุล, เลขบัตรประชาชน, รหัสนักศึกษา/บุคลากร, และเบอร์โทรศัพท์) รวมถึง LINE User ID จะถูกประมวลผลภายใต้เงื่อนไขดังนี้:</p>
+            <ul class="list-disc pl-4 space-y-1 mb-2">
+              <li><strong>เพื่อการยืนยันตัวตน:</strong> ตรวจสอบสิทธิ์ในการรับบริการตามเงื่อนไขของแต่ละโครงการ</li>
+              <li><strong>เพื่อการบริหารจัดการ:</strong> จัดลำดับคิวและอำนวยความสะดวกในวันนัดหมาย</li>
+              <li><strong>เพื่อการแจ้งเตือน:</strong> ส่งข้อความยืนยันการจองและแจ้งเตือนผ่าน LINE Notify/Message</li>
+              <li><strong>เพื่อความปลอดภัย:</strong> ปฏิบัติตามมาตรฐานการระบุตัวตนในระบบบริการสุขภาพ</li>
+            </ul>
+            <p>เราขอรับรองว่าข้อมูลของท่านจะถูกเก็บเป็นความลับสูงสุดตามมาตรฐาน PDPA และจะไม่ถูกนำไปเผยแพร่หรือขายข้อมูลให้แก่บุคคลภายนอกโดยไม่ได้รับอนุญาต</p>
           </div>
           <label class="flex items-start gap-3 p-3 bg-white rounded-xl border border-gray-100 shadow-sm cursor-pointer hover:bg-gray-50 transition-colors">
             <input type="checkbox" required name="agreed" value="1" class="mt-0.5 w-5 h-5 rounded border-gray-300 text-[#0052CC] focus:ring-[#0052CC]" />
