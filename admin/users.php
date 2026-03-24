@@ -21,13 +21,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($userId > 0 && $fullName !== '' && $studentId !== '') {
             try {
                 $sql = "UPDATE med_students 
-                        SET full_name = :name, student_personnel_id = :studentid, phone_number = :phone 
+                        SET full_name = :name, 
+                            student_personnel_id = :studentid, 
+                            phone_number = :phone,
+                            status = :status 
                         WHERE id = :id";
                 $stmt = $pdo->prepare($sql);
                 $stmt->execute([
                     ':name' => $fullName,
                     ':studentid' => $studentId,
                     ':phone' => $phone,
+                    ':status' => trim($_POST['status'] ?? ''),
                     ':id' => $userId
                 ]);
                 $message = "อัปเดตข้อมูลนักศึกษาเรียบร้อยแล้ว!";
@@ -140,7 +144,8 @@ require_once __DIR__ . '/includes/header.php';
                 <tr>
                     <th class="px-6 py-5"><i class="fa-solid fa-hashtag mr-1"></i> ID</th>
                     <th class="px-6 py-5"><i class="fa-solid fa-user mr-1"></i> ชื่อ-นามสกุล</th>
-                    <th class="px-6 py-5"><i class="fa-solid fa-id-card mr-1"></i> รหัสนักศึกษา/บุคลากร</th>
+                    <th class="px-6 py-5"><i class="fa-solid fa-id-card mr-1"></i> รหัสผู้ใช้งาน</th>
+                    <th class="px-6 py-5">สถานะ</th>
                     <th class="px-6 py-5"><i class="fa-solid fa-phone mr-1"></i> เบอร์โทรศัพท์</th>
                     <th class="px-6 py-5"><i class="fa-regular fa-calendar-check mr-1"></i> วันที่ลงทะเบียน</th>
                     <th class="px-6 py-5 text-center"><i class="fa-solid fa-clock-rotate-left mr-1"></i> ประวัติ</th>
@@ -165,6 +170,15 @@ require_once __DIR__ . '/includes/header.php';
                         $jsName = htmlspecialchars($u['full_name'] ?? '', ENT_QUOTES);
                         $jsStudentId = htmlspecialchars($u['student_personnel_id'] ?? '', ENT_QUOTES);
                         $jsPhone = htmlspecialchars($u['phone_number'] ?? '', ENT_QUOTES);
+                        $jsStatus = htmlspecialchars($u['status'] ?? '', ENT_QUOTES);
+
+                        $statusBadge = '';
+                        switch($u['status']) {
+                            case 'student': $statusBadge = '<span class="px-2.5 py-1 rounded-full bg-blue-50 text-blue-600 text-[10px] font-bold border border-blue-100">นักศึกษา</span>'; break;
+                            case 'staff': $statusBadge = '<span class="px-2.5 py-1 rounded-full bg-purple-50 text-purple-600 text-[10px] font-bold border border-purple-100">บุคลากร</span>'; break;
+                            case 'external': $statusBadge = '<span class="px-2.5 py-1 rounded-full bg-gray-50 text-gray-600 text-[10px] font-bold border border-gray-100">บุคคลทั่วไป</span>'; break;
+                            default: $statusBadge = '<span class="px-2.5 py-1 rounded-full bg-red-50 text-red-400 text-[10px] font-bold border border-red-100">ไม่ระบุ</span>';
+                        }
                     ?>
                         <tr class="hover:bg-[#f8fafc] group transition-colors duration-200">
                             <td class="px-6 py-5 text-gray-400 font-bold text-xs">#<?= $u['id'] ?></td>
@@ -172,6 +186,7 @@ require_once __DIR__ . '/includes/header.php';
                                 <div class="font-extrabold text-gray-900 text-base group-hover:text-[#0052CC] transition-colors"><?= htmlspecialchars($u['full_name'] ?: 'ยังไม่กรอกโปรไฟล์') ?></div>
                             </td>
                             <td class="px-6 py-5 text-gray-600 font-bold"><span class="bg-gray-100 text-gray-700 px-2 py-1 rounded-md text-xs border border-gray-200"><?= htmlspecialchars($u['student_personnel_id'] ?: '-') ?></span></td>
+                            <td class="px-6 py-5"><?= $statusBadge ?></td>
                             <td class="px-6 py-5 text-gray-600 font-medium"><?= htmlspecialchars($u['phone_number'] ?: '-') ?></td>
                             <td class="px-6 py-5 text-xs text-gray-400 font-medium font-mono"><?= $createdDate ?></td>
                             <td class="px-6 py-5 text-center">
@@ -182,7 +197,7 @@ require_once __DIR__ . '/includes/header.php';
                             </td>
                             <td class="px-6 py-5 text-center">
                                 <?php if ($u['full_name']): ?>
-                                <button onclick="openEditModal(<?= $u['id'] ?>, '<?= $jsName ?>', '<?= $jsStudentId ?>', '<?= $jsPhone ?>')"
+                                <button onclick="openEditModal(<?= $u['id'] ?>, '<?= $jsName ?>', '<?= $jsStudentId ?>', '<?= $jsPhone ?>', '<?= $jsStatus ?>')"
                                         class="bg-amber-50 hover:bg-amber-100 border border-amber-100 text-amber-600 px-4 py-2.5 rounded-[10px] font-bold text-[11px] uppercase tracking-wider transition-colors inline-flex items-center justify-center gap-2 shadow-sm mx-auto">
                                     <i class="fa-solid fa-user-pen text-sm"></i> แก้ไข
                                 </button>
@@ -228,6 +243,16 @@ require_once __DIR__ . '/includes/header.php';
                     <label class="block text-xs uppercase tracking-wider font-bold text-gray-500 mb-1.5">เบอร์โทรศัพท์ (ไม่บังคับ)</label>
                     <input type="text" id="edit_phone" name="phone_number" class="w-full px-4 py-3 bg-white border border-gray-200 rounded-[14px] focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 outline-none font-prompt text-gray-800 font-bold shadow-sm transition-all focus:shadow-md tracking-wider">
                 </div>
+
+                <div>
+                    <label class="block text-xs uppercase tracking-wider font-bold text-gray-500 mb-1.5">ประเภทผู้ใช้งาน <span class="text-red-500">*</span></label>
+                    <select name="status" id="edit_status" required class="w-full px-4 py-3 bg-white border border-gray-200 rounded-[14px] focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 outline-none font-prompt text-gray-800 font-bold shadow-sm transition-all focus:shadow-md">
+                        <option value="">-- เลือกประเภท --</option>
+                        <option value="student">นักศึกษา</option>
+                        <option value="staff">บุคลากร/อาจารย์</option>
+                        <option value="external">บุคคลทั่วไป</option>
+                    </select>
+                </div>
             </div>
 
             <div class="p-5 border-t border-gray-100 bg-white flex gap-3">
@@ -240,11 +265,12 @@ require_once __DIR__ . '/includes/header.php';
 
 <script>
 // ฟังก์ชันโยนข้อมูลลงในช่องตอนเปิด Modal
-function openEditModal(id, name, studentId, phone) {
+function openEditModal(id, name, studentId, phone, status) {
     document.getElementById('edit_user_id').value = id;
     document.getElementById('edit_full_name').value = name;
     document.getElementById('edit_student_id').value = studentId;
     document.getElementById('edit_phone').value = phone;
+    document.getElementById('edit_status').value = status;
     
     document.getElementById('editModal').classList.remove('hidden');
 }

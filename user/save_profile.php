@@ -22,8 +22,9 @@ if ($lineUserId === '') {
 $fullName    = trim((string)($_POST['full_name'] ?? ''));
 $idNumber    = trim((string)($_POST['id_number'] ?? ''));
 $phoneNumber = trim((string)($_POST['phone_number'] ?? ''));
+$status      = trim((string)($_POST['status'] ?? ''));
 
-if ($fullName === '' || $idNumber === '' || $phoneNumber === '') {
+if ($fullName === '' || $idNumber === '' || $phoneNumber === '' || $status === '') {
     header('Location: profile.php?error=empty', true, 303);
     exit;
 }
@@ -36,7 +37,8 @@ try {
     $sql = "UPDATE med_students 
             SET full_name = :name, 
                 student_personnel_id = :sid, 
-                phone_number = :phone 
+                phone_number = :phone,
+                status = :status
             WHERE line_user_id = :line_id";
     
     $stmt = $pdo->prepare($sql);
@@ -44,6 +46,7 @@ try {
         ':name'    => $fullName,
         ':sid'     => $idNumber,
         ':phone'   => $phoneNumber,
+        ':status'  => $status,
         ':line_id' => $lineUserId
     ]);
 

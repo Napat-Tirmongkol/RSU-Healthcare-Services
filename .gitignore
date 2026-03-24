@@ -1,5 +1,11 @@
+# ซ่อนไฟล์ใดไฟล์หนึ่งแบบเจาะจง (พิมพ์ชื่อไฟล์เต็มๆ)
+secrets.php
 config/db_connect.php
-e_Borrow/includes/db_connect.php
-line_api/line_config.php
-e_Borrow/includes/line_config.php
-config/secrets.php
+
+# ซ่อนทั้งโฟลเดอร์ (ใส่เครื่องหมาย / ต่อท้าย)
+e_Borrow/uploads/
+node_modules/
+
+# ซ่อนไฟล์ทุกตัวที่มีนามสกุลตามที่กำหนด (ใช้เครื่องหมายดอกจัน *)
+*.sql
+*.log
