@@ -34,7 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['admin_role'] = $admin['role'];
 
             session_regenerate_id(true);
-            header('Location: index.php');
+            header('Location: ../portal/index.php');
             exit;
         } else {
             $error = 'ชื่อผู้ใช้ หรือ รหัสผ่านไม่ถูกต้อง';

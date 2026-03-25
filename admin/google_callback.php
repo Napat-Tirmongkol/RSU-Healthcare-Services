@@ -82,7 +82,7 @@ if ($admin) {
     $_SESSION['admin_role'] = $admin['role'];
 
     session_regenerate_id(true);
-    header("Location: index.php");
+    header("Location: ../portal/index.php");
     exit;
 } else {
     // ❌ ไม่พบอีเมลนี้ในรายชื่อแอดมินที่ได้รับอนุญาต

@@ -10,6 +10,25 @@ $totalUsers = $pdo->query("SELECT COUNT(*) FROM sys_users")->fetchColumn();
 $totalAdmins = $pdo->query("SELECT COUNT(*) FROM sys_admins")->fetchColumn();
 $activeCampaigns = $pdo->query("SELECT COUNT(*) FROM camp_list WHERE status = 'active'")->fetchColumn();
 
+// --- SSO Logic for Legacy e_Borrow ---
+// ให้แอดมินที่ล็อกอินผ่าน Portal มีสิทธิ์เข้าใช้งาน e_Borrow อัตโนมัติ (ถ้ามีรายชื่อใน sys_staff)
+if (!isset($_SESSION['user_id']) && isset($_SESSION['admin_username'])) {
+    $staff = $pdo->prepare("SELECT id, full_name, role FROM sys_staff WHERE username = :uname LIMIT 1");
+    $staff->execute([':uname' => $_SESSION['admin_username']]);
+    $staffData = $staff->fetch();
+    if ($staffData) {
+        $_SESSION['user_id'] = $staffData['id'];
+        $_SESSION['full_name'] = $staffData['full_name'];
+        $_SESSION['role'] = $staffData['role'];
+    } else {
+        // กรณีไม่มีรายชื่อพนักงาน แต่เป็นแอดมินสูงสุด ให้ใช้สิทธิ์แอดมินจำลอง
+        $_SESSION['user_id'] = $_SESSION['admin_id'] ?? 999;
+        $_SESSION['full_name'] = $_SESSION['admin_username'] ?? 'Administrator';
+        $_SESSION['role'] = 'admin';
+    }
+}
+// ------------------------------------
+
 ?>
 <!DOCTYPE html>
 <html lang="th">
