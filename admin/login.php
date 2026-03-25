@@ -18,14 +18,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = $_POST['username'] ?? '';
     $password = $_POST['password'] ?? '';
 
-    // TODO: เปลี่ยนเป็นการเช็คจากฐานข้อมูลได้ในอนาคต
-    if ($username === 'admin' && $password === '1234') {
-        $_SESSION['admin_logged_in'] = true;
-        $_SESSION['admin_username'] = 'Administrator';
-        header('Location: index.php');
-        exit;
-    } else {
-        $error = 'ชื่อผู้ใช้ หรือ รหัสผ่านไม่ถูกต้อง';
+    // ดึงข้อมูลจากฐานข้อมูล
+    try {
+        $pdo = db();
+        $stmt = $pdo->prepare("SELECT * FROM admin_users WHERE username = :uname LIMIT 1");
+        $stmt->execute([':uname' => $username]);
+        $admin = $stmt->fetch();
+
+        if ($admin && password_verify($password, $admin['password'])) {
+            // ✅ ล็อกอินสำเร็จ
+            $_SESSION['admin_logged_in'] = true;
+            $_SESSION['admin_id'] = $admin['id'];
+            $_SESSION['admin_username'] = $admin['full_name'] ?: $admin['username'];
+            $_SESSION['admin_email'] = $admin['email'];
+            $_SESSION['admin_role'] = $admin['role'];
+
+            session_regenerate_id(true);
+            header('Location: index.php');
+            exit;
+        } else {
+            $error = 'ชื่อผู้ใช้ หรือ รหัสผ่านไม่ถูกต้อง';
+        }
+    } catch (PDOException $e) {
+        $error = 'ระบบฐานข้อมูลขัดข้อง กรุณาลองใหม่ในภายหลัง';
     }
 }
 ?>
