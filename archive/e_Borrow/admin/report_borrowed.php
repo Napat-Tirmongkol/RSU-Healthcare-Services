@@ -45,23 +45,23 @@ try {
 // AJAX Handler
 if (isset($_GET['ajax_table'])) {
     if (empty($transactions)) {
-        echo '<tr><td colspan="6" style="text-align: center; padding: 20px; color: #888;">ไม่พบข้อมูลในช่วงเวลานี้</td></tr>';
+        echo '<tr><td colspan="6" style="text-align: center; padding: 20px;" class="text-muted">ไม่พบข้อมูลในช่วงเวลานี้</td></tr>';
     } else {
         foreach ($transactions as $item) {
-            $status_badge = ($item['status'] == 'returned') 
-                ? '<span class="badge bg-success"><i class="fas fa-check-circle"></i> คืนแล้ว</span>' 
-                : '<span class="badge bg-warning text-dark"><i class="fas fa-clock"></i> ยืมอยู่</span>';
+            $status_class = ($item['status'] == 'returned') ? 'available' : 'borrowed';
+            $status_label = ($item['status'] == 'returned') ? 'คืนแล้ว' : 'ยืมอยู่';
+            $status_badge = '<span class="badge status-badge '.$status_class.'">'.$status_label.'</span>';
             
             $return_txt = $item['return_date'] ? date('d/m/Y', strtotime($item['return_date'])) : '-';
 
             echo '<tr>
-                <td style="padding:15px;">
+                <td>
                     <strong>'.htmlspecialchars($item['type_name'] ?? 'N/A').'</strong><br>
                     <small class="text-muted">S/N: '.htmlspecialchars($item['serial_number'] ?? '-').'</small>
                 </td>
-                <td style="padding:15px;">
+                <td>
                     '.htmlspecialchars($item['student_name'] ?? '[Deleted User]').'<br>
-                    <small>'.htmlspecialchars($item['student_personnel_id'] ?? '').'</small>
+                    <small class="text-muted">'.htmlspecialchars($item['student_personnel_id'] ?? '').'</small>
                 </td>
                 <td>'.date('d/m/Y', strtotime($item['borrow_date'])).'</td>
                 <td>'.date('d/m/Y', strtotime($item['due_date'])).'</td>
@@ -79,37 +79,35 @@ include('../includes/header.php');
 ?>
 
 <div class="admin-wrap" style="padding:20px;">
-    <div class="header-row" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+    <div class="header-row" style="margin-bottom:20px;">
         <h2><i class="fas fa-chart-line"></i> รายงานการยืม-คืน</h2>
-        <div style="display:flex; gap:10px;">
-            <input type="date" id="report_start" class="form-control form-control-sm" value="<?php echo $start_date; ?>">
-            <input type="date" id="report_end" class="form-control form-control-sm" value="<?php echo $end_date; ?>">
-            <button onclick="refreshTable()" class="btn btn-primary btn-sm"><i class="fas fa-search"></i> กรอง</button>
-            <button onclick="window.print()" class="btn btn-outline-secondary btn-sm"><i class="fas fa-print"></i> พิมพ์</button>
+        <div style="display:flex; gap:10px; flex-wrap: wrap;">
+            <input type="date" id="report_start" class="form-control" style="width: auto;" value="<?php echo $start_date; ?>">
+            <input type="date" id="report_end" class="form-control" style="width: auto;" value="<?php echo $end_date; ?>">
+            <button onclick="refreshTable()" class="btn btn-primary"><i class="fas fa-search"></i> กรอง</button>
+            <button onclick="window.print()" class="btn btn-secondary"><i class="fas fa-print"></i> พิมพ์</button>
         </div>
     </div>
 
-    <div class="card" style="border-radius:12px; border:none; box-shadow:0 4px 15px rgba(0,0,0,0.05);">
-        <div class="table-responsive">
-            <table class="table table-hover align-middle">
-                <thead class="table-light">
-                    <tr>
-                        <th style="padding:15px;">อุปกรณ์</th>
-                        <th style="padding:15px;">ผู้ยืม</th>
-                        <th>วันที่ยืม</th>
-                        <th>กำหนดคืน</th>
-                        <th>วันที่คืนจริง</th>
-                        <th>สถานะ</th>
-                    </tr>
-                </thead>
-                <tbody id="reportTableBody">
-                    <!-- โหลดผ่าน AJAX หรือ Loop ด้านบน -->
-                    <?php if (empty($transactions)): ?>
-                        <tr><td colspan="6" style="text-align: center; padding:40px; color:#999;">ไม่พบประวัติการทำรายการ</td></tr>
-                    <?php endif; ?>
-                </tbody>
-            </table>
-        </div>
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>อุปกรณ์</th>
+                    <th>ผู้ยืม</th>
+                    <th>วันที่ยืม</th>
+                    <th>กำหนดคืน</th>
+                    <th>วันที่คืนจริง</th>
+                    <th>สถานะ</th>
+                </tr>
+            </thead>
+            <tbody id="reportTableBody">
+                <!-- โหลดผ่าน AJAX -->
+                <?php if (empty($transactions)): ?>
+                    <tr><td colspan="6" style="text-align: center; padding:40px;" class="text-muted">ไม่พบประวัติการทำรายการ</td></tr>
+                <?php endif; ?>
+            </tbody>
+        </table>
     </div>
 </div>
 

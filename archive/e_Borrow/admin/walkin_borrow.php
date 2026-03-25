@@ -39,17 +39,26 @@ include('../includes/header.php');
         padding: 0 15px;
     }
 
-    /* Dark Mode */
+    /* Dark Mode Overrides for Walk-in Page Components */
     body.dark-mode #student-info-box,
     body.dark-mode #item-info-box {
-        background-color: #2d3748 !important; 
-        border-left-color: #4a5568 !important; 
-        color: #e2e8f0 !important;
+        background-color: var(--color-page-bg) !important; 
+        border-left-color: var(--border-color) !important; 
+        color: var(--color-text-dark) !important;
     }
     body.dark-mode .search-input-group input {
-        background-color: #4a5568;
-        border-color: #718096;
-        color: #fff;
+        background-color: var(--color-page-bg);
+        border-color: var(--border-color);
+        color: var(--color-text-dark);
+    }
+    body.dark-mode #student-code-display {
+        color: var(--color-text-muted) !important;
+    }
+    body.dark-mode .table-container thead {
+        background: var(--color-page-bg) !important;
+    }
+    body.dark-mode .table-container tr {
+        border-bottom-color: var(--border-color) !important;
     }
 
     /* Mobile */
@@ -116,7 +125,7 @@ include('../includes/header.php');
             
             <form id="walkinForm">
                 
-                <div id="student-info-box" style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #ccc;">
+                <div id="student-info-box" style="background: var(--color-page-bg); padding: 15px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid var(--border-color);">
                     <label style="font-weight: bold; display:block; margin-bottom: 8px;">👤 ผู้ยืม (รหัสนักศึกษา/บุคลากร):</label>
                     
                     <div id="student-search-mode" class="search-input-group">
@@ -129,7 +138,7 @@ include('../includes/header.php');
                     <div id="student-display-mode" style="display: none; align-items: center; justify-content: space-between;">
                         <div>
                             <div id="student-name-display" style="font-weight: bold; font-size: 1.1em; color: var(--color-primary);"></div>
-                            <small id="student-code-display" style="color: #666;"></small>
+                            <small id="student-code-display" style="color: var(--color-text-muted);"></small>
                         </div>
                         <button type="button" class="btn btn-sm btn-secondary" onclick="resetStudent()">
                             <i class="fas fa-times"></i> เปลี่ยน
@@ -139,9 +148,9 @@ include('../includes/header.php');
                     <input type="hidden" name="student_id" id="input_student_id" required>
                 </div>
 
-                <div class="table-container" style="max-height: 300px; overflow-y: auto; border: 1px solid #eee; border-radius: 8px; margin-bottom: 15px;">
+                <div class="table-container" style="max-height: 300px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 15px;">
                     <table style="width: 100%; border-collapse: collapse;">
-                        <thead style="background: #f0f0f0; position: sticky; top: 0;">
+                        <thead style="background: var(--color-page-bg); position: sticky; top: 0;">
                             <tr>
                                 <th style="padding: 10px;">อุปกรณ์</th>
                                 <th style="padding: 10px; width: 80px;">ID/Serial</th>
@@ -150,7 +159,7 @@ include('../includes/header.php');
                         </thead>
                         <tbody id="cart-body">
                             <tr id="empty-cart-row">
-                                <td colspan="3" style="text-align: center; padding: 20px; color: #999;">ยังไม่มีรายการ</td>
+                                <td colspan="3" style="text-align: center; padding: 20px;" class="text-muted">ยังไม่มีรายการ</td>
                             </tr>
                         </tbody>
                     </table>
@@ -329,12 +338,12 @@ include('../includes/header.php');
         const tbody = document.getElementById('cart-body');
         tbody.innerHTML = '';
         if (cart.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="3" style="text-align: center; color: #999;">ยังไม่มีรายการ</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="3" style="text-align: center;" class="text-muted">ยังไม่มีรายการ</td></tr>`;
             checkFormReady(); return;
         }
         cart.forEach((item, index) => {
             tbody.innerHTML += `
-                <tr style="border-bottom: 1px solid #eee;">
+                <tr style="border-bottom: 1px solid var(--border-color);">
                     <td style="padding: 10px;">${item.name}</td>
                     <td style="padding: 10px; text-align: center; font-size: 0.9em;">${item.label.replace(item.name, '').trim() || item.id}</td>
                     <td style="padding: 10px; text-align: center;">
