@@ -41,11 +41,6 @@ $user_role = $_SESSION['role'] ?? 'employee';
         <i class="fas fa-chart-line"></i>
         <span>รายงาน</span>
     </a>
-    
-    <a href="admin/admin_log.php" class="<?php echo ($current_page == 'admin_log') ? 'active' : ''; ?>">
-        <i class="fas fa-history"></i>
-        <span>Log Admin</span>
-    </a>
     <?php endif; ?>
 </nav>
 
