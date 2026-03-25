@@ -158,8 +158,11 @@ require_once __DIR__ . '/includes/header.php';
                         <td class="p-6 text-center">
                             <div class="flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                                 <?php if($b['status'] === 'booked'): ?>
-                                    <button onclick="approveOne(<?= $b['booking_id'] ?>)" class="w-9 h-9 bg-blue-600 text-white rounded-xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all shadow-md shadow-blue-200"><i class="fa-solid fa-check"></i></button>
-                                    <button onclick="rejectOne(<?= $b['booking_id'] ?>)" class="w-9 h-9 bg-white border border-gray-100 text-red-500 rounded-xl flex items-center justify-center hover:bg-red-50 hover:text-red-600 hover:scale-110 active:scale-95 transition-all"><i class="fa-solid fa-xmark"></i></button>
+                                    <button onclick="approveOne(<?= $b['booking_id'] ?>)" class="w-9 h-9 bg-blue-600 text-white rounded-xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all shadow-md shadow-blue-200" title="Approve"><i class="fa-solid fa-check"></i></button>
+                                    <button onclick="rejectOne(<?= $b['booking_id'] ?>)" class="w-9 h-9 bg-white border border-gray-100 text-red-500 rounded-xl flex items-center justify-center hover:bg-red-50 hover:text-red-600 hover:scale-110 active:scale-95 transition-all" title="Reject"><i class="fa-solid fa-xmark"></i></button>
+                                <?php elseif($b['status'] === 'confirmed'): ?>
+                                    <button onclick="rescheduleOne(<?= $b['booking_id'] ?>)" class="w-9 h-9 bg-orange-50 text-orange-600 border border-orange-100 rounded-xl flex items-center justify-center hover:bg-orange-500 hover:text-white hover:scale-110 active:scale-95 transition-all shadow-sm" title="แจ้งเลื่อนคิว"><i class="fa-solid fa-clock-rotate-left"></i></button>
+                                    <button onclick='openDrawer(this.closest("tr").dataset.details)' class="text-gray-400 hover:text-blue-600 text-lg transition-colors ml-1"><i class="fa-solid fa-circle-info"></i></button>
                                 <?php else: ?>
                                     <button onclick='openDrawer(this.closest("tr").dataset.details)' class="text-gray-400 hover:text-blue-600 text-lg transition-colors"><i class="fa-solid fa-circle-info"></i></button>
                                 <?php endif; ?>
@@ -286,10 +289,19 @@ require_once __DIR__ . '/includes/header.php';
             </div>
         `;
 
-        footer.innerHTML = data.status === 'booked' ? `
-            <button onclick="approveOne(${data.booking_id})" class="flex-1 bg-blue-600 text-white py-5 rounded-2xl font-black uppercase tracking-widest text-xs shadow-xl shadow-blue-200">Approve Booking</button>
-            <button onclick="rejectOne(${data.booking_id})" class="flex-1 bg-white text-red-500 py-5 rounded-2xl font-black uppercase tracking-widest text-xs border border-gray-200">Reject</button>
-        ` : `<button onclick="closeDrawer()" class="w-full bg-gray-900 text-white py-5 rounded-2xl font-black uppercase tracking-widest text-xs">Close Profile</button>`;
+        if (data.status === 'booked') {
+            footer.innerHTML = `
+                <button onclick="approveOne(${data.booking_id})" class="flex-1 bg-blue-600 text-white py-5 rounded-2xl font-black uppercase tracking-widest text-xs shadow-xl shadow-blue-200">Approve Booking</button>
+                <button onclick="rejectOne(${data.booking_id})" class="flex-1 bg-white text-red-500 py-5 rounded-2xl font-black uppercase tracking-widest text-xs border border-gray-200">Reject</button>
+            `;
+        } else if (data.status === 'confirmed') {
+            footer.innerHTML = `
+                <button onclick="rescheduleOne(${data.booking_id})" class="flex-1 bg-orange-500 text-white py-5 rounded-2xl font-black uppercase tracking-widest text-xs shadow-xl shadow-orange-200">เลื่อนคิว (Reschedule)</button>
+                <button onclick="closeDrawer()" class="flex-1 bg-gray-900 text-white py-5 rounded-2xl font-black uppercase tracking-widest text-xs">Close</button>
+            `;
+        } else {
+            footer.innerHTML = `<button onclick="closeDrawer()" class="w-full bg-gray-900 text-white py-5 rounded-2xl font-black uppercase tracking-widest text-xs">Close Profile</button>`;
+        }
 
         drawer.classList.remove('hidden');
         overlay.classList.remove('hidden');
@@ -364,8 +376,40 @@ require_once __DIR__ . '/includes/header.php';
             confirmButtonText: 'Reject'
         }).then((result) => {
             if (result.isConfirmed) {
-                // Perform Ajax... (Placeholder for actual call)
-                Swal.fire('Rejected', 'The booking has been cancelled.', 'error').then(() => location.reload());
+                performApiCall('ajax_force_cancel.php', id, 'Rejected', 'error');
+            }
+        });
+    }
+
+    function rescheduleOne(id) {
+        Swal.fire({
+            title: 'ยืนยันการเลื่อนคิว?',
+            html: "ระบบจะแจ้งให้ผู้ใช้ทราบว่าคิวที่ยืนยันแล้วถูกยกเลิกเพื่อให้ <b>เลื่อนวันจองใหม่</b> พร้อมส่ง LINE อาหารเตือนทันที",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#f97316',
+            confirmButtonText: '<i class="fa-solid fa-paper-plane mr-2"></i> ยืนยันแจ้งเลื่อน',
+            cancelButtonText: 'ยกเลิก'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                performApiCall('ajax_force_cancel.php', id, 'แจ้งเลื่อนคิวสำเร็จ!', 'success');
+            }
+        });
+    }
+
+    function performApiCall(url, id, successTitle, icon) {
+        Swal.fire({ title: 'กำลังดำเนินการ...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
+        fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: 'appointment_id=' + id + '&csrf_token=<?= get_csrf_token() ?>'
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.status === 'success') {
+                Swal.fire({ title: successTitle, icon: icon, timer: 1500 }).then(() => location.reload());
+            } else {
+                Swal.fire('Error', data.message || 'เกิดข้อผิดพลาด', 'error');
             }
         });
     }
