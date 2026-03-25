@@ -12,21 +12,45 @@ $pdo = db();
 
 /**
  * 📊 (1) LIVE DATA AGGREGATION
- * ดึงสถิติจริงจากทุกโมดูลมาโชว์ที่หน้าเดียว
+ * ดึงสถิติจริงจากทุกโมดูล (พร้อมระบบป้องกัน Error กรณีตารางยังไม่ถูกสร้าง)
  */
 $stats = [
-    'users'    => (int)$pdo->query("SELECT COUNT(*) FROM sys_users")->fetchColumn(),
-    'admins'   => (int)$pdo->query("SELECT COUNT(*) FROM sys_admins")->fetchColumn(),
-    'camps'    => (int)$pdo->query("SELECT COUNT(*) FROM camp_list WHERE status = 'active'")->fetchColumn(),
-    'borrows'  => (int)$pdo->query("SELECT COUNT(*) FROM borrow_records WHERE approval_status = 'pending'")->fetchColumn(),
-    'returned' => (int)$pdo->query("SELECT COUNT(*) FROM borrow_records WHERE status = 'returned'")->fetchColumn()
+    'users'    => 0,
+    'admins'   => 0,
+    'camps'    => 0,
+    'borrows'  => 0,
+    'returned' => 0
 ];
+
+try {
+    $stats['users']   = (int)$pdo->query("SELECT COUNT(*) FROM sys_users")->fetchColumn();
+    $stats['admins']  = (int)$pdo->query("SELECT COUNT(*) FROM sys_admins")->fetchColumn();
+    $stats['camps']   = (int)$pdo->query("SELECT COUNT(*) FROM camp_list WHERE status = 'active'")->fetchColumn();
+    
+    // ตรวจสอบการยืม (เช็คก่อนว่าตารางมีอยู่จริงไหม)
+    $stmt_borrow = $pdo->query("SHOW TABLES LIKE 'borrow_records'");
+    if ($stmt_borrow->rowCount() > 0) {
+        $stats['borrows']  = (int)$pdo->query("SELECT COUNT(*) FROM borrow_records WHERE approval_status = 'pending'")->fetchColumn();
+        $stats['returned'] = (int)$pdo->query("SELECT COUNT(*) FROM borrow_records WHERE status = 'returned'")->fetchColumn();
+    }
+} catch (PDOException $e) {
+    // หากเกิด Error เฉพาะจุด ให้ใช้ค่าเริ่มต้น (0) ต่อไป หน้าเว็บจะไม่พัง
+    error_log("Portal Stats Error: " . $e->getMessage());
+}
 
 /**
  * 🕒 (2) RECENT ACTIVITY LOGS
- * ดึงกิจกรรมล่าสุด 5 รายการจากระบบ
+ * ดึงกิจกรรมล่าสุด 5 รายการจากระบบ (พร้อมระบบป้องกัน Error)
  */
-$recentLogs = $pdo->query("SELECT action_details, created_at, admin_username FROM activity_logs ORDER BY created_at DESC LIMIT 5")->fetchAll(PDO::FETCH_ASSOC);
+$recentLogs = [];
+try {
+    $stmt_logs = $pdo->query("SHOW TABLES LIKE 'activity_logs'");
+    if ($stmt_logs->rowCount() > 0) {
+        $recentLogs = $pdo->query("SELECT action_details, created_at, admin_username FROM activity_logs ORDER BY created_at DESC LIMIT 5")->fetchAll(PDO::FETCH_ASSOC);
+    }
+} catch (PDOException $e) {
+    error_log("Portal Logs Error: " . $e->getMessage());
+}
 
 /**
  * 🛡️ (3) SSO LOGIC FOR E-BORROW
