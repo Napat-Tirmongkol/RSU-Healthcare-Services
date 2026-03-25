@@ -23,55 +23,74 @@ if (!empty($search)) {
     $params[] = "%$search%";
 }
 
-// 2. ดึงจำนวนทั้งหมด (เพื่อทำ Pagination)
-$count_sql = "SELECT COUNT(*) FROM sys_activity_logs l $where";
-$stmt_count = $pdo->prepare($count_sql);
-$stmt_count->execute($params);
-$total_records = $stmt_count->fetchColumn();
-$total_pages = ceil($total_records / $limit);
+try {
+    // 2. ดึงจำนวนทั้งหมด (เพื่อทำ Pagination)
+    $count_sql = "SELECT COUNT(*) FROM sys_activity_logs l $where";
+    $stmt_count = $pdo->prepare($count_sql);
+    $stmt_count->execute($params);
+    $total_records = $stmt_count->fetchColumn();
+    $total_pages = ceil($total_records / $limit);
 
-// 3. ดึงข้อมูล Log พร้อม JOIN ทั้ง Admins และ Staff
-$sql = "SELECT l.*, 
-               COALESCE(a.full_name, s.full_name, 'System Activity') as actor_name,
-               COALESCE(a.username, s.username, 'system') as actor_username
-        FROM sys_activity_logs l
-        LEFT JOIN sys_admins a ON l.user_id = a.id
-        LEFT JOIN sys_staff s ON l.user_id = s.id
-        $where
-        ORDER BY l.created_at DESC 
-        LIMIT $limit OFFSET $offset";
+    // 3. ดึงข้อมูล Log
+    $sql = "SELECT l.*, 
+                   COALESCE(a.full_name, 'System Activity') as actor_name,
+                   COALESCE(a.username, 'system') as actor_username
+            FROM sys_activity_logs l
+            LEFT JOIN sys_admins a ON l.user_id = a.id
+            $where
+            ORDER BY l.created_at DESC 
+            LIMIT $limit OFFSET $offset";
 
-$stmt = $pdo->prepare($sql);
-$stmt->execute($params);
-$logs = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute($params);
+    $logs = $stmt->fetchAll(PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+    // ถ้ามีปัญหาที่ Database (เช่น ตารางไม่มีอยู่จริง) ให้แสดง Error และหยุดการทำงานเบื้องต้นเพื่อให้ตรวจสอบได้
+    $db_error = $e->getMessage();
+    $logs = [];
+    $total_records = 0;
+    $total_pages = 0;
+}
 
-include 'includes/header.php';
+require_once __DIR__ . '/includes/header.php';
 ?>
 
-<div class="p-6">
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-        <div>
-            <h1 class="text-2xl font-bold text-gray-900">บันทึกกิจกรรมระบบ (Activity Logs)</h1>
-            <p class="text-gray-500 text-sm mt-1">ติดตามทุกการเคลื่อนไหวและการเข้าถึงระบบเพื่อความปลอดภัย</p>
-        </div>
-        
-        <form action="" method="GET" class="flex gap-2">
-            <div class="relative">
-                <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
-                <input type="text" name="search" value="<?= htmlspecialchars($search) ?>" 
-                    placeholder="ค้นหากิจกรรม..." 
-                    class="pl-9 pr-4 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none w-64 bg-white shadow-sm transition-all">
+<?php if (isset($db_error)): ?>
+    <div class="mb-6 p-6 bg-red-50 border-2 border-red-200 rounded-3xl animate-slide-up">
+        <div class="flex items-center gap-4 text-red-600">
+            <div class="w-12 h-12 bg-red-100 rounded-2xl flex items-center justify-center text-2xl">
+                <i class="fa-solid fa-triangle-exclamation"></i>
             </div>
-            <button type="submit" class="bg-[#0052CC] text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-blue-700 transition-colors shadow-sm">
-                <i class="fa-solid fa-filter mr-2"></i> กรอง
-            </button>
-            <?php if ($search): ?>
-                <a href="activity_logs.php" class="bg-gray-100 text-gray-600 px-4 py-2 rounded-xl text-sm font-medium hover:bg-gray-200 transition-colors shadow-sm flex items-center">
-                    <i class="fa-solid fa-times"></i>
-                </a>
-            <?php endif; ?>
-        </form>
+            <div>
+                <h3 class="font-black text-lg">ตรวจพบข้อผิดพลาดที่ฐานข้อมูล</h3>
+                <p class="text-sm opacity-80 font-medium">ไม่สามารถโหลดบันทึกกิจกรรมได้ในขณะนี้: <?= htmlspecialchars($db_error) ?></p>
+            </div>
+        </div>
+        <div class="mt-4 p-3 bg-white/50 rounded-xl text-xs font-mono text-red-800 break-all">
+            SQL Error: <?= htmlspecialchars($db_error) ?>
+        </div>
+        <p class="mt-4 text-xs text-red-500 font-bold">⚠️ คำแนะนำ: ตรวจสอบว่ามีตาราง "sys_activity_logs" ในฐานข้อมูล "e-campaignv2_db" หรือยัง</p>
     </div>
+<?php endif; ?>
+
+<?php
+// ACTION BAR HTML
+$header_actions = '
+<form action="" method="GET" class="flex gap-2">
+    <div class="relative">
+        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+        <input type="text" name="search" value="' . htmlspecialchars($search) . '" 
+            placeholder="ค้นหากิจกรรม..." 
+            class="pl-9 pr-4 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none w-64 bg-white shadow-sm transition-all font-prompt">
+    </div>
+    <button type="submit" class="bg-[#0052CC] text-white px-5 py-2 rounded-xl text-sm font-bold hover:bg-blue-700 transition-colors shadow-sm">
+        ค้นหา
+    </button>' . ($search ? '<a href="activity_logs.php" class="bg-gray-100 text-gray-600 px-3 py-2 rounded-xl text-sm font-medium hover:bg-gray-200 transition-colors shadow-sm flex items-center"><i class="fa-solid fa-times"></i></a>' : '') . '
+</form>';
+
+renderPageHeader("บันทึกกิจกรรมระบบ (Activity Logs)", "ติดตามทุกการเคลื่อนไหวและการเข้าถึงระบบเพื่อความปลอดภัย", $header_actions); 
+?>
+<div class="animate-slide-up delay-100">
 
     <!-- Log Table Section -->
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
