@@ -8,7 +8,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <base href="<?php echo explode('/e_Borrow', $_SERVER['SCRIPT_NAME'])[0] . '/e_Borrow/'; ?>">
+    <base href="<?php echo explode('/deprecated/e_Borrow', $_SERVER['SCRIPT_NAME'])[0] . '/deprecated/e_Borrow/'; ?>">
     <style>
         /* Smooth Page Transition */
         body { opacity: 1; transition: opacity 0.25s ease-out, transform 0.25s ease-out; }
