@@ -68,37 +68,37 @@ try {
     </div>
 
     <!-- ส่วนเนื้อหาหลัก (ตาราง) -->
-    <div class="table-container" style="background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
-        <table class="table table-hover" style="width: 100%; margin: 0;">
-            <thead style="background: #f8f9fa;">
+    <div class="table-container">
+        <table>
+            <thead>
                 <tr>
-                    <th style="padding: 15px;">ชื่อประเภทอุปกรณ์</th>
-                    <th style="padding: 15px;">รายละเอียด</th>
-                    <th style="padding: 15px; text-align: center;">จำนวน (ว่าง / ทั้งหมด)</th>
-                    <th style="padding: 15px; text-align: center;">จัดการ</th>
+                    <th>ชื่อประเภทอุปกรณ์</th>
+                    <th>รายละเอียด</th>
+                    <th style="text-align: center;">จำนวน (ว่าง / ทั้งหมด)</th>
+                    <th style="text-align: center;">จัดการ</th>
                 </tr>
             </thead>
             <tbody>
                 <?php if (empty($equipment_types)): ?>
                     <tr>
-                        <td colspan="4" style="text-align: center; padding: 40px; color: #999;">ไม่พบข้อมูลประเภทอุปกรณ์</td>
+                        <td colspan="4" style="text-align: center; padding: 40px;">ไม่พบข้อมูลประเภทอุปกรณ์</td>
                     </tr>
                 <?php else: ?>
                     <?php foreach ($equipment_types as $type): ?>
                         <tr>
-                            <td style="padding: 15px;"><strong><?php echo htmlspecialchars($type['name']); ?></strong></td>
-                            <td style="padding: 15px; color: #666; font-size: 0.9em;"><?php echo htmlspecialchars($type['description'] ?? '-'); ?></td>
-                            <td style="padding: 15px; text-align: center;">
-                                <span class="badge" style="background: #e1f5fe; color: #01579b; font-size: 14px; padding: 6px 12px; border-radius: 20px;">
+                            <td><strong><?php echo htmlspecialchars($type['name']); ?></strong></td>
+                            <td><span class="text-muted"><?php echo htmlspecialchars($type['description'] ?? '-'); ?></span></td>
+                            <td style="text-align: center;">
+                                <span class="badge status-badge borrowed-ok">
                                     <?php echo $type['available_quantity']; ?> / <?php echo $type['total_quantity']; ?>
                                 </span>
                             </td>
-                            <td style="padding: 15px; text-align: center;">
-                                <div style="display: flex; justify-content: center; gap: 8px;">
-                                    <a href="admin/manage_items.php?type_id=<?php echo $type['id']; ?>" class="btn btn-sm btn-outline-primary" style="padding: 5px 10px;">
+                            <td>
+                                <div class="action-buttons">
+                                    <a href="admin/manage_items.php?type_id=<?php echo $type['id']; ?>" class="btn btn-return">
                                         <i class="fas fa-list-ol"></i> อุปกรณ์รายชิ้น
                                     </a>
-                                    <button class="btn btn-sm btn-outline-secondary" onclick="openEditTypePopup(<?php echo $type['id']; ?>)">
+                                    <button class="btn btn-secondary" onclick="openEditTypePopup(<?php echo $type['id']; ?>)">
                                         <i class="fas fa-edit"></i> แก้ไข
                                     </button>
                                 </div>

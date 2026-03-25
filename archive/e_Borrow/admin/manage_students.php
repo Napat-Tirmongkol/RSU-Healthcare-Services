@@ -39,81 +39,78 @@ include('../includes/header.php');
 
 <div class="admin-wrap" style="padding:20px;">
     <!-- ส่วนผู้ใช้ทั่วไป -->
-    <div class="header-row" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+    <div class="header-row" style="margin-bottom:10px;">
         <h2><i class="fas fa-users"></i> ผู้ใช้งานทั้งหมดในระบบ (Portal)</h2>
     </div>
 
-    <div class="card mb-4" style="border-radius:12px; border:none; box-shadow:0 4px 15px rgba(0,0,0,0.05);">
-        <div class="table-responsive">
-            <table class="table table-hover align-middle">
-                <thead class="table-light">
-                    <tr>
-                        <th style="padding:15px;">ชื่อ-นามสกุล</th>
-                        <th>รหัสประจำตัว</th>
-                        <th>เบอร์โทรศัพท์</th>
-                        <th>เชื่อมต่อ</th>
-                        <th>จัดการ</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php if (empty($students)): ?>
-                        <tr><td colspan="5" style="text-align: center; padding:40px; color:#999;">ไม่พบข้อมูลผู้ใช้งาน</td></tr>
-                    <?php else: ?>
-                        <?php foreach ($students as $student): ?>
-                            <tr>
-                                <td style="padding:15px;"><strong><?php echo htmlspecialchars($student['full_name']); ?></strong></td>
-                                <td><?php echo htmlspecialchars($student['student_personnel_id'] ?? '-'); ?></td>
-                                <td><?php echo htmlspecialchars($student['phone_number'] ?? '-'); ?></td>
-                                <td>
-                                    <?php echo ($student['line_user_id']) 
-                                        ? '<span class="badge bg-success"><i class="fab fa-line"></i> LINE</span>' 
-                                        : '<span class="badge bg-secondary">System</span>'; ?>
-                                </td>
-                                <td>
-                                    <button onclick="openEditStudentPopup(<?php echo $student['id']; ?>)" class="btn btn-sm btn-outline-primary">แก้ไข</button>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
-                </tbody>
-            </table>
-        </div>
+    <div class="table-container mb-4">
+        <table>
+            <thead>
+                <tr>
+                    <th style="padding:15px;">ชื่อ-นามสกุล</th>
+                    <th>รหัสประจำตัว</th>
+                    <th>เบอร์โทรศัพท์</th>
+                    <th>เชื่อมต่อ</th>
+                    <th>จัดการ</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php if (empty($students)): ?>
+                    <tr><td colspan="5" style="text-align: center; padding:40px;" class="text-muted">ไม่พบข้อมูลผู้ใช้งาน</td></tr>
+                <?php else: ?>
+                    <?php foreach ($students as $student): ?>
+                        <tr>
+                            <td style="padding:15px;"><strong><?php echo htmlspecialchars($student['full_name']); ?></strong></td>
+                            <td><?php echo htmlspecialchars($student['student_personnel_id'] ?? '-'); ?></td>
+                            <td><?php echo htmlspecialchars($student['phone_number'] ?? '-'); ?></td>
+                            <td>
+                                <?php echo ($student['line_user_id']) 
+                                    ? '<span class="badge status-badge borrowed-ok"><i class="fab fa-line"></i> LINE</span>' 
+                                    : '<span class="badge status-badge grey">System</span>'; ?>
+                            </td>
+                            <td>
+                                <button onclick="openEditStudentPopup(<?php echo $student['id']; ?>)" class="btn btn-secondary btn-sm">แก้ไข</button>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </tbody>
+        </table>
     </div>
 
     <!-- ส่วนบัญชีพนักงาน -->
-    <div class="header-row" style="display:flex; justify-content:space-between; align-items:center; margin:40px 0 20px 0;">
+    <div class="header-row" style="margin:40px 0 10px 0;">
         <h2><i class="fas fa-user-shield"></i> บัญชีพนักงาน (Admin/Staff)</h2>
     </div>
 
-    <div class="card" style="border-radius:12px; border:none; box-shadow:0 4px 15px rgba(0,0,0,0.05);">
-        <div class="table-responsive">
-            <table class="table table-hover align-middle">
-                <thead class="table-light">
-                    <tr>
-                        <th style="padding:15px;">Username</th>
-                        <th>ชื่อ-นามสกุล</th>
-                        <th>ระดับสิทธิ์</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php if (empty($staff_accounts)): ?>
-                        <tr><td colspan="3" style="text-align: center; padding:40px; color:#999;">ไม่พบข้อมูลบัญชีพนักงาน</td></tr>
-                    <?php else: ?>
-                        <?php foreach ($staff_accounts as $staff): ?>
-                            <tr>
-                                <td style="padding:15px;"><code><?php echo htmlspecialchars($staff['username']); ?></code></td>
-                                <td><?php echo htmlspecialchars($staff['full_name']); ?></td>
-                                <td>
-                                    <span class="badge <?php echo ($staff['role'] == 'admin') ? 'bg-danger' : 'bg-primary'; ?>">
-                                        <?php echo strtoupper($staff['role']); ?>
-                                    </span>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
-                </tbody>
-            </table>
-        </div>
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th style="padding:15px;">Username</th>
+                    <th>ชื่อ-นามสกุล</th>
+                    <th>ระดับสิทธิ์</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php if (empty($staff_accounts)): ?>
+                    <tr><td colspan="3" style="text-align: center; padding:40px;" class="text-muted">ไม่พบข้อมูลบัญชีพนักงาน</td></tr>
+                <?php else: ?>
+                    <?php foreach ($staff_accounts as $staff): ?>
+                        <tr>
+                            <td style="padding:15px;"><code><?php echo htmlspecialchars($staff['username']); ?></code></td>
+                            <td><strong><?php echo htmlspecialchars($staff['full_name']); ?></strong></td>
+                            <td>
+                                <?php 
+                                    $role_badge = ($staff['role'] == 'admin') ? 'red' : 'borrowed-ok';
+                                    echo '<span class="badge status-badge '.$role_badge.'">'.strtoupper($staff['role']).'</span>';
+                                ?>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </tbody>
+        </table>
     </div>
 </div>
 

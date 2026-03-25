@@ -66,22 +66,22 @@ include('../includes/header.php');
         <h2><i class="fas fa-undo-alt"></i> 📦 รายการอุปกรณ์ที่ต้องรับคืน</h2>
     </div>
 
-    <div class="table-container" style="background: white; padding: 20px; border-radius: 12px; shadow: 0 4px 6px rgba(0,0,0,0.1);">
-        <table style="width: 100%; border-collapse: collapse;">
+    <div class="table-container">
+        <table>
             <thead>
-                <tr style="border-bottom: 2px solid #eee; text-align: left;">
-                    <th style="padding: 12px;">อุปกรณ์</th>
-                    <th style="padding: 12px;">เลขซีเรียล</th>
-                    <th style="padding: 12px;">ผู้ยืม</th>
-                    <th style="padding: 12px;">วันที่ยืม</th>
-                    <th style="padding: 12px;">วันที่กำหนดคืน</th>
-                    <th style="padding: 12px;">จัดการ</th>
+                <tr>
+                    <th>อุปกรณ์</th>
+                    <th>เลขซีเรียล</th>
+                    <th>ผู้ยืม</th>
+                    <th>วันที่ยืม</th>
+                    <th>วันที่กำหนดคืน</th>
+                    <th>จัดการ</th>
                 </tr>
             </thead>
             <tbody>
                 <?php if (empty($borrowed_items)): ?>
                     <tr>
-                        <td colspan="6" style="text-align: center; padding: 40px; color: #999;">ไม่มีอุปกรณ์ที่กำลังถูกยืมในขณะนี้</td>
+                        <td colspan="6" style="text-align: center; padding: 40px;">ไม่มีอุปกรณ์ที่กำลังถูกยืมในขณะนี้</td>
                     </tr>
                 <?php else: ?>
                     <?php foreach ($borrowed_items as $row): ?>
@@ -92,21 +92,22 @@ include('../includes/header.php');
                             $is_fine_paid = ($row['fine_status'] == 'paid');
                             $calculated_fine = $days_overdue * FINE_RATE_PER_DAY;
                         ?>
-                        <tr style="border-bottom: 1px solid #f9f9f9;">
-                            <td style="padding: 12px;"><strong><?php echo htmlspecialchars($row['equipment_name']); ?></strong></td>
-                            <td style="padding: 12px;"><?php echo htmlspecialchars($row['equipment_serial'] ?? '-'); ?></td>
-                            <td style="padding: 12px;">
+                        <tr>
+                            <td><strong><?php echo htmlspecialchars($row['equipment_name']); ?></strong></td>
+                            <td><?php echo htmlspecialchars($row['equipment_serial'] ?? '-'); ?></td>
+                            <td>
                                 <?php echo htmlspecialchars($row['borrower_name'] ?? '[N/A]'); ?><br>
-                                <small style="color: #666;"><?php echo htmlspecialchars($row['borrower_contact'] ?? '-'); ?></small>
+                                <small class="text-muted"><?php echo htmlspecialchars($row['borrower_contact'] ?? '-'); ?></small>
                             </td>
-                            <td style="padding: 12px;"><?php echo date('d/m/Y', strtotime($row['borrow_date'])); ?></td>
-                            <td style="padding: 12px; color: <?php echo $is_overdue ? '#dc3545' : 'inherit'; ?>; font-weight: <?php echo $is_overdue ? 'bold' : 'normal'; ?>;">
+                            <td><?php echo date('d/m/Y', strtotime($row['borrow_date'])); ?></td>
+                            <td style="color: <?php echo $is_overdue ? '#dc3545' : 'inherit'; ?>; font-weight: <?php echo $is_overdue ? 'bold' : 'normal'; ?>;">
                                 <?php echo date('d/m/Y', strtotime($row['due_date'])); ?>
                                 <?php if($is_overdue): ?> <br><span style="font-size: 10px;">(เกิน <?php echo $days_overdue; ?> วัน)</span> <?php endif; ?>
                             </td>
-                            <td style="padding: 12px;">
+                            <td>
+                                <div class="action-buttons">
                                 <?php if ($is_overdue && !$is_fine_paid): ?>
-                                    <button type="button" class="btn btn-danger" style="background: #dc3545; color: white; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer;"
+                                    <button type="button" class="btn btn-danger"
                                             onclick="openFineAndReturnPopup(
                                                 <?php echo $row['transaction_id']; ?>,
                                                 <?php echo $row['student_id'] ?? 0; ?>,
@@ -119,11 +120,12 @@ include('../includes/header.php');
                                         <i class="fas fa-dollar-sign"></i> ชำระค่าปรับ
                                     </button>
                                 <?php else: ?>
-                                    <button type="button" class="btn btn-primary" style="background: #007bff; color: white; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer;"
+                                    <button type="button" class="btn btn-return"
                                             onclick="openReturnPopup(<?php echo $row['equipment_id']; ?>)">
                                         <i class="fas fa-undo"></i> รับคืน
                                     </button>
                                 <?php endif; ?>
+                                </div>
                             </td>
                         </tr>
                     <?php endforeach; ?>

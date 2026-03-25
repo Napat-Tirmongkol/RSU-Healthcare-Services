@@ -17,7 +17,7 @@ if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], $allowed_roles)) {
 
 // 1. ฟังก์ชัน Render แถวข้อมูล (แก้ไข SQL Join ใน Query แทนการแก้วนลูป)
 function renderOverdueRows($data) {
-    if (empty($data)) return '<tr><td colspan="6" style="text-align: center; padding: 20px; color: #999;">ไม่มีรายการเกินกำหนดที่ต้องจัดการ</td></tr>';
+    if (empty($data)) return '<tr><td colspan="6" style="text-align: center; padding: 20px;" class="text-muted">ไม่มีรายการเกินกำหนดที่ต้องจัดการ</td></tr>';
     $html = '';
     foreach ($data as $item) {
         $days_overdue = (int)$item['days_overdue'];
@@ -33,7 +33,7 @@ function renderOverdueRows($data) {
             <td style="text-align: center; font-weight: bold;">'.$days_overdue.'</td>
             <td style="text-align: right; font-weight: bold; color: #dc3545;">'.number_format($calculated_fine, 2).'</td>
             <td class="action-buttons">
-                <button type="button" class="btn btn-success" style="background:#28a745; color:white; border:none; padding:5px 10px; border-radius:4px;"
+                <button type="button" class="btn btn-return"
                     onclick="openDirectPaymentPopup('.$item['transaction_id'].', '.($item['student_id'] ?? 0).', \''.$s_name.'\', \''.$e_name.'\', '.$days_overdue.', '.$calculated_fine.')">
                     <i class="fas fa-hand-holding-usd"></i> ชำระเงิน
                 </button>
@@ -44,17 +44,17 @@ function renderOverdueRows($data) {
 }
 
 function renderHistoryRows($data) {
-    if (empty($data)) return '<tr><td colspan="6" style="text-align: center; padding: 20px; color: #999;">ไม่พบประวัติในช่วงเวลานี้</td></tr>';
+    if (empty($data)) return '<tr><td colspan="6" style="text-align: center; padding: 20px;" class="text-muted">ไม่พบประวัติในช่วงเวลานี้</td></tr>';
     $html = '';
     foreach ($data as $fine) {
         $html .= '<tr>
             <td>'.htmlspecialchars($fine['student_name'] ?? '[N/A]').'</td>
             <td>'.htmlspecialchars($fine['equipment_name'] ?? 'N/A').'</td>
             <td><strong>'.number_format((float)$fine['amount_paid'], 2).'</strong></td>
-            <td><span class="badge bg-success"><i class="fas fa-check-circle"></i> ชำระแล้ว</span></td>
-            <td>'.htmlspecialchars($fine['staff_name'] ?? '[N/A]').'<br><small>'.date('d/m/Y H:i', strtotime($fine['payment_date'])).'</small></td>
+            <td><span class="badge status-badge borrowed-ok"><i class="fas fa-check-circle"></i> ชำระแล้ว</span></td>
+            <td>'.htmlspecialchars($fine['staff_name'] ?? '[N/A]').'<br><small class="text-muted">'.date('d/m/Y H:i', strtotime($fine['payment_date'])).'</small></td>
             <td>
-                <a href="admin/print_receipt.php?payment_id='.$fine['payment_id'].'" target="_blank" class="btn btn-sm btn-outline-secondary"><i class="fas fa-print"></i></a>
+                <a href="admin/print_receipt.php?payment_id='.$fine['payment_id'].'" target="_blank" class="btn btn-secondary btn-sm"><i class="fas fa-print"></i></a>
             </td>
         </tr>';
     }
@@ -120,41 +120,37 @@ include('../includes/header.php');
     </div>
 
     <!-- ส่วนที่ 1: รายการค้างจ่าย -->
-    <div class="card mb-4" style="border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.05); border:none;">
-        <div class="card-header bg-white" style="border-bottom:1px solid #eee; padding:15px;">
-            <h5 class="mb-0 text-danger"><i class="fas fa-exclamation-circle"></i> รายการค้างชำระ (Overdue)</h5>
+    <div class="table-container mb-4">
+        <div class="header-row" style="margin-bottom: 5px;">
+            <h3 class="mb-0" style="color:#ef4444;"><i class="fas fa-exclamation-circle"></i> รายการค้างชำระ (Overdue)</h3>
         </div>
-        <div class="table-responsive">
-            <table class="table align-middle">
-                <thead class="table-light">
-                    <tr>
-                        <th>ผู้ยืม</th><th>อุปกรณ์</th><th>กำหนดคืน</th><th>เกินกำหนด</th><th>ค่าปรับ</th><th>จัดการ</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php echo renderOverdueRows($overdue_unfined); ?>
-                </tbody>
-            </table>
-        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>ผู้ยืม</th><th>อุปกรณ์</th><th>กำหนดคืน</th><th>เกินกำหนด</th><th>ค่าปรับ</th><th>จัดการ</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php echo renderOverdueRows($overdue_unfined); ?>
+            </tbody>
+        </table>
     </div>
 
     <!-- ส่วนที่ 2: ประวัติการชำระ -->
-    <div class="card" style="border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.05); border:none;">
-        <div class="card-header bg-white" style="border-bottom:1px solid #eee; padding:15px;">
-            <h5 class="mb-0 text-success"><i class="fas fa-history"></i> ประวัติการรับชำระเงิน</h5>
+    <div class="table-container">
+        <div class="header-row" style="margin-bottom: 5px;">
+            <h3 class="mb-0" style="color:#22c55e;"><i class="fas fa-history"></i> ประวัติการรับชำระเงิน</h3>
         </div>
-        <div class="table-responsive">
-            <table class="table align-middle">
-                <thead class="table-light">
-                    <tr>
-                        <th>ผู้ยืม</th><th>อุปกรณ์</th><th>ยอดเงิน</th><th>สถานะ</th><th>ผู้รับชำระ</th><th>จัดการ</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php echo renderHistoryRows($fines_list); ?>
-                </tbody>
-            </table>
-        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>ผู้ยืม</th><th>อุปกรณ์</th><th>ยอดเงิน</th><th>สถานะ</th><th>ผู้รับชำระ</th><th>จัดการ</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php echo renderHistoryRows($fines_list); ?>
+            </tbody>
+        </table>
     </div>
 </div>
 
