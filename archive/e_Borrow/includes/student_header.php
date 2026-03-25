@@ -1,6 +1,5 @@
 <?php
-// [������: napat-tirmongkol/e-borrow/E-Borrow-c4df732f98db10bf52a8e9d7299e212b6f2abd37/includes/student_header.php]
-// includes/student_header.php (��Ѻ����ó����������)
+// includes/student_header.php
 @session_start(); 
 ?>
 <!DOCTYPE html>
@@ -11,7 +10,7 @@
 
     <base href="<?php echo explode('/e_Borrow', $_SERVER['SCRIPT_NAME'])[0] . '/e_Borrow/'; ?>">
 
-    <title><?php echo isset($page_title) ? $page_title : '�к�����׹�ػ�ó�'; ?></title>
+    <title><?php echo isset($page_title) ? $page_title : 'ระบบยืม-คืนอุปกรณ์'; ?></title>
     
     <script>
         (function() {
@@ -47,24 +46,23 @@
 <body class="page-transitioning">
 
 <script>
-    // ���������� fade-in �������Ŵ˹������
     window.addEventListener('DOMContentLoaded', () => {
         document.body.classList.remove('page-transitioning');
     });
 </script>
 
     <header class="header">
-        <h1>MedLoan (����Ѻ�����ҹ)</h1>
+        <h1>MedLoan (สำหรับนักศึกษา)</h1>
         
         <div class="user-info">
             
-            <button type="button" class="theme-toggle-btn" id="theme-toggle-btn" title="��Ѻ����">
+            <button type="button" class="theme-toggle-btn" id="theme-toggle-btn" title="ปรับธีม">
                 <i class="fas fa-moon"></i> <i class="fas fa-sun"></i>
             </button>
-            ���ʴ�, <?php echo htmlspecialchars($_SESSION['student_full_name']); ?>
+            <?php echo htmlspecialchars($_SESSION['student_full_name'] ?? 'ผู้ใช้'); ?>
             
             <a href="logout.php" class="btn btn-logout">
-                <i class="fa-solid fa-arrow-right-from-bracket"></i> �͡�ҡ�к�
+                <i class="fa-solid fa-arrow-right-from-bracket"></i> ออกจากระบบ
             </a>
         </div>
     </header>

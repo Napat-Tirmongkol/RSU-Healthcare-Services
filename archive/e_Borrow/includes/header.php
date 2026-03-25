@@ -1,6 +1,5 @@
 <?php
 // includes/header.php
-// ปรับปรุง Path และความเสถียรของลิงก์ภายใน Header สำหรับระบบ Archive
 @session_start();
 
 // ดึง Base Path ของ e_Borrow มาใช้เพื่อความแม่นยำของ Assets
@@ -19,7 +18,7 @@ $base_url = explode('/archive/e_Borrow', $_SERVER['SCRIPT_NAME'])[0] . '/archive
         body.page-transitioning { opacity: 0; transform: translateY(10px); }
     </style>
     
-    <title><?php echo isset($page_title) ? $page_title : 'ระบบยืมคืนอุปกรณ์'; ?></title>
+    <title><?php echo isset($page_title) ? $page_title : 'ระบบยืม-คืนอุปกรณ์'; ?></title>
     
     <script>
         (function() {
@@ -44,11 +43,11 @@ $base_url = explode('/archive/e_Borrow', $_SERVER['SCRIPT_NAME'])[0] . '/archive
     </script>
 
     <header class="header"> 
-        <h1>E-Borrow - (ระบบ ยืม-คืน อุปกรณ์)</h1>
+        <h1>E-Borrow (ระบบ ยืม-คืน อุปกรณ์)</h1>
         
         <div class="user-info"> 
             <div class="user-greeting">
-                สวัสดี, <strong><?php echo htmlspecialchars($_SESSION['full_name'] ?? 'Guest'); ?></strong>
+                สวัสดี, <strong><?php echo htmlspecialchars($_SESSION['full_name'] ?? 'ผู้ใช้'); ?></strong>
                 (<?php 
                     $role = $_SESSION['role'] ?? 'viewer';
                     if ($role == 'admin') {
@@ -66,7 +65,6 @@ $base_url = explode('/archive/e_Borrow', $_SERVER['SCRIPT_NAME'])[0] . '/archive
                 <i class="fas fa-sun"></i>
             </button>
             
-            <!-- แก้ไขลิงก์ Logout ให้มองจาก Base URL -->
             <a href="admin/logout.php" class="btn btn-logout" title="ออกจากระบบ">
                 <i class="fa-solid fa-arrow-right-from-bracket"></i>
                 <span class="logout-text">ออกจากระบบ</span>

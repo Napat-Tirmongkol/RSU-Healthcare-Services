@@ -1,7 +1,5 @@
 <?php
 // includes/footer.php
-// ปรับปรุงใหม่: ลิงก์ต้องสัมพันธ์กับ Base URL ที่ระบุไว้ใน header.php
-
 $current_page = $current_page ?? 'index'; 
 $user_role = $_SESSION['role'] ?? 'employee'; 
 ?>
@@ -44,7 +42,7 @@ $user_role = $_SESSION['role'] ?? 'employee';
     <?php endif; ?>
 </nav>
 
-<!-- Scripts (สัมพันธ์กับ Base URL ดังนั้นไม่ต้องใช้ ../) -->
+<!-- Scripts -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
@@ -55,7 +53,7 @@ $user_role = $_SESSION['role'] ?? 'employee';
 
 <script>
     // --- Auto Logout Logic ---
-    const INACTIVITY_LIMIT = 18000000; // 5 ชั่วโมง (เพื่อความสะดวกขณะทำงาน)
+    const INACTIVITY_LIMIT = 18000000; // 5 ชั่วโมง
     let inactivityTimer;
 
     function resetInactivityTimer() {
@@ -71,7 +69,6 @@ $user_role = $_SESSION['role'] ?? 'employee';
             timer: 3000,
             showConfirmButton: false
         }).then(() => {
-            // ออกจากระบบผ่าน Path ที่สัมพันธ์กับ Base
             window.location.href = 'admin/logout.php?reason=timeout'; 
         });
     }
