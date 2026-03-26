@@ -84,11 +84,18 @@ $admins = $pdo->query("SELECT * FROM sys_admins ORDER BY id DESC")->fetchAll();
 require_once __DIR__ . '/../admin/includes/header.php';
 ?>
 
-<div class="max-w-6xl mx-auto px-4 py-8">
+<div class="max-w-6xl mx-auto px-4">
 <?php 
-$header_actions = '<button onclick="openAddModal()" class="bg-[#0052CC] hover:bg-blue-700 text-white px-6 py-3 rounded-2xl font-bold flex items-center gap-2 transition-all shadow-lg shadow-blue-200 active:scale-95 group">
-    <i class="fa-solid fa-user-plus group-hover:rotate-12 transition-transform"></i> เพิ่มเจ้าหน้าที่ใหม่
-</button>';
+// (A) PREPARE HEADER ACTIONS
+$header_actions = '
+<div class="flex items-center gap-3">
+    <a href="index.php" class="bg-white border border-gray-100 hover:bg-gray-50 text-gray-500 px-5 py-3 rounded-2xl font-bold flex items-center gap-2 transition-all shadow-sm active:scale-95 group">
+        <i class="fa-solid fa-arrow-left group-hover:-translate-x-1 transition-transform"></i> Back to Portal
+    </a>
+    <button onclick="openAddModal()" class="bg-[#0052CC] hover:bg-blue-700 text-white px-6 py-3 rounded-2xl font-bold flex items-center gap-2 transition-all shadow-lg shadow-blue-200 active:scale-95 group">
+        <i class="fa-solid fa-user-plus group-hover:rotate-12 transition-transform"></i> เพิ่มเจ้าหน้าที่ใหม่
+    </button>
+</div>';
 renderPageHeader("System Governance", "จัดการสิทธิ์และบัญชีผู้ดูแลระบบส่วนกลาง", $header_actions); 
 ?>
 

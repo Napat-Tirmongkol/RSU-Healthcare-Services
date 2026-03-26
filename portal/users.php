@@ -105,8 +105,12 @@ require_once __DIR__ . '/../admin/includes/header.php';
 
 <div class="max-w-6xl mx-auto px-4 py-8">
 <?php
+    // (A) PREPARE HEADER ACTIONS
     $header_actions = '
     <div class="flex items-center gap-3">
+        <a href="index.php" class="bg-white border border-gray-100 hover:bg-gray-50 text-gray-500 px-5 py-2.5 rounded-2xl font-bold flex items-center gap-2 transition-all shadow-sm active:scale-95 group text-sm">
+            <i class="fa-solid fa-arrow-left group-hover:-translate-x-1 transition-transform"></i> Back to Portal
+        </a>
         <div class="relative group hidden sm:block">
             <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-blue-500 transition-colors"></i>
             <input type="text" placeholder="พิมพ์เพื่อกรองด่วน..." 
