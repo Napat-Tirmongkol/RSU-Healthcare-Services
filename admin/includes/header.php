@@ -5,6 +5,9 @@ $layout_none = isset($_GET['layout']) && $_GET['layout'] === 'none';
     // Helper Function for Unified Page Headers
     if (!function_exists('renderPageHeader')) {
         function renderPageHeader($title, $subtitle, $actions_html = '') {
+            global $layout_none;
+            if ($layout_none) return; // ซ่อน Header ทันทีถ้าอยู่ในโหมด no-layout (แสดงผลผ่าน Portal)
+
             echo '
             <div class="mb-10 flex flex-col md:flex-row md:justify-between md:items-end gap-6 animate-slide-up">
                 <div class="relative">
@@ -45,9 +48,9 @@ $layout_none = isset($_GET['layout']) && $_GET['layout'] === 'none';
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style> body { font-family: 'Prompt', sans-serif; } </style>
 </head>
-<body class="bg-gray-100 flex min-h-screen font-prompt <?= $no_layout ? 'flex-col' : '' ?>">
+<body class="bg-gray-100 flex min-h-screen font-prompt <?= $layout_none ? 'flex-col' : '' ?>">
 
-    <?php if (!$no_layout): ?>
+    <?php if (!$layout_none): ?>
     <aside class="w-64 bg-white shadow-lg hidden md:flex flex-col border-r border-gray-100 z-10">
         <div class="p-6 border-b border-gray-50 flex items-center gap-3">
             <div class="w-10 h-10 bg-[#0052CC] text-white rounded-xl flex items-center justify-center text-xl shadow-md">
@@ -120,8 +123,8 @@ $layout_none = isset($_GET['layout']) && $_GET['layout'] === 'none';
     </aside>
     <?php endif; ?>
 
-    <main class="flex-1 flex flex-col h-screen overflow-hidden <?= $no_layout ? 'h-auto overflow-visible' : '' ?>">
-        <?php if (!$no_layout): ?>
+    <main class="flex-1 flex flex-col h-screen overflow-hidden <?= $layout_none ? 'h-auto overflow-visible' : '' ?>">
+        <?php if (!$layout_none): ?>
         <header class="bg-white shadow-sm p-4 flex justify-between items-center border-b border-gray-100 z-10">
             <div class="flex items-center gap-3 md:hidden">
                 <a href="../portal/index.php" class="w-8 h-8 flex items-center justify-center rounded-lg bg-gray-50 text-gray-400">
