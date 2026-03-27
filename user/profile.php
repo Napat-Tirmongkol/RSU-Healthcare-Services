@@ -43,7 +43,7 @@ try {
 render_header('ข้อมูลส่วนตัว');
 ?>
 
-<div class="p-5 pb-32 flex flex-col h-full animate-in fade-in slide-in-from-right-4 duration-500">
+<div class="p-5 pb-40 flex flex-col min-h-screen animate-in fade-in slide-in-from-right-4 duration-500">
   <form id="profileForm" class="flex-1 flex flex-col" method="post" action="save_profile.php">
     <?php csrf_field(); ?>
     <div class="flex-1 space-y-6">
@@ -125,12 +125,14 @@ render_header('ข้อมูลส่วนตัว');
           />
         </div>
       </div>
-        <div class="space-y-4 pt-4 border-t border-gray-100">
+
+      <!-- 🛡️ PDPA Section -->
+      <div class="space-y-4 pt-4 border-t border-gray-100">
           <div class="flex items-center gap-2 text-[#0052CC] mb-2 text-sm font-bold">
             <i class="fa-solid fa-shield-halved"></i>
             <span>ข้อตกลงและเงื่อนไข (PDPA)</span>
           </div>
-          <div class="bg-gray-50 border border-gray-100 p-4 rounded-xl text-[12px] text-gray-500 font-prompt leading-relaxed h-40 overflow-y-auto custom-scrollbar">
+          <div class="bg-gray-50 border border-gray-100 p-4 rounded-xl text-[12px] text-gray-500 font-prompt leading-relaxed h-44 overflow-y-auto custom-scrollbar">
             <p class="font-bold text-gray-800 mb-2">ยินดีต้อนรับเข้าสู่ระบบ E-Campaign (RSU Healthcare Services)</p>
             <p class="mb-2">มหาวิทยาลัยรังสิต ขอขอบพระคุณในความไว้วางใจใช้บริการ ข้อมูลส่วนบุคคลที่ท่านกรอก (ชื่อ-นามสกุล, เลขบัตรประชาชน, รหัสนักศึกษา/บุคลากร, และเบอร์โทรศัพท์) รวมถึง LINE User ID จะถูกประมวลผลภายใต้เงื่อนไขดังนี้:</p>
             <ul class="list-disc pl-4 space-y-1 mb-2">
@@ -141,12 +143,15 @@ render_header('ข้อมูลส่วนตัว');
             </ul>
             <p>เราขอรับรองว่าข้อมูลของท่านจะถูกเก็บเป็นความลับสูงสุดตามมาตรฐาน PDPA และจะไม่ถูกนำไปเผยแพร่หรือขายข้อมูลให้แก่บุคคลภายนอกโดยไม่ได้รับอนุญาต</p>
           </div>
+          
           <label class="flex items-center gap-4 p-4 bg-white rounded-2xl border border-gray-100 shadow-sm cursor-pointer hover:bg-gray-50 transition-all active:scale-[0.98] select-none">
             <input type="checkbox" required name="agreed" value="1" class="shrink-0 w-6 h-6 rounded-lg border-gray-300 text-[#0052CC] focus:ring-[#0052CC] transition-all" />
             <span class="text-xs text-gray-600 font-bold leading-tight font-prompt">ฉันได้อ่าน และยอมรับข้อตกลงนโยบายความเป็นส่วนตัว</span>
           </label>
-        </div>
       </div>
+
+      <!-- 🛑 Spacer เพื่อกันปุ่มบันทึกด้านล่างมาทับ -->
+      <div class="h-32"></div>
     </div>
 
     <div class="fixed bottom-0 left-0 right-0 max-w-md mx-auto p-4 bg-white border-t border-gray-100 z-20 shadow-[0_-4px_20px_-10px_rgba(0,0,0,0.1)]">
