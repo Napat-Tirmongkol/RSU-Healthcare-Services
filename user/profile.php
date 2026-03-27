@@ -43,7 +43,7 @@ try {
 render_header('ข้อมูลส่วนตัว');
 ?>
 
-<div class="p-5 flex flex-col h-full animate-in fade-in slide-in-from-right-4 duration-500">
+<div class="p-5 pb-32 flex flex-col h-full animate-in fade-in slide-in-from-right-4 duration-500">
   <form id="profileForm" class="flex-1 flex flex-col" method="post" action="save_profile.php">
     <?php csrf_field(); ?>
     <div class="flex-1 space-y-6">
@@ -141,9 +141,9 @@ render_header('ข้อมูลส่วนตัว');
             </ul>
             <p>เราขอรับรองว่าข้อมูลของท่านจะถูกเก็บเป็นความลับสูงสุดตามมาตรฐาน PDPA และจะไม่ถูกนำไปเผยแพร่หรือขายข้อมูลให้แก่บุคคลภายนอกโดยไม่ได้รับอนุญาต</p>
           </div>
-          <label class="flex items-start gap-3 p-3 bg-white rounded-xl border border-gray-100 shadow-sm cursor-pointer hover:bg-gray-50 transition-colors">
-            <input type="checkbox" required name="agreed" value="1" class="mt-0.5 w-5 h-5 rounded border-gray-300 text-[#0052CC] focus:ring-[#0052CC]" />
-            <span class="text-xs text-gray-600 font-medium leading-tight font-prompt">ฉันได้อ่าน และยอมรับข้อตกลงนโยบายความเป็นส่วนตัว</span>
+          <label class="flex items-center gap-4 p-4 bg-white rounded-2xl border border-gray-100 shadow-sm cursor-pointer hover:bg-gray-50 transition-all active:scale-[0.98] select-none">
+            <input type="checkbox" required name="agreed" value="1" class="shrink-0 w-6 h-6 rounded-lg border-gray-300 text-[#0052CC] focus:ring-[#0052CC] transition-all" />
+            <span class="text-xs text-gray-600 font-bold leading-tight font-prompt">ฉันได้อ่าน และยอมรับข้อตกลงนโยบายความเป็นส่วนตัว</span>
           </label>
         </div>
       </div>
