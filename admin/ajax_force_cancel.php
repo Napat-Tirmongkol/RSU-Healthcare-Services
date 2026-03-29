@@ -31,9 +31,11 @@ try {
             a.slot_id,
             s.line_user_id,
             s.full_name,
+            s.email,
             c.title AS campaign_title,
             t.slot_date,
-            t.start_time
+            t.start_time,
+            t.end_time
         FROM camp_bookings a
         JOIN sys_users s ON a.student_id = s.id
         JOIN camp_list c ON a.campaign_id = c.id
@@ -59,18 +61,21 @@ try {
     $updateStmt = $pdo->prepare("UPDATE camp_bookings SET status = 'cancelled_by_admin' WHERE id = :id");
     $updateStmt->execute([':id' => $appointmentId]);
 
-    // Note: The slot booked count calculation in time_slots.php uses:
-    // "SELECT COUNT(*) FROM camp_bookings WHERE slot_id = ts.id AND status IN ('booked', 'confirmed')"
-    // Since we changed status to 'cancelled_by_admin', the booked count drops automatically.
-    // There is no `booked` column in `camp_slots` in this schema, the count is dynamic!
-    // Wait, let's verify if `booked` column exists.
-    // The user's prompt said:
-    // "Decrease the booked count in the camp_slots table."
-    // But in the code:
-    // (SELECT COUNT(*) FROM camp_bookings a WHERE a.slot_id = ts.id AND a.status IN ('booked', 'confirmed')) as booked_count
-    // It seems they don't have a `booked` column. It's computed on the fly. So changing status handles the seat automatically!
-    
-    // 3. Send LINE Message (Messaging API)
+    // 📧 3. ส่งอีเมลแจ้งเตือน (ถ้ามีอีเมล)
+    if (!empty($booking['email'])) {
+        try {
+            require_once __DIR__ . '/../includes/mail_helper.php';
+            notify_booking_status($booking['email'], 'cancelled_by_admin', [
+                'campaign_title' => $booking['campaign_title'],
+                'date' => date('d/m/Y', strtotime($booking['slot_date'])),
+                'time' => substr($booking['start_time'], 0, 5) . ' - ' . substr($booking['end_time'], 0, 5)
+            ]);
+        } catch (Exception $e) {
+            error_log("Force Cancel Email Error: " . $e->getMessage());
+        }
+    }
+
+    // 💬 4. Send LINE Message (Messaging API)
     if (!empty($booking['line_user_id'])) {
         $lineUserId = $booking['line_user_id'];
         $campaignTitle = $booking['campaign_title'];
@@ -140,17 +145,7 @@ try {
         ];
 
         // If you have LINE API set up, you would do curl out here:
-        // $channelAccessToken = 'YOUR_CHANNEL_ACCESS_TOKEN';
-        // $ch = curl_init('https://api.line.me/v2/bot/message/push');
-        // curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        // curl_setopt($ch, CURLOPT_POST, true);
-        // curl_setopt($ch, CURLOPT_HTTPHEADER, [
-        //     'Content-Type: application/json',
-        //     'Authorization: Bearer ' . $channelAccessToken
-        // ]);
-        // curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($postData));
-        // $result = curl_exec($ch);
-        // curl_close($ch);
+        // ... (as in the original file)
     }
     
     $pdo->commit();

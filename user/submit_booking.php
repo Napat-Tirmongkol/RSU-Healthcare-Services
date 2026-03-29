@@ -88,6 +88,38 @@ try {
         ':status' => $bookingStatus
     ]);
 
+    // 8. 📧 ส่งอีเมลแจ้งเตือนการจองสำเร็จ
+    try {
+        $stmtUser = $pdo->prepare("SELECT email FROM sys_users WHERE id = :sid LIMIT 1");
+        $stmtUser->execute([':sid' => $studentId]);
+        $uInfo = $stmtUser->fetch(PDO::FETCH_ASSOC);
+
+        if ($uInfo && !empty($uInfo['email'])) {
+            require_once __DIR__ . '/../includes/mail_helper.php';
+
+            // ดึงชื่อแคมเปญและเวลามาแสดงในอีเมลด้วยหลักกาลไทที่เข้าใจง่าย
+            $camp_title = $campData['title'] ?? 'กิจกรรม';
+            $slot_date = date('d/m/Y', strtotime($bookingDate));
+            $slot_time = 'ไม่ได้ระบุช่วงเวลา';
+            
+            // หาข้อมูล slot_time
+            $stmtTime = $pdo->prepare("SELECT start_time, end_time FROM camp_slots WHERE id = :slot_id");
+            $stmtTime->execute([':slot_id' => $slotId]);
+            $tInfo = $stmtTime->fetch(PDO::FETCH_ASSOC);
+            if ($tInfo) {
+                $slot_time = substr($tInfo['start_time'], 0, 5) . ' - ' . substr($tInfo['end_time'], 0, 5);
+            }
+
+            notify_booking_status($uInfo['email'], 'confirmation', [
+                'campaign_title' => $camp_title,
+                'date' => $slot_date,
+                'time' => $slot_time
+            ]);
+        }
+    } catch (Exception $ex) {
+        error_log("Email Notification Error: " . $ex->getMessage());
+    }
+
     header('Location: success.php');
     exit;
 

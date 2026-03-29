@@ -14,4 +14,12 @@ return [
     'GOOGLE_CLIENT_ID'                    => '',
     'GOOGLE_CLIENT_SECRET'                => '',
     'GOOGLE_REDIRECT_URI'                  => '',
+
+    // --- Email System (SMTP) ---
+    'SMTP_HOST'                           => '', // e.g., smtp.gmail.com
+    'SMTP_PORT'                           => 587,
+    'SMTP_USER'                           => '',
+    'SMTP_PASS'                           => '',
+    'SMTP_FROM_EMAIL'                     => '',
+    'SMTP_FROM_NAME'                      => 'RSU Healthcare Services',
 ];
