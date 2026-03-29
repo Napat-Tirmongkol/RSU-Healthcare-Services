@@ -7,12 +7,13 @@ require_once __DIR__ . '/../includes/header.php';
 require_once __DIR__ . '/../includes/footer.php';
 
 session_start();
+check_user_profile((int)($_SESSION['evax_student_id'] ?? 0));
 
 // 1. ตรวจสอบ Login และรับค่าแคมเปญที่เลือกมา
-$studentId = isset($_SESSION['evax_student_id']) ? (int)$_SESSION['evax_student_id'] : 0;
+$studentId = (int)$_SESSION['evax_student_id'];
 $campaignId = isset($_GET['campaign_id']) ? (int)$_GET['campaign_id'] : 0;
 
-if ($studentId <= 0 || $campaignId <= 0) {
+if ($campaignId <= 0) {
     header('Location: booking_campaign.php', true, 303);
     exit;
 }

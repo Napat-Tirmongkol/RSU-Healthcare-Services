@@ -30,4 +30,30 @@ if (!function_exists('log_activity')) {
         }
     }
 }
+
+/**
+ * 👤 ตรวจสอบว่าผู้ใช้งานกรอกข้อมูลส่วนตัวครบถ้วนหรือไม่ (โดยเฉพาะอีเมล)
+ */
+if (!function_exists('check_user_profile')) {
+    function check_user_profile(int $studentId): void {
+        if ($studentId <= 0) {
+            header('Location: index.php');
+            exit;
+        }
+
+        try {
+            $pdo = db();
+            $stmt = $pdo->prepare("SELECT full_name, student_personnel_id, phone_number, status, email FROM sys_users WHERE id = :id LIMIT 1");
+            $stmt->execute([':id' => $studentId]);
+            $u = $stmt->fetch();
+
+            if (!$u || empty($u['email']) || empty($u['full_name']) || empty($u['phone_number']) || empty($u['status']) || ($u['status'] !== 'external' && empty($u['student_personnel_id']))) {
+                header('Location: profile.php');
+                exit;
+            }
+        } catch (PDOException $e) {
+            // Silently fail or log
+        }
+    }
+}
 ?>

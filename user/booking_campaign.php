@@ -6,6 +6,8 @@ require_once __DIR__ . '/../includes/header.php';
 require_once __DIR__ . '/../includes/footer.php';
 
 session_start();
+check_user_profile((int)($_SESSION['evax_student_id'] ?? 0));
+
 $pdo = db();
 
 // ดึงรายการแคมเปญที่สถานะเป็น active และยังไม่หมดเขต

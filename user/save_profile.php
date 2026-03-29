@@ -26,7 +26,7 @@ $phoneNumber = trim((string) ($_POST['phone_number'] ?? ''));
 $status = trim((string) ($_POST['status'] ?? ''));
 $email = trim((string) ($_POST['email'] ?? ''));
 
-if ($fullName === '' || $citizenId === '' || $phoneNumber === '' || $status === '') {
+if ($fullName === '' || $citizenId === '' || $phoneNumber === '' || $status === '' || $email === '') {
     header('Location: profile.php?error=empty', true, 303);
     exit;
 }
@@ -47,7 +47,7 @@ try {
                 student_personnel_id = :sid, 
                 citizen_id = :cid,
                 phone_number = :phone,
-                status = :status
+                status = :status,
                 email = :email
             WHERE line_user_id = :line_id";
 

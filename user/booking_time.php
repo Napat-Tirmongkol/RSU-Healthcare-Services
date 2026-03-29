@@ -7,12 +7,8 @@ require_once __DIR__ . '/../includes/header.php';
 require_once __DIR__ . '/../includes/footer.php';
 
 session_start();
-
-$studentId = isset($_SESSION['evax_student_id']) ? (int)$_SESSION['evax_student_id'] : 0;
-if ($studentId <= 0) {
-    header('Location: index.php', true, 303);
-    exit;
-}
+check_user_profile((int)($_SESSION['evax_student_id'] ?? 0));
+$studentId = (int)$_SESSION['evax_student_id'];
 
 $year = (int)($_GET['year'] ?? 0);
 $month = (int)($_GET['month'] ?? 0);
