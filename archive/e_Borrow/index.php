@@ -60,8 +60,11 @@ try {
     $pending_count  = $approved_count = $overdue_count = 0;
 }
 
-$firstName    = explode(' ', trim($student_data['full_name'] ?? 'ผู้ใช้'))[0] ?? 'ผู้ใช้';
-$avatarLetter = mb_substr($student_data['full_name'] ?? '?', 0, 1);
+$fullName     = trim($student_data['full_name'] ?? 'ผู้ใช้');
+// ตัดคำนำหน้าชื่อเพื่อเอาชื่อจริง
+$cleanName    = preg_replace('/^(นาย|นางสาว|นาง|ว่าที่ร้อยตรี|ด\.ช\.|ด\.ญ\.|Mr\.|Mrs\.|Ms\.|Miss\s?)\s*/u', '', $fullName);
+$firstName    = explode(' ', trim($cleanName))[0] ?: 'ผู้ใช้';
+$avatarLetter = mb_substr($firstName, 0, 1);
 $page_title   = 'หน้าแรก';
 $active_page  = 'home';
 include('includes/student_header.php');
