@@ -48,11 +48,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             // 3. อัปเดตจำนวนใน borrow_categories
             // (ถ้าลบของที่ 'available' ให้ลดทั้ง total และ available)
             if ($item['status'] == 'available') {
-                $sql_update_type = "UPDATE borrow_categories SET total_quantity = total_quantity - 1, available_quantity = available_quantity - 1 WHERE id = ?";
-            } 
+                $sql_update_type = "UPDATE borrow_categories SET total_quantity = total_quantity - 1, available_quantity = available_quantity - 1 WHERE id = ? AND total_quantity > 0 AND available_quantity > 0";
+            }
             // (ถ้าลบของที่ 'maintenance' ให้ลดแค่ total)
-            else { 
-                $sql_update_type = "UPDATE borrow_categories SET total_quantity = total_quantity - 1 WHERE id = ?";
+            else {
+                $sql_update_type = "UPDATE borrow_categories SET total_quantity = total_quantity - 1 WHERE id = ? AND total_quantity > 0";
             }
             $stmt_update = $pdo->prepare($sql_update_type);
             $stmt_update->execute([$type_id]);

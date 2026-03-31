@@ -1,9 +1,9 @@
 <?php
 // process/record_payment_process.php
-include('..includes/check_session_ajax.php');
+include('../includes/check_session_ajax.php');
 require_once(__DIR__ . '/../../../config/db_connect.php');
-require_once('..includes/log_function.php');
-require_once('..includes/line_config.php');
+require_once('../includes/log_function.php');
+require_once('../includes/line_config.php');
 
 $allowed_roles = ['admin', 'editor'];
 if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], $allowed_roles)) {
@@ -159,6 +159,8 @@ function sendLineReceipt($pdo, $transaction_id, $student_id, $payment_id, $amoun
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_exec($ch);
         curl_close($ch);
+    } else {
+        error_log("[e_Borrow] LINE receipt not sent: no line_user_id for student_id={$student_id}, transaction_id={$transaction_id}");
     }
 }
 ?>

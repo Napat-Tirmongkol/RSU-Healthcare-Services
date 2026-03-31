@@ -32,40 +32,43 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     try {
         $pdo->beginTransaction();
 
-        // 1. ดึงข้อมูล Type ID จาก Item ID
-        $stmt_get_type = $pdo->prepare("SELECT type_id FROM borrow_items WHERE id = ?");
-        $stmt_get_type->execute([$item_id]);
-        $type_id = $stmt_get_type->fetchColumn();
+        // 1. ตรวจสอบว่า item_id เป็นของ transaction_id นี้จริง และสถานะถูกต้อง
+        $stmt_verify = $pdo->prepare("SELECT equipment_type_id FROM borrow_records
+                                     WHERE id = ? AND equipment_id = ?
+                                     AND status = 'borrowed'
+                                     AND approval_status IN ('approved', 'staff_added')");
+        $stmt_verify->execute([$transaction_id, $item_id]);
+        $type_id = $stmt_verify->fetchColumn();
 
         if (!$type_id) {
-            throw new Exception("ไม่พบประเภทของอุปกรณ์ (Item ID: $item_id)");
+            throw new Exception("ไม่พบรายการยืม หรืออุปกรณ์ไม่ตรงกับรายการ หรือยังไม่ได้รับการอนุมัติ");
         }
 
         // 2. อัปเดต "ชิ้น" อุปกรณ์ (items) กลับเป็น 'available'
-        $stmt_item = $pdo->prepare("UPDATE borrow_items 
-                                   SET status = 'available' 
+        $stmt_item = $pdo->prepare("UPDATE borrow_items
+                                   SET status = 'available'
                                    WHERE id = ? AND status = 'borrowed'");
         $stmt_item->execute([$item_id]);
 
         if ($stmt_item->rowCount() == 0) {
              throw new Exception("ไม่สามารถอัปเดตสถานะ Item ได้ (อาจถูกคืนไปแล้ว)");
         }
-        
+
         // 3. อัปเดต "ประเภท" (types) คืนจำนวน +1
-        $stmt_type = $pdo->prepare("UPDATE borrow_categories 
-                                   SET available_quantity = available_quantity + 1 
+        $stmt_type = $pdo->prepare("UPDATE borrow_categories
+                                   SET available_quantity = available_quantity + 1
                                    WHERE id = ?");
         $stmt_type->execute([$type_id]);
 
-
         // 4. อัปเดต "การยืม" (transactions)
-        $stmt_trans = $pdo->prepare("UPDATE borrow_records 
-                                    SET status = 'returned', 
-                                        return_date = CURDATE(),
+        $stmt_trans = $pdo->prepare("UPDATE borrow_records
+                                    SET status = 'returned',
+                                        return_date = NOW(),
                                         return_staff_id = ?
-                                    WHERE id = ? AND status = 'borrowed'");
+                                    WHERE id = ? AND status = 'borrowed'
+                                    AND approval_status IN ('approved', 'staff_added')");
         $stmt_trans->execute([$staff_id, $transaction_id]);
-        
+
         if ($stmt_trans->rowCount() == 0) {
              throw new Exception("ไม่สามารถอัปเดตสถานะ Transaction ได้ (อาจถูกคืนไปแล้ว)");
         }

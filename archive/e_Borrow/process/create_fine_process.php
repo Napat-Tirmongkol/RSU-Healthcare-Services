@@ -2,9 +2,9 @@
 // create_fine_process.php
 // (ไฟล์ใหม่) บันทึกการ "สร้าง" ค่าปรับ
 
-include('..includes/check_session_ajax.php');
+include('../includes/check_session_ajax.php');
 require_once(__DIR__ . '/../../../config/db_connect.php');
-require_once('..includes/log_function.php');
+require_once('../includes/log_function.php');
 
 $allowed_roles = ['admin', 'editor'];
 if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], $allowed_roles)) {

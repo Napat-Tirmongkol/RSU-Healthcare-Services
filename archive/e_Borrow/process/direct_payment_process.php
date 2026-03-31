@@ -35,6 +35,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         exit;
     }
 
+    if ($amount_paid < $amount) {
+        $response['message'] = 'ยอดชำระไม่ถูกต้อง (ชำระน้อยกว่าค่าปรับ)';
+        echo json_encode($response);
+        exit;
+    }
+
    try {
         $pdo->beginTransaction();
 
@@ -62,8 +68,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             }
         }
 
-        // 3. สร้างรายการค่าปรับ
-        $sql_fine = "INSERT INTO borrow_fines (transaction_id, student_id, amount, notes, created_by_staff_id, status) VALUES (?, ?, ?, ?, ?, 'paid')"; 
+        // 3. ตรวจสอบ duplicate fine ก่อน INSERT
+        $stmt_check_fine = $pdo->prepare("SELECT id FROM borrow_fines WHERE transaction_id = ? AND status IN ('paid', 'pending')");
+        $stmt_check_fine->execute([$transaction_id]);
+        if ($stmt_check_fine->fetchColumn()) {
+            throw new Exception("รายการนี้มีค่าปรับอยู่ในระบบแล้ว กรุณาตรวจสอบ");
+        }
+
+        // สร้างรายการค่าปรับ
+        $sql_fine = "INSERT INTO borrow_fines (transaction_id, student_id, amount, notes, created_by_staff_id, status) VALUES (?, ?, ?, ?, ?, 'paid')";
         $stmt_fine = $pdo->prepare($sql_fine);
         $stmt_fine->execute([$transaction_id, $student_id, $amount, $notes, $staff_id]);
         $new_fine_id = $pdo->lastInsertId();
@@ -118,7 +131,7 @@ function sendLineReceipt($pdo, $transaction_id, $student_id, $payment_id, $amoun
 
     if ($data && !empty($data['line_user_id'])) {
         $line_user_id = $data['line_user_id'];
-        $item_name = $data['item_name'];
+        $item_name = $data['item_name'] ?? 'N/A';
         $date_now = date('d/m/Y H:i');
         $method_text = ($method == 'bank_transfer') ? 'โอนเงิน' : 'เงินสด';
 
@@ -152,6 +165,8 @@ function sendLineReceipt($pdo, $transaction_id, $student_id, $payment_id, $amoun
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_exec($ch);
         curl_close($ch);
+    } else {
+        error_log("[e_Borrow] LINE receipt not sent: no line_user_id for student_id={$student_id}, transaction_id={$transaction_id}");
     }
 }
 ?>

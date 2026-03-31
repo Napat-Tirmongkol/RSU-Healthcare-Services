@@ -63,15 +63,17 @@ try {
     $stmt_type = $pdo->prepare("UPDATE borrow_categories SET available_quantity = available_quantity + 1 WHERE id = ?");
     $stmt_type->execute([$type_id]);
 
-    // 9. ตรวจสอบว่าสำเร็จ
-    if ($stmt->rowCount() > 0 && $stmt_item->rowCount() > 0 && $stmt_type->rowCount() > 0) {
-        
-        $pdo->commit();
-        $response['status'] = 'success';
-        $response['message'] = 'ยกเลิกคำขอเรียบร้อย อุปกรณ์ถูกคืนเข้าสต็อกแล้ว';
-    } else {
-        throw new Exception("ไม่สามารถคืนอุปกรณ์เข้าสต็อกได้ (อาจมีบางอย่างผิดพลาด)");
+    // 9. ตรวจสอบว่าสำเร็จ (แยกตรวจแต่ละขั้นตอน)
+    if ($stmt->rowCount() == 0) {
+        throw new Exception("ไม่สามารถอัปเดตสถานะคำขอได้");
     }
+    if ($stmt_item->rowCount() == 0) {
+        throw new Exception("ไม่สามารถคืนสถานะอุปกรณ์ได้ (อาจถูกคืนไปแล้ว)");
+    }
+
+    $pdo->commit();
+    $response['status'] = 'success';
+    $response['message'] = 'ยกเลิกคำขอเรียบร้อย อุปกรณ์ถูกคืนเข้าสต็อกแล้ว';
 
 } catch (Exception $e) {
     $pdo->rollBack();

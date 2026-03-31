@@ -48,6 +48,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt_type = $pdo->prepare("UPDATE borrow_categories SET available_quantity = available_quantity - 1 WHERE id = ? AND available_quantity > 0");
         $stmt_type->execute([$type_id]);
 
+        if ($stmt_type->rowCount() == 0) {
+            throw new Exception("จำนวนอุปกรณ์ในคลังไม่เพียงพอ กรุณาตรวจสอบสต็อก");
+        }
+
         // 6.4 INSERT ประวัติการยืม
         $sql_insert = "INSERT INTO borrow_records 
                         (equipment_id, equipment_type_id, borrower_student_id, due_date, status, approval_status, quantity, lending_staff_id) 
