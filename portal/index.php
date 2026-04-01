@@ -61,7 +61,7 @@ $projects = [
     ],
     [
         'id'            => 'e_campaign',
-        'title'         => 'e-Campaign V2',
+        'title'         => 'e-Campaign',
         'description'   => 'ระบบจัดการแคมเปญ งานอบรม งานสแกนและการลงทะเบียนเข้าร่วมกิจกรรมแบบ Real-time',
         'icon'          => 'fa-bullhorn',
         'bg_color'      => 'bg-blue-50',
