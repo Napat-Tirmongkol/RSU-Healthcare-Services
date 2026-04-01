@@ -1,13 +1,12 @@
 <?php
 // admin/includes/auth.php
 
-// ── Session Security Settings (ต้องตั้งก่อน session_start) ──────────────────
-ini_set('session.gc_maxlifetime', 7200);          // session หมดอายุหลัง 2 ชั่วโมง
-ini_set('session.cookie_lifetime', 0);            // cookie หายเมื่อปิด browser
-ini_set('session.cookie_httponly', 1);            // ป้องกัน JavaScript อ่าน cookie
-ini_set('session.cookie_samesite', 'Lax');        // ป้องกัน CSRF ผ่าน cookie
-
+// ── Session Security Settings (ตั้งได้เฉพาะก่อน session_start) ──────────────
 if (session_status() === PHP_SESSION_NONE) {
+    ini_set('session.gc_maxlifetime', 7200);
+    ini_set('session.cookie_lifetime', 0);
+    ini_set('session.cookie_httponly', 1);
+    ini_set('session.cookie_samesite', 'Lax');
     session_start();
 }
 

@@ -2,12 +2,13 @@
 // portal/includes/auth.php
 
 // ── Session Security Settings ────────────────────────────────────────────────
-ini_set('session.gc_maxlifetime', 7200);
-ini_set('session.cookie_lifetime', 0);
-ini_set('session.cookie_httponly', 1);
-ini_set('session.cookie_samesite', 'Lax');
-
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    ini_set('session.gc_maxlifetime', 7200);
+    ini_set('session.cookie_lifetime', 0);
+    ini_set('session.cookie_httponly', 1);
+    ini_set('session.cookie_samesite', 'Lax');
+    session_start();
+}
 
 // ── Idle Timeout ─────────────────────────────────────────────────────────────
 if (isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] === true) {
