@@ -1437,30 +1437,32 @@ function renderDailySlots(slots, date) {
             <td class="px-4 py-3">
                 <span class="font-semibold text-gray-800 text-sm">${escHtml(s.campaign_title)}</span>
             </td>
-            <td class="px-4 py-3">
-                <span class="font-black text-[#0052CC] bg-blue-50 px-2.5 py-1 rounded-lg text-xs">
+            <td class="px-4 py-3" style="white-space:nowrap">
+                <span class="font-black text-[#0052CC] bg-blue-50 px-2.5 py-1 rounded-lg text-xs" style="white-space:nowrap;display:inline-block">
                     ${s.start_time.slice(0,5)} – ${s.end_time.slice(0,5)}
                 </span>
             </td>
-            <td class="px-4 py-3">
-                <div class="flex items-center gap-2">
-                    <span class="text-xs font-bold rounded-full px-2.5 py-1" style="${badgeSt}">
+            <td class="px-4 py-3" style="white-space:nowrap">
+                <div style="display:flex;align-items:center;gap:8px;flex-wrap:nowrap">
+                    <span class="text-xs font-bold rounded-full px-2.5 py-1" style="${badgeSt};white-space:nowrap;display:inline-block">
                         ${s.booked_count} / ${s.max_capacity}
                     </span>
-                    <div style="width:60px;height:4px;background:#e5e7eb;border-radius:99px;overflow:hidden">
+                    <div style="width:60px;min-width:60px;height:4px;background:#e5e7eb;border-radius:99px;overflow:hidden">
                         <div style="width:${Math.min(pct,100)}%;height:100%;background:${barClr};border-radius:99px"></div>
                     </div>
                 </div>
             </td>
-            <td class="px-4 py-3 text-right">
-                <button onclick="dailyEditRow(${s.id},'${s.start_time.slice(0,5)}','${s.end_time.slice(0,5)}',${s.max_capacity})"
-                    class="w-8 h-8 rounded-lg bg-amber-50 border border-amber-100 text-amber-500 hover:bg-amber-500 hover:text-white transition-all mr-1" title="แก้ไข">
-                    <i class="fa-solid fa-pen text-xs"></i>
-                </button>
-                <button onclick="dailyDeleteSlot(${s.id},'${date}')"
-                    class="w-8 h-8 rounded-lg bg-red-50 border border-red-100 text-red-500 hover:bg-red-500 hover:text-white transition-all" title="ลบ">
-                    <i class="fa-solid fa-trash text-xs"></i>
-                </button>
+            <td class="px-4 py-3" style="white-space:nowrap">
+                <div style="display:flex;gap:4px;justify-content:flex-end;align-items:center">
+                    <button onclick="dailyEditRow(${s.id},'${s.start_time.slice(0,5)}','${s.end_time.slice(0,5)}',${s.max_capacity})"
+                        class="w-8 h-8 rounded-lg bg-amber-50 border border-amber-100 text-amber-500 hover:bg-amber-500 hover:text-white transition-all" title="แก้ไข" style="flex-shrink:0">
+                        <i class="fa-solid fa-pen text-xs"></i>
+                    </button>
+                    <button onclick="dailyDeleteSlot(${s.id},'${date}')"
+                        class="w-8 h-8 rounded-lg bg-red-50 border border-red-100 text-red-500 hover:bg-red-500 hover:text-white transition-all" title="ลบ" style="flex-shrink:0">
+                        <i class="fa-solid fa-trash text-xs"></i>
+                    </button>
+                </div>
             </td>
         </tr>`;
     }).join('');
@@ -1478,9 +1480,9 @@ function renderDailySlots(slots, date) {
                 <thead>
                     <tr style="background:linear-gradient(135deg,#0052CC,#0070f3)">
                         <th class="px-4 py-3 text-xs font-bold text-white/80 uppercase tracking-wider">แคมเปญ</th>
-                        <th class="px-4 py-3 text-xs font-bold text-white/80 uppercase tracking-wider">เวลา</th>
-                        <th class="px-4 py-3 text-xs font-bold text-white/80 uppercase tracking-wider">ยอดจอง</th>
-                        <th class="px-4 py-3 text-xs font-bold text-white/80 uppercase tracking-wider text-right">จัดการ</th>
+                        <th class="px-4 py-3 text-xs font-bold text-white/80 uppercase tracking-wider" style="white-space:nowrap;width:120px">เวลา</th>
+                        <th class="px-4 py-3 text-xs font-bold text-white/80 uppercase tracking-wider" style="white-space:nowrap;width:160px">ยอดจอง</th>
+                        <th class="px-4 py-3 text-xs font-bold text-white/80 uppercase tracking-wider text-right" style="white-space:nowrap;width:90px">จัดการ</th>
                     </tr>
                 </thead>
                 <tbody class="bg-white">${rows}</tbody>
