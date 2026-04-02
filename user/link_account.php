@@ -13,6 +13,14 @@ if (!isset($_SESSION['pending_line_id'])) {
 $error_msg = '';
 $success_msg = '';
 
+// ---- เส้นทางสำหรับผู้ใช้ใหม่ที่ไม่มีบัญชีในระบบ ----
+if (($_GET['action'] ?? '') === 'register' && isset($_SESSION['pending_line_id'])) {
+    $_SESSION['line_user_id'] = $_SESSION['pending_line_id'];
+    unset($_SESSION['pending_line_id'], $_SESSION['pending_redirect']);
+    header('Location: profile.php');
+    exit;
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $student_personnel_id = trim($_POST['student_personnel_id'] ?? '');
     $phone_number = trim($_POST['phone_number'] ?? '');
@@ -122,7 +130,18 @@ render_header('เชื่อมต่อบัญชีผู้ใช้ (Lin
                 </button>
             </form>
             
-            <div class="mt-7 text-center">
+            <!-- ผู้ใช้ใหม่ที่ไม่เคยลงทะเบียน -->
+            <div class="mt-6 pt-6 border-t border-gray-100 text-center">
+                <p class="text-[13px] text-gray-500 font-prompt mb-3">ยังไม่มีบัญชีในระบบ?</p>
+                <a href="link_account.php?action=register"
+                   class="inline-flex items-center gap-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-semibold text-[14px] py-3 px-6 rounded-xl transition-all border border-emerald-200 font-prompt">
+                    <i class="fa-solid fa-user-plus text-sm"></i>
+                    <span>สมัครสมาชิกใหม่</span>
+                </a>
+                <p class="text-[11px] text-gray-400 mt-2 font-prompt">กรอกข้อมูลส่วนตัวครั้งแรกเพื่อเริ่มใช้งาน</p>
+            </div>
+
+            <div class="mt-5 text-center">
                 <a href="../index.php" class="text-[13px] font-medium text-gray-400 hover:text-gray-700 transition-colors inline-block border-b border-transparent hover:border-gray-300 pb-0.5">
                     ยกเลิกและกลับหน้าหลัก
                 </a>
