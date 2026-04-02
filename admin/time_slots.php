@@ -1330,7 +1330,7 @@ function deleteSelectedSlots() {
 <!-- ========================================================
      DAILY SLOTS MODAL
      ======================================================== -->
-<div id="dailyModal" class="fixed inset-0 z-[999] flex items-center justify-center p-4" style="display:none!important">
+<div id="dailyModal" class="fixed inset-0 flex items-center justify-center p-4" style="display:none;z-index:9999">
     <div class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm" onclick="closeDailyModal()"></div>
     <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[85vh] flex flex-col overflow-hidden animate-slide-up">
 
@@ -1366,7 +1366,7 @@ let _dailyDate = '';
 function openDailyModal(date) {
     _dailyDate = date;
     const modal = document.getElementById('dailyModal');
-    modal.style.setProperty('display', 'flex', 'important');
+    modal.style.display = 'flex';
 
     // Format date for display
     const d = new Date(date + 'T00:00:00');
@@ -1378,7 +1378,7 @@ function openDailyModal(date) {
 }
 
 function closeDailyModal() {
-    document.getElementById('dailyModal').style.setProperty('display', 'none', 'important');
+    document.getElementById('dailyModal').style.display = 'none';
 }
 
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDailyModal(); });
