@@ -1,5 +1,6 @@
 <?php
 // admin/users.php
+require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/../admin/includes/auth.php';
 
 $pdo = db();
