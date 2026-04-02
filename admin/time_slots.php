@@ -1066,7 +1066,7 @@ function toggleAllTableSlots(masterCb) {
 
 // เลือกลบทั้งวัน (จากมุมมองปฏิทิน)
 function toggleDaySlots(dayCheckbox) {
-    const dayContainer = dayCheckbox.closest('.group');
+    const dayContainer = dayCheckbox.closest('.cal-cell');
     const slotsCb = dayContainer.querySelectorAll('.calendar-slot-cb');
     const isChecked = dayCheckbox.checked;
 
