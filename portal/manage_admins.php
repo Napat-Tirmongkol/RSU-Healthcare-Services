@@ -7,6 +7,12 @@ if (session_status() === PHP_SESSION_NONE) {
 require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/../admin/includes/auth.php'; // ตรวจสอบการล็อกอิน
 
+// เฉพาะ superadmin เท่านั้นที่จัดการ admin คนอื่นได้
+if (($_SESSION['admin_role'] ?? '') !== 'superadmin') {
+    header('Location: index.php');
+    exit;
+}
+
 $error = '';
 $success = '';
 
@@ -115,7 +121,7 @@ renderPageHeader("System Governance", "Hub บริหารจัดการ:
                     <i class="fa-solid fa-shield-halved text-xl"></i>
                 </div>
                 <?php 
-                    $super_count = count(array_filter($admins, fn($a) => ($a['role'] ?? '') === 'superadmin' || ($a['role'] ?? '') === 'editor')); 
+                    $super_count = count(array_filter($admins, fn($a) => ($a['role'] ?? '') === 'superadmin'));
                 ?>
                 <div>
                     <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">System Privileged</p>
@@ -194,12 +200,25 @@ renderPageHeader("System Governance", "Hub บริหารจัดการ:
                         </div>
                     </td>
                     <td class="px-8 py-6">
-                        <?php 
-                            $is_super = ($adm['role'] ?? '') === 'superadmin' || ($adm['role'] ?? '') === 'editor';
+                        <?php
+                            $r = $adm['role'] ?? 'admin';
+                            if ($r === 'superadmin') {
+                                $badgeCls = 'bg-purple-50 border-purple-200 text-purple-700';
+                                $icon     = 'fa-bolt';
+                                $label    = 'System Privileged';
+                            } elseif ($r === 'editor') {
+                                $badgeCls = 'bg-rose-50 border-rose-100 text-rose-600';
+                                $icon     = 'fa-crown';
+                                $label    = 'Editor';
+                            } else {
+                                $badgeCls = 'bg-blue-50 border-blue-100 text-[#0052CC]';
+                                $icon     = 'fa-user-shield';
+                                $label    = 'Administrator';
+                            }
                         ?>
-                        <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl border <?= $is_super ? 'bg-rose-50 border-rose-100 text-rose-600' : 'bg-blue-50 border-blue-100 text-[#0052CC]' ?> shadow-sm shadow-<?= $is_super ? 'rose-50' : 'blue-50' ?>">
-                            <i class="fa-solid <?= $is_super ? 'fa-crown' : 'fa-user-shield' ?> text-[10px]"></i>
-                            <span class="text-[10px] font-black uppercase tracking-widest"><?= htmlspecialchars($adm['role']) ?></span>
+                        <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl border <?= $badgeCls ?> shadow-sm">
+                            <i class="fa-solid <?= $icon ?> text-[10px]"></i>
+                            <span class="text-[10px] font-black uppercase tracking-widest"><?= $label ?></span>
                         </div>
                     </td>
                     <td class="px-8 py-6 text-right">
@@ -254,6 +273,7 @@ renderPageHeader("System Governance", "Hub บริหารจัดการ:
                         <select name="role" id="modalRole" class="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all outline-none font-medium text-sm">
                             <option value="admin">Administrator</option>
                             <option value="editor">Editor</option>
+                            <option value="superadmin">System Privileged</option>
                         </select>
                     </div>
                 </div>

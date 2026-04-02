@@ -54,10 +54,12 @@ $projects = [
         'border_color'  => 'border-amber-100',
         'allowed_roles' => ['admin', 'superadmin'],
         'badges'        => [ 'Central DB', 'Security Hub' ],
-        'actions'       => [
-            ['label' => 'Search Users', 'url' => 'users.php?layout=none', 'primary' => false],
-            ['label' => 'Manage Admins', 'url' => 'manage_admins.php?layout=none', 'primary' => true],
-        ]
+        'actions'       => array_filter([
+            ['label' => 'Search Users',  'url' => 'users.php?layout=none',        'primary' => false],
+            $adminRole === 'superadmin'
+                ? ['label' => 'Manage Admins', 'url' => 'manage_admins.php?layout=none', 'primary' => true]
+                : null,
+        ])
     ],
     [
         'id'            => 'e_campaign',
