@@ -888,9 +888,7 @@ renderPageHeader("System Governance", "Hub บริหารจัดการ:
             focusCancel: true,
             customClass: { popup: 'swal-font' },
         }).then(result => {
-            if (result.isConfirmed) {
-                document.getElementById('deleteAdminForm_' + id).submit();
-            }
+            if (result.isConfirmed) document.getElementById('deleteAdminForm_' + id).submit();
         });
     }
 
@@ -908,9 +906,7 @@ renderPageHeader("System Governance", "Hub บริหารจัดการ:
             focusCancel: true,
             customClass: { popup: 'swal-font' },
         }).then(result => {
-            if (result.isConfirmed) {
-                document.getElementById('deleteStaffForm_' + id).submit();
-            }
+            if (result.isConfirmed) document.getElementById('deleteStaffForm_' + id).submit();
         });
     }
 </script>
