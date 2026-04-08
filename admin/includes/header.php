@@ -93,6 +93,16 @@ $layout_none = isset($_GET['layout']) && $_GET['layout'] === 'none';
                     </a>
                 </div>
             </div>
+            <?php if (in_array($_SESSION['admin_role'] ?? '', ['admin', 'superadmin'], true)): ?>
+            <div class="mt-6 mb-2 px-6">
+                <p class="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2">Staff Management</p>
+                <div class="space-y-1">
+                    <a href="../admin/manage_staff.php" class="flex items-center gap-3 p-3 rounded-xl <?= basename($_SERVER['PHP_SELF']) == 'manage_staff.php' ? 'bg-blue-50 text-[#0052CC] font-semibold' : 'text-gray-600 hover:bg-gray-50' ?> transition-colors">
+                        <i class="fa-solid fa-user-tie w-5 text-center"></i> จัดการเจ้าหน้าที่
+                    </a>
+                </div>
+            </div>
+            <?php endif; ?>
             <div class="mt-6 mb-2 px-6 text-xs uppercase tracking-[0.15em] font-extrabold text-gray-400 opacity-60">System Settings</div>
             <div class="px-6 space-y-1">
                 <a href="../admin/activity_logs.php" class="flex items-center gap-3 p-3 rounded-xl <?= basename($_SERVER['PHP_SELF']) == 'activity_logs.php' ? 'bg-blue-50 text-[#0052CC] font-bold shadow-sm' : 'text-gray-500 hover:bg-gray-50' ?> transition-all group">
