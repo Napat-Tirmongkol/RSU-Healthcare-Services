@@ -103,6 +103,11 @@ $typeColor = ['vaccine' => '#0052CC', 'training' => '#6366f1', 'health_check' =>
             class="hidden text-xs bg-white/20 hover:bg-white/30 px-3 py-1.5 rounded-lg font-semibold transition-colors">
             <i class="fa-solid fa-arrows-rotate mr-1"></i>เปลี่ยน
         </button>
+        <?php if (!empty($_SESSION['staff_name'])): ?>
+        <span class="hidden sm:block text-xs text-blue-200 font-semibold">
+            <i class="fa-solid fa-user-tie mr-1"></i><?= htmlspecialchars($_SESSION['staff_name']) ?>
+        </span>
+        <?php endif; ?>
         <a href="logout.php" class="text-xs bg-white/20 hover:bg-white/30 px-3 py-1.5 rounded-lg font-semibold transition-colors">
             <i class="fa-solid fa-right-from-bracket mr-1"></i>ออก
         </a>
