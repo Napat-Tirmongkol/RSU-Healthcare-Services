@@ -31,7 +31,7 @@ curl_setopt_array($ch, [
     CURLOPT_POSTFIELDS     => '',
     CURLOPT_RETURNTRANSFER => true,
     CURLOPT_TIMEOUT        => 60,
-    CURLOPT_SSL_VERIFYPEER => false, // localhost ใช้ self-signed cert
+    CURLOPT_SSL_VERIFYPEER => false,
     CURLOPT_SSL_VERIFYHOST => false,
     CURLOPT_USERAGENT      => 'RSU-HealthHub/1.0',
 ]);
@@ -45,7 +45,7 @@ if ($curlErr) {
     echo json_encode([
         'status'  => 'error',
         'message' => 'เชื่อมต่อ Plesk ไม่ได้: ' . $curlErr,
-        'detail'  => 'ลอง curl localhost:8443 แต่ล้มเหลว',
+        'detail'  => 'ลอง localhost:8443 แต่ล้มเหลว',
     ]);
     exit;
 }
