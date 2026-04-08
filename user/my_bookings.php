@@ -89,7 +89,7 @@ function renderBookingCard($b): void {
         $badgeBg    = 'bg-sky-100 text-sky-700 border-sky-200';
         $badgeIcon  = 'fa-check-double';
         $badgeText  = 'เช็คอินแล้ว';
-        $accentGrad = 'from-sky-400 to-blue-500';
+        $accentGrad = 'from-sky-400 to-[#2e9e63]';
         $dotColor   = 'bg-sky-500';
     } elseif ($isPending) {
         $badgeBg    = 'bg-amber-100 text-amber-700 border-amber-200';
@@ -139,7 +139,7 @@ function renderBookingCard($b): void {
                         <p class="font-bold text-gray-900 text-[15px] leading-tight">
                             <?= $dow ?>, <?= $dateLabel ?>
                         </p>
-                        <p class="text-[13px] text-[#0052CC] font-semibold mt-0.5">
+                        <p class="text-[13px] text-[#2e9e63] font-semibold mt-0.5">
                             <i class="fa-regular fa-clock text-xs mr-1"></i><?= $timeLabel ?>
                         </p>
                     </div>
@@ -198,13 +198,13 @@ function renderBookingCard($b): void {
 <!-- ===== PAGE STRUCTURE ===== -->
 
 <!-- Header Hero -->
-<div class="bg-gradient-to-br from-[#0052CC] to-[#0070f3] pt-10 pb-16 px-5 relative overflow-hidden">
+<div class="bg-gradient-to-br from-[#2e9e63] to-[#3bba7a] pt-10 pb-16 px-5 relative overflow-hidden">
     <div class="absolute -right-10 -top-10 w-48 h-48 bg-white opacity-[0.05] rounded-full blur-3xl"></div>
     <div class="absolute -left-8 bottom-0 w-40 h-40 bg-cyan-300 opacity-[0.08] rounded-full blur-2xl"></div>
     <div class="relative z-10 flex items-start justify-between gap-3">
         <div>
             <h1 class="text-[22px] font-bold text-white">การจองของฉัน</h1>
-            <p class="text-blue-200 text-sm mt-1">คิวจองกิจกรรมและประวัติการเข้าร่วม</p>
+            <p class="text-green-100 text-sm mt-1">คิวจองกิจกรรมและประวัติการเข้าร่วม</p>
         </div>
         <div class="flex items-center gap-2 mt-1">
             <a href="profile.php?redirect_back=my_bookings.php"
@@ -224,18 +224,18 @@ function renderBookingCard($b): void {
     <div class="relative z-10 mt-5 flex gap-3">
         <div class="flex-1 bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-3 text-center">
             <p class="text-2xl font-bold text-white"><?= count($upcomingBookings) ?></p>
-            <p class="text-[11px] text-blue-200 font-medium mt-0.5">คิวที่รอ</p>
+            <p class="text-[11px] text-green-100 font-medium mt-0.5">คิวที่รอ</p>
         </div>
         <div class="flex-1 bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-3 text-center">
             <p class="text-2xl font-bold text-white"><?= count($historyBookings) ?></p>
-            <p class="text-[11px] text-blue-200 font-medium mt-0.5">ประวัติ</p>
+            <p class="text-[11px] text-green-100 font-medium mt-0.5">ประวัติ</p>
         </div>
         <div class="flex-1 bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-3 text-center">
             <?php
             $attended = count(array_filter($historyBookings, fn($b) => !empty($b['attended_at'])));
             ?>
             <p class="text-2xl font-bold text-white"><?= $attended ?></p>
-            <p class="text-[11px] text-blue-200 font-medium mt-0.5">เช็คอิน</p>
+            <p class="text-[11px] text-green-100 font-medium mt-0.5">เช็คอิน</p>
         </div>
     </div>
 </div>
@@ -246,7 +246,7 @@ function renderBookingCard($b): void {
     <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-1.5 mb-5 flex">
         <button id="tab-upcoming"
                 onclick="switchTab('upcoming')"
-                class="flex-1 py-2.5 text-sm font-bold rounded-xl bg-[#0052CC] text-white shadow-md transition-all">
+                class="flex-1 py-2.5 text-sm font-bold rounded-xl bg-[#2e9e63] text-white shadow-md transition-all">
             <i class="fa-solid fa-calendar-clock mr-1.5 text-xs"></i>
             กำลังจะมาถึง
             <span class="ml-1 bg-white/25 text-white px-2 py-0.5 rounded-full text-[10px]"><?= count($upcomingBookings) ?></span>
@@ -264,8 +264,8 @@ function renderBookingCard($b): void {
     <div id="content-upcoming" class="space-y-3">
         <?php if (count($upcomingBookings) === 0): ?>
         <div class="flex flex-col items-center justify-center py-16 text-center">
-            <div class="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mb-4">
-                <i class="fa-regular fa-calendar-check text-3xl text-blue-300"></i>
+            <div class="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mb-4">
+                <i class="fa-regular fa-calendar-check text-3xl text-green-300"></i>
             </div>
             <p class="font-bold text-gray-700 text-base">ไม่มีคิวที่รออยู่</p>
             <p class="text-sm text-gray-400 mt-1">กดปุ่มด้านล่างเพื่อจองคิวใหม่</p>
@@ -295,7 +295,7 @@ function renderBookingCard($b): void {
 <div class="fixed bottom-0 left-0 right-0 max-w-md mx-auto p-4 z-20">
     <div class="bg-white/80 backdrop-blur-md rounded-2xl border border-gray-100 shadow-xl p-2">
         <a href="booking_campaign.php"
-           class="flex w-full items-center justify-center gap-2 bg-gradient-to-r from-[#0052CC] to-[#0070f3] hover:from-[#0047b3] hover:to-[#005fd9] text-white font-bold py-3.5 rounded-xl transition-all shadow-lg shadow-blue-200 active:scale-[0.97]">
+           class="flex w-full items-center justify-center gap-2 bg-gradient-to-r from-[#2e9e63] to-[#3bba7a] hover:from-[#267d50] hover:to-[#2e9e63] text-white font-bold py-3.5 rounded-xl transition-all shadow-lg shadow-green-200 active:scale-[0.97]">
             <i class="fa-solid fa-plus"></i>
             <span class="font-prompt">จองกิจกรรมเพิ่ม</span>
         </a>
@@ -339,7 +339,7 @@ function renderBookingCard($b): void {
                     <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">
                         <i class="fa-solid fa-layer-group mr-1"></i>กิจกรรม
                     </p>
-                    <p id="modal-campaign" class="font-bold text-[#0052CC] text-base font-prompt"></p>
+                    <p id="modal-campaign" class="font-bold text-[#2e9e63] text-base font-prompt"></p>
                 </div>
                 <div class="h-px bg-gray-200"></div>
                 <div class="grid grid-cols-2 gap-4">
@@ -393,7 +393,7 @@ function switchTab(tab) {
     const btnHis = document.getElementById('tab-history');
     const contUp  = document.getElementById('content-upcoming');
     const contHis = document.getElementById('content-history');
-    const activeClass = 'flex-1 py-2.5 text-sm font-bold rounded-xl bg-[#0052CC] text-white shadow-md transition-all';
+    const activeClass = 'flex-1 py-2.5 text-sm font-bold rounded-xl bg-[#2e9e63] text-white shadow-md transition-all';
     const inactiveClass = 'flex-1 py-2.5 text-sm font-bold rounded-xl text-gray-500 hover:text-gray-700 transition-all';
     if (tab === 'upcoming') {
         btnUp.className  = activeClass;
@@ -416,7 +416,7 @@ function switchTab(tab) {
 Swal.fire({
     title: 'ไม่สามารถจองซ้ำได้',
     text: 'คุณมีคิวของกิจกรรมนี้อยู่แล้ว หากต้องการเปลี่ยนวัน กรุณายกเลิกคิวเดิมก่อน',
-    icon: 'warning', confirmButtonColor: '#0052CC', confirmButtonText: 'ตกลง',
+    icon: 'warning', confirmButtonColor: '#2e9e63', confirmButtonText: 'ตกลง',
     customClass: { popup: 'font-prompt rounded-2xl', confirmButton: 'font-prompt rounded-xl px-5' }
 });
 window.history.replaceState(null, null, window.location.pathname);
