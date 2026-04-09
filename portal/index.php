@@ -475,52 +475,43 @@ function triggerGitPull() {
 
 <script>
 /* ══════════════════════════════════════════════════════════════
-   SERVER-SENT EVENTS — live dashboard updates
+   POLLING — live dashboard updates every 20s (no persistent connection)
    ══════════════════════════════════════════════════════════════ */
 
-// Add pulse keyframe once
-const _sseStyle = document.createElement('style');
-_sseStyle.textContent = `
+const _liveStyle = document.createElement('style');
+_liveStyle.textContent = `
   @keyframes livePulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(.8)} }
   @keyframes kpiFade   { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:translateY(0)} }
-  @keyframes feedSlide { from{opacity:0;transform:translateX(12px)} to{opacity:1;transform:translateX(0)} }
+  @keyframes feedSlide { from{opacity:0;transform:translateX(10px)} to{opacity:1;transform:translateX(0)} }
   .kpi-updated { animation: kpiFade .4s ease both; }
-  .feed-new    { animation: feedSlide .35s ease both; }
+  .feed-new    { animation: feedSlide .3s ease both; }
 `;
-document.head.appendChild(_sseStyle);
+document.head.appendChild(_liveStyle);
 
-const badge  = document.getElementById('ws-badge');
-const dot    = document.getElementById('ws-dot');
-const label  = document.getElementById('ws-label');
+const badge = document.getElementById('ws-badge');
+const dot   = document.getElementById('ws-dot');
+const label = document.getElementById('ws-label');
 
 function setBadge(state) {
-    if (state === 'live') {
-        badge.style.background = '#f0fdf4'; badge.style.color = '#16a34a';
-        badge.style.borderColor = '#c7e8d5';
-        dot.style.background = '#22c55e'; dot.style.animation = 'livePulse 1.6s infinite';
-        label.textContent = 'Live';
-    } else if (state === 'connecting') {
-        badge.style.background = '#fffbeb'; badge.style.color = '#d97706';
-        badge.style.borderColor = '#fde68a';
-        dot.style.background = '#f59e0b'; dot.style.animation = 'livePulse .8s infinite';
-        label.textContent = 'Connecting…';
-    } else {
-        badge.style.background = '#fef2f2'; badge.style.color = '#dc2626';
-        badge.style.borderColor = '#fecaca';
-        dot.style.background = '#ef4444'; dot.style.animation = 'none';
-        label.textContent = 'Offline';
-    }
+    const styles = {
+        live:       { bg:'#f0fdf4', color:'#16a34a', border:'#c7e8d5', dot:'#22c55e', anim:'livePulse 1.6s infinite', text:'Live' },
+        loading:    { bg:'#fffbeb', color:'#d97706', border:'#fde68a', dot:'#f59e0b', anim:'livePulse .8s infinite',  text:'Updating…' },
+        offline:    { bg:'#fef2f2', color:'#dc2626', border:'#fecaca', dot:'#ef4444', anim:'none',                    text:'Offline' },
+    };
+    const s = styles[state] || styles.offline;
+    badge.style.cssText = `display:flex;align-items:center;gap:5px;padding:5px 10px;border-radius:8px;font-size:10px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;transition:all .3s;background:${s.bg};color:${s.color};border:1px solid ${s.border}`;
+    dot.style.background  = s.dot;
+    dot.style.animation   = s.anim;
+    label.textContent     = s.text;
 }
 
-// ── Smooth counter animation ──────────────────────────────────────────────────
 function animateKpi(el, toVal) {
-    const from = parseInt(el.textContent.replace(/,/g, ''), 10) || 0;
+    if (!el) return;
+    const from = parseInt(el.textContent.replace(/,/g,''), 10) || 0;
     if (from === toVal) return;
-    const dur = 700, start = performance.now();
+    const dur = 600, start = performance.now();
     const ease = t => 1 - Math.pow(1 - t, 3);
-    el.classList.remove('kpi-updated');
-    void el.offsetWidth; // reflow
-    el.classList.add('kpi-updated');
+    el.classList.remove('kpi-updated'); void el.offsetWidth; el.classList.add('kpi-updated');
     (function tick(now) {
         const p = Math.min((now - start) / dur, 1);
         el.textContent = Math.floor(ease(p) * (toVal - from) + from).toLocaleString();
@@ -529,106 +520,73 @@ function animateKpi(el, toVal) {
     })(start);
 }
 
-// ── Activity feed renderer ────────────────────────────────────────────────────
-const VIEW_ALL_LINK = document.querySelector('#activity-feed a[href]');
+function escHtml(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
 
 function renderActivity(logs) {
     const feed = document.getElementById('activity-feed');
+    const link = feed?.querySelector('a[href]');
     if (!feed) return;
-
-    // Remove old feed-item rows (keep the view-all link)
     feed.querySelectorAll('.feed-item').forEach(el => el.remove());
-
-    if (!logs || logs.length === 0) {
-        const empty = document.createElement('div');
-        empty.className = 'py-12 text-center text-gray-300';
-        empty.innerHTML = '<i class="fa-solid fa-ghost text-3xl mb-2 block"></i><p class="text-[11px] font-bold uppercase tracking-widest">No activity yet</p>';
-        feed.insertBefore(empty, VIEW_ALL_LINK);
-        return;
-    }
-
-    // Insert newest first, stagger animation
+    if (!logs?.length) return;
     const frag = document.createDocumentFragment();
     logs.forEach((log, i) => {
-        const ts = new Date(log.timestamp.replace(' ', 'T'));
-        const timeStr = ts.toLocaleString('th-TH', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' });
-
+        const ts = new Date(log.timestamp.replace(' ','T'));
+        const timeStr = ts.toLocaleString('th-TH',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
         const row = document.createElement('div');
         row.className = 'feed-item feed-new';
-        row.style.animationDelay = (i * 0.05) + 's';
-        row.innerHTML = `
-            <div class="feed-dot"><i class="fa-solid fa-bolt text-[11px]"></i></div>
+        row.style.animationDelay = (i * 0.04) + 's';
+        row.innerHTML = `<div class="feed-dot"><i class="fa-solid fa-bolt text-[11px]"></i></div>
             <div class="min-w-0 flex-1">
                 <div class="flex items-center justify-between gap-2 mb-0.5">
                     <span class="text-[10px] font-black uppercase tracking-wider truncate" style="color:#2e9e63">${escHtml(log.action)}</span>
                     <span class="text-[9px] text-gray-400 whitespace-nowrap">${timeStr}</span>
                 </div>
-                <p class="text-[12px] font-bold text-gray-800 leading-snug truncate">${escHtml(log.admin_name || 'System')}</p>
-                <p class="text-[11px] text-gray-400 leading-snug mt-0.5 line-clamp-1">${escHtml(log.description || '')}</p>
+                <p class="text-[12px] font-bold text-gray-800 leading-snug truncate">${escHtml(log.admin_name||'System')}</p>
+                <p class="text-[11px] text-gray-400 leading-snug mt-0.5 line-clamp-1">${escHtml(log.description||'')}</p>
             </div>`;
         frag.appendChild(row);
     });
-    feed.insertBefore(frag, VIEW_ALL_LINK);
+    feed.insertBefore(frag, link);
 }
 
-function escHtml(str) {
-    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
+// ── Polling ───────────────────────────────────────────────────────────────────
+const POLL_INTERVAL = 20000; // 20 seconds
+let pollTimer = null;
 
-// ── SSE connection ────────────────────────────────────────────────────────────
-let evtSource = null;
-let retryDelay = 3000;
-
-function connectSSE() {
-    setBadge('connecting');
-
-    evtSource = new EventSource('sse_stats.php');
-
-    evtSource.addEventListener('stats', e => {
-        try {
-            const d = JSON.parse(e.data);
-            if (!d.ok) return;
-
-            // Update KPIs
+function poll() {
+    setBadge('loading');
+    fetch('ajax_stats.php', { credentials: 'same-origin' })
+        .then(r => r.ok ? r.json() : Promise.reject(r.status))
+        .then(d => {
+            if (!d.ok) { setBadge('offline'); return; }
             animateKpi(document.getElementById('kpi-users'),   d.users);
             animateKpi(document.getElementById('kpi-camps'),   d.camps);
             animateKpi(document.getElementById('kpi-borrows'), d.borrows);
-
-            // URGENT badge
-            const urgentBadge = document.getElementById('borrows-urgent');
-            if (urgentBadge) urgentBadge.classList.toggle('hidden', d.borrows === 0);
-
-            // Activity feed
+            const ub = document.getElementById('borrows-urgent');
+            if (ub) ub.classList.toggle('hidden', d.borrows === 0);
             if (Array.isArray(d.activity)) renderActivity(d.activity);
-
             setBadge('live');
-            retryDelay = 3000; // reset backoff on success
-        } catch (_) {}
-    });
-
-    evtSource.onerror = () => {
-        evtSource.close();
-        setBadge('offline');
-        // Exponential backoff, cap at 60s
-        setTimeout(() => {
-            retryDelay = Math.min(retryDelay * 2, 60000);
-            connectSSE();
-        }, retryDelay);
-    };
+        })
+        .catch(() => setBadge('offline'));
 }
 
-// Start after page load
-window.addEventListener('load', connectSSE);
-
-// Close SSE gracefully when tab is hidden to save server resources
+// Pause when tab hidden, resume when visible
 document.addEventListener('visibilitychange', () => {
     if (document.hidden) {
-        evtSource?.close();
-        setBadge('offline');
+        clearInterval(pollTimer);
+        pollTimer = null;
     } else {
-        retryDelay = 3000;
-        connectSSE();
+        poll();
+        pollTimer = setInterval(poll, POLL_INTERVAL);
     }
+});
+
+// Start polling after page is fully loaded
+window.addEventListener('load', () => {
+    setBadge('live'); // optimistic: page data is fresh on load
+    pollTimer = setInterval(poll, POLL_INTERVAL);
 });
 </script>
 </body>
