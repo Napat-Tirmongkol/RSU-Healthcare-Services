@@ -104,9 +104,22 @@ $projects = [
             ['label' => 'Activity Logs', 'url' => '../admin/activity_logs.php', 'primary' => false],
         ]
     ],
+    [
+        'id' => 'system_links',
+        'title' => 'Application Links',
+        'description' => 'ศูนย์รวบรวมลิงก์ URL ที่สำคัญของทุกระบบ (หน้าเว็บเบื้องหน้า, หน้าล็อคอินผู้ดูแล) สำหรับคัดลอกไปใช้งาน',
+        'icon' => 'fa-link',
+        'bg_color' => 'bg-teal-50',
+        'icon_color' => 'text-teal-500',
+        'border_color' => 'border-teal-100',
+        'allowed_roles' => ['admin', 'superadmin'],
+        'badges' => ['Directories', 'Share'],
+        'actions' => [
+            ['label' => 'Open Link Directory', 'url' => 'apps.php', 'primary' => true],
+        ]
+    ],
     /**
      * ตัวอย่างการเพิ่มโปรเจกต์ในอนาคต:
-     * เพียงแค่ก๊อปปี้บล็อกนี้แล้วเปลี่ยน URL/Icon ระบบจะวาดหน้า Layout ให้เองทันที
      */
     [
         'id' => 'future_app',
@@ -378,9 +391,6 @@ try {
                     <div class="space-y-2">
                         <a href="users.php" class="shortcut-link">
                             <i class="fa-solid fa-users"></i> Users Center
-                        </a>
-                        <a href="apps.php" class="shortcut-link">
-                            <i class="fa-solid fa-link"></i> Application URLs
                         </a>
                         <a href="../admin/campaigns.php" class="shortcut-link">
                             <i class="fa-solid fa-bullhorn"></i> Campaign Manager
