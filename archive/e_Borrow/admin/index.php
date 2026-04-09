@@ -260,15 +260,9 @@ include('../includes/header.php');
         echo "<div class='bg-red-50 text-red-500 p-3 rounded-xl mb-4 text-sm font-bold border border-red-100'><i class='fas fa-exclamation-triangle'></i> $overdue_error</div>"; ?>
 
     <!-- HEADER SECTION แบบใหม่ -->
-    <div class="mb-4">
-        <a href="../../portal/index.php" class="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl text-sm font-bold text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:border-blue-300 dark:hover:border-blue-500/50 hover:shadow-md transition-all w-max mb-2">
-            <i class="fas fa-arrow-left"></i> กลับสู่หน้าพอร์ทัลหลัก
-        </a>
-    </div>
-    
     <div class="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
         <div>
-            <h2 class="text-3xl font-black text-gray-900 flex items-center gap-3">
+            <h2 class="text-3xl font-black text-gray-900 flex items-center gap-3" style="transition: color 0.3s ease;">
                 <div
                     class="w-10 h-10 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center text-xl shadow-sm">
                     <i class="fas fa-box"></i>
@@ -283,10 +277,17 @@ include('../includes/header.php');
             <p class="text-gray-500 mt-2 text-sm font-medium">สถิติการยืม-คืน อุปกรณ์ทางการแพทย์ และเวชภัณฑ์ (Real-time)
             </p>
         </div>
-        <a href="admin/walkin_borrow.php"
-            class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-5 py-2.5 rounded-xl font-bold text-sm hover:shadow-lg hover:shadow-blue-500/30 hover:-translate-y-0.5 transition-all flex items-center gap-2">
-            <i class="fas fa-qrcode"></i> สแกนยืม/คืน (Walk-in)
-        </a>
+        
+        <div class="flex items-center gap-3 w-full sm:w-auto">
+            <a href="../../portal/index.php"
+                class="flex-1 sm:flex-none justify-center bg-white border border-gray-200 text-gray-800 px-5 py-2.5 rounded-xl font-bold text-sm hover:shadow-lg hover:border-gray-300 hover:text-blue-600 hover:-translate-y-0.5 transition-all flex items-center gap-2">
+                <i class="fas fa-arrow-left"></i> กลับหน้าหลัก
+            </a>
+            <a href="admin/walkin_borrow.php"
+                class="flex-1 sm:flex-none justify-center bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-5 py-2.5 rounded-xl font-bold text-sm hover:shadow-lg hover:shadow-blue-500/30 hover:-translate-y-0.5 transition-all flex items-center gap-2">
+                <i class="fas fa-qrcode"></i> ยืม/คืน (Walk-in)
+            </a>
+        </div>
     </div>
 
     <!-- STATS GRID แบบใหม่ -->
