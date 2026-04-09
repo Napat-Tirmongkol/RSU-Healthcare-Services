@@ -149,9 +149,104 @@ include('../includes/header.php');
         margin: 0 auto;
     }
 
-    /* เกลี่ยสีพื้นหลังถ้า body ปกติของ e_borrow ไม่ตรงกับ tailwind */
+    /* พื้นหลังเริ่มต้น */
     body {
         background-color: #f8fafc;
+        transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    /* =========================================================
+       DARK MODE CSS OVERRIDES
+       =========================================================
+       Since the class .dark-mode is toggled on body, we intercept
+       all the Tailwind classes below to force a dark theme.
+    ========================================================= */
+    body.dark-mode {
+        background-color: #0f172a !important; /* slate-900 */
+        color: #f1f5f9 !important; /* slate-100 */
+    }
+
+    /* Cards, Modals, and Elements with White Background */
+    body.dark-mode .bg-white {
+        background-color: #1e293b !important; /* slate-800 */
+        border-color: #334155 !important; /* slate-700 */
+    }
+
+    /* Text Colors */
+    body.dark-mode .text-gray-900,
+    body.dark-mode .text-gray-800,
+    body.dark-mode .text-slate-800 {
+        color: #f8fafc !important; /* slate-50 */
+    }
+
+    body.dark-mode .text-gray-600,
+    body.dark-mode .text-gray-500,
+    body.dark-mode .text-slate-600,
+    body.dark-mode .text-slate-500 {
+        color: #94a3b8 !important; /* slate-400 */
+    }
+
+    /* Borders */
+    body.dark-mode .border-gray-100,
+    body.dark-mode .border-gray-50,
+    body.dark-mode .border-gray-200 {
+        border-color: #334155 !important;
+    }
+
+    /* Hover States & Secondary Backgrounds */
+    body.dark-mode .bg-slate-50\/50,
+    body.dark-mode .bg-slate-50,
+    body.dark-mode .hover\:bg-slate-50:hover {
+        background-color: #0f172a !important;
+    }
+
+    /* Sub-component status backgrounds (Blue, Amber, Red, Emerald) */
+    body.dark-mode .bg-blue-50 {
+        background-color: rgba(59, 130, 246, 0.15) !important;
+        border-color: rgba(59, 130, 246, 0.3) !important;
+    }
+    body.dark-mode .border-b-blue-50 {
+        border-bottom-color: rgba(59, 130, 246, 0.3) !important;
+    }
+    body.dark-mode .bg-amber-50 {
+        background-color: rgba(245, 158, 11, 0.15) !important;
+        border-color: rgba(245, 158, 11, 0.3) !important;
+    }
+    body.dark-mode .hover\:bg-amber-200:hover {
+        border-color: #f59e0b !important;
+        background-color: rgba(245, 158, 11, 0.25) !important;
+    }
+    body.dark-mode .bg-red-50 {
+        background-color: rgba(239, 68, 68, 0.15) !important;
+        border-color: rgba(239, 68, 68, 0.3) !important;
+    }
+    body.dark-mode .hover\:bg-red-50\/40:hover {
+        background-color: rgba(239, 68, 68, 0.15) !important;
+    }
+    body.dark-mode .bg-emerald-50 {
+        background-color: rgba(16, 185, 129, 0.15) !important;
+        border-color: rgba(16, 185, 129, 0.3) !important;
+    }
+    body.dark-mode .bg-green-50 {
+        background-color: rgba(34, 197, 94, 0.15) !important;
+        border-color: rgba(34, 197, 94, 0.3) !important;
+    }
+
+    /* SweetAlert2 Popup Dark Mode Match */
+    body.dark-mode .swal2-popup {
+        background-color: #1e293b !important;
+        color: #f1f5f9 !important;
+        border: 1px solid #334155 !important;
+    }
+    body.dark-mode .swal2-title {
+        color: #f8fafc !important;
+        border-bottom-color: #334155 !important;
+    }
+    body.dark-mode .swal2-html-container {
+        color: #cbd5e1 !important;
+    }
+    body.dark-mode .swal2-html-container strong {
+        color: #f8fafc !important;
     }
 </style>
 
@@ -170,7 +265,7 @@ include('../includes/header.php');
             <h2 class="text-3xl font-black text-gray-900 flex items-center gap-3">
                 <div
                     class="w-10 h-10 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center text-xl shadow-sm">
-                    <i class="fas fa-boxes-packing"></i>
+                    <i class="fas fa-box"></i>
                 </div>
                 ภาพรวมคลังอุปกรณ์ (Dashboard)
                 <div class="relative flex h-3 w-3 -ml-1 -mt-4 shadow-sm" title="ระบบกำลังอัปเดตแบบ Real-time">
@@ -206,12 +301,12 @@ include('../includes/header.php');
                 </div>
                 <div
                     class="w-14 h-14 bg-white/20 backdrop-blur-md rounded-[18px] flex items-center justify-center text-white shadow-inner">
-                    <i class="fa-solid fa-box-open text-2xl"></i>
+                    <i class="fas fa-box-open text-2xl"></i>
                 </div>
             </div>
             <div
                 class="mt-4 flex items-center gap-2 text-[11px] text-green-100/90 font-bold bg-green-900/30 px-3 py-1.5 rounded-full w-max border border-green-800/40 tracking-wider">
-                <i class="fa-solid fa-check-circle"></i> อุปกรณ์นอนรออยู่ในคลัง
+                <i class="fas fa-check-circle"></i> อุปกรณ์นอนรออยู่ในคลัง
             </div>
         </div>
 
@@ -228,12 +323,12 @@ include('../includes/header.php');
                 </div>
                 <div
                     class="w-14 h-14 bg-blue-50 text-blue-600 rounded-[18px] flex items-center justify-center shadow-inner">
-                    <i class="fa-solid fa-hand-holding-medical text-2xl group-hover:scale-110 transition-transform"></i>
+                    <i class="fas fa-briefcase-medical text-2xl group-hover:scale-110 transition-transform"></i>
                 </div>
             </div>
             <div
                 class="mt-4 flex items-center gap-2 text-[11px] text-blue-600 font-bold bg-blue-50 w-max px-3 py-1.5 rounded-full border border-blue-100 tracking-wider">
-                <i class="fa-solid fa-people-carry"></i> อยู่ระหว่างการใช้งานจริง
+                <i class="fas fa-people-carry"></i> อยู่ระหว่างการใช้งานจริง
             </div>
         </div>
 
@@ -250,12 +345,12 @@ include('../includes/header.php');
                 </div>
                 <div
                     class="w-14 h-14 bg-amber-50 text-amber-500 rounded-[18px] flex items-center justify-center shadow-inner">
-                    <i class="fa-solid fa-tools text-2xl group-hover:rotate-12 transition-transform"></i>
+                    <i class="fas fa-tools text-2xl group-hover:rotate-12 transition-transform"></i>
                 </div>
             </div>
             <div
                 class="mt-4 flex items-center gap-2 text-[11px] text-amber-600 font-bold bg-amber-50 w-max px-3 py-1.5 rounded-full border border-amber-100 tracking-wider">
-                <i class="fa-solid fa-triangle-exclamation"></i> ไม่พร้อมสำหรับการใช้งาน
+                <i class="fas fa-exclamation-triangle"></i> ไม่พร้อมสำหรับการใช้งาน
             </div>
         </div>
 
@@ -274,7 +369,7 @@ include('../includes/header.php');
                 </div>
                 <div
                     class="w-14 h-14 bg-white/20 backdrop-blur-md rounded-[18px] flex items-center justify-center text-white shadow-inner <?= $count_overdue > 0 ? 'animate-pulse' : '' ?>">
-                    <i class="fa-solid fa-clock-rotate-left text-2xl"></i>
+                    <i class="fas fa-history text-2xl"></i>
                 </div>
             </div>
             <div
@@ -309,7 +404,7 @@ include('../includes/header.php');
                             <div class="text-center py-12 flex flex-col items-center">
                                 <div
                                     class="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center text-green-400 mb-3">
-                                    <i class="fa-solid fa-check text-4xl"></i>
+                                    <i class="fas fa-check text-4xl"></i>
                                 </div>
                                 <h4 class="font-bold text-gray-800 text-lg">ไม่มีรอดำเนินการ</h4>
                                 <p class="text-gray-500 text-sm mt-1">คุณได้จัดการคำขอทั้งหมดเรียบร้อยแล้ว!</p>
@@ -330,7 +425,7 @@ include('../includes/header.php');
                                             </h4>
                                             <div class="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1.5 text-[13px]">
                                                 <span class="text-gray-600"><i
-                                                        class="fa-solid fa-user-circle text-gray-400 mr-1"></i> <strong
+                                                        class="fas fa-user-circle text-gray-400 mr-1"></i> <strong
                                                         class="text-gray-800"><?php echo htmlspecialchars($req['student_name'] ?? '-'); ?></strong></span>
                                                 <span class="text-gray-600"><i
                                                         class="fas fa-calendar-alt text-gray-400 mr-1"></i> เลิกจ้าง: <strong
@@ -403,7 +498,7 @@ include('../includes/header.php');
                     <div class="space-y-3">
                         <?php if (empty($overdue_items)): ?>
                             <div class="text-center py-10 flex flex-col items-center">
-                                <i class="fa-solid fa-face-smile-wink text-4xl text-gray-300 mb-3 block"></i>
+                                <i class="fas fa-smile-wink text-4xl text-gray-300 mb-3 block"></i>
                                 <p class="text-gray-500 text-sm">ยอดเยี่ยม! ไม่มีรายการยืมค้างคืน</p>
                             </div>
                         <?php else: ?>
@@ -423,7 +518,7 @@ include('../includes/header.php');
                                                 <?php echo htmlspecialchars($item['equipment_name']); ?>
                                             </h4>
                                             <p class="text-[13px] text-gray-600 mt-1 flex items-center gap-2"><i
-                                                    class="fa-solid fa-user-circle text-gray-400"></i> ผู้ยืม: <strong
+                                                    class="fas fa-user-circle text-gray-400"></i> ผู้ยืม: <strong
                                                     class="text-gray-900"><?php echo htmlspecialchars($item['student_name'] ?? '-'); ?></strong>
                                             </p>
                                             <div class="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1 text-[12px]">
@@ -467,7 +562,7 @@ include('../includes/header.php');
                     class="relative overflow-hidden bg-white border border-gray-200 p-6 rounded-[24px] flex flex-col justify-between hover:border-emerald-300 hover:shadow-xl hover:shadow-emerald-500/10 hover:-translate-y-1 transition-all group">
                     <div
                         class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center mb-4 border border-emerald-100">
-                        <i class="fa-solid fa-clipboard-list text-xl"></i>
+                        <i class="fas fa-clipboard-list text-xl"></i>
                     </div>
                     <div>
                         <span
@@ -476,14 +571,14 @@ include('../includes/header.php');
                             อดีตถึงปัจจุบัน</span>
                     </div>
                     <i
-                        class="fa-solid fa-arrow-right absolute bottom-6 right-6 text-xl text-emerald-500 opacity-0 -translate-x-4 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-0"></i>
+                        class="fas fa-arrow-right absolute bottom-6 right-6 text-xl text-emerald-500 opacity-0 -translate-x-4 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-0"></i>
                 </a>
 
                 <a href="admin/manage_equipment.php"
                     class="relative overflow-hidden bg-white border border-gray-200 p-6 rounded-[24px] flex flex-col justify-between hover:border-blue-300 hover:shadow-xl hover:shadow-blue-500/10 hover:-translate-y-1 transition-all group">
                     <div
                         class="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mb-4 border border-blue-100">
-                        <i class="fa-solid fa-cubes-stacked text-xl"></i>
+                        <i class="fas fa-box text-xl"></i>
                     </div>
                     <div>
                         <span
@@ -493,7 +588,7 @@ include('../includes/header.php');
                             อุปกรณ์ในระบบ</span>
                     </div>
                     <i
-                        class="fa-solid fa-arrow-right absolute bottom-6 right-6 text-xl text-blue-500 opacity-0 -translate-x-4 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-0"></i>
+                        class="fas fa-arrow-right absolute bottom-6 right-6 text-xl text-blue-500 opacity-0 -translate-x-4 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-0"></i>
                 </a>
             </div>
 
