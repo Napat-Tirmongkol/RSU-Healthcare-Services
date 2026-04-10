@@ -187,6 +187,13 @@ try {
                 </button>
                 <?php endif; ?>
 
+                <!-- Live connection badge -->
+                <div id="ws-badge" title="Real-time connection status"
+                     style="display:flex;align-items:center;gap:5px;padding:5px 10px;border-radius:8px;font-size:10px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;border:1px solid #c7e8d5;background:#f0fdf4;color:#16a34a;transition:all .3s">
+                    <span id="ws-dot" style="width:7px;height:7px;border-radius:50%;background:#22c55e;display:inline-block;animation:livePulse 1.6s infinite"></span>
+                    <span id="ws-label">Live</span>
+                </div>
+
                 <div class="user-pill">
                     <div class="user-avatar"><i class="fa-solid fa-user-shield text-[11px]"></i></div>
                     <div class="hidden sm:block">
@@ -214,7 +221,7 @@ try {
                 <div class="kpi-icon" style="background:#fffbeb; color:#d97706">
                     <i class="fa-solid fa-users"></i>
                 </div>
-                <div class="kpi-num text-gray-900" data-counter="<?= $kpis['users'] ?>">0</div>
+                <div class="kpi-num text-gray-900" id="kpi-users" data-counter="<?= $kpis['users'] ?>">0</div>
                 <div class="kpi-label">Total Members</div>
             </div>
 
@@ -224,7 +231,7 @@ try {
                 <div class="kpi-icon" style="background:#e8f8f0; color:#2e9e63">
                     <i class="fa-solid fa-bullhorn"></i>
                 </div>
-                <div class="kpi-num text-gray-900" data-counter="<?= $kpis['camps'] ?>">0</div>
+                <div class="kpi-num text-gray-900" id="kpi-camps" data-counter="<?= $kpis['camps'] ?>">0</div>
                 <div class="kpi-label">Active Campaigns</div>
             </div>
 
@@ -234,10 +241,12 @@ try {
                 <div class="kpi-icon" style="background:#fff1f2; color:#ef4444">
                     <i class="fa-solid fa-clock-rotate-left"></i>
                 </div>
-                <div class="flex items-end gap-2">
-                    <div class="kpi-num text-gray-900" data-counter="<?= $kpis['borrows'] ?>">0</div>
+                <div class="flex items-end gap-2" id="borrows-wrap">
+                    <div class="kpi-num text-gray-900" id="kpi-borrows" data-counter="<?= $kpis['borrows'] ?>">0</div>
                     <?php if($kpis['borrows'] > 0): ?>
-                        <span class="mb-1 px-1.5 py-0.5 bg-red-500 text-white text-[8px] font-black rounded-md leading-none animate-pulse">URGENT</span>
+                        <span id="borrows-urgent" class="mb-1 px-1.5 py-0.5 bg-red-500 text-white text-[8px] font-black rounded-md leading-none animate-pulse">URGENT</span>
+                    <?php else: ?>
+                        <span id="borrows-urgent" class="mb-1 px-1.5 py-0.5 bg-red-500 text-white text-[8px] font-black rounded-md leading-none animate-pulse hidden">URGENT</span>
                     <?php endif; ?>
                 </div>
                 <div class="kpi-label">Pending Borrows</div>
@@ -306,7 +315,7 @@ try {
                         Recent Activity
                         <span class="ml-auto live-badge">LIVE</span>
                     </div>
-                    <div class="feed-card">
+                    <div class="feed-card" id="activity-feed">
                         <?php if($recentActivity): ?>
                             <?php foreach($recentActivity as $log): ?>
                                 <div class="feed-item">
@@ -464,5 +473,121 @@ function triggerGitPull() {
 </script>
 <?php endif; ?>
 
+<script>
+/* ══════════════════════════════════════════════════════════════
+   POLLING — live dashboard updates every 20s (no persistent connection)
+   ══════════════════════════════════════════════════════════════ */
+
+const _liveStyle = document.createElement('style');
+_liveStyle.textContent = `
+  @keyframes livePulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(.8)} }
+  @keyframes kpiFade   { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes feedSlide { from{opacity:0;transform:translateX(10px)} to{opacity:1;transform:translateX(0)} }
+  .kpi-updated { animation: kpiFade .4s ease both; }
+  .feed-new    { animation: feedSlide .3s ease both; }
+`;
+document.head.appendChild(_liveStyle);
+
+const badge = document.getElementById('ws-badge');
+const dot   = document.getElementById('ws-dot');
+const label = document.getElementById('ws-label');
+
+function setBadge(state) {
+    const styles = {
+        live:       { bg:'#f0fdf4', color:'#16a34a', border:'#c7e8d5', dot:'#22c55e', anim:'livePulse 1.6s infinite', text:'Live' },
+        loading:    { bg:'#fffbeb', color:'#d97706', border:'#fde68a', dot:'#f59e0b', anim:'livePulse .8s infinite',  text:'Updating…' },
+        offline:    { bg:'#fef2f2', color:'#dc2626', border:'#fecaca', dot:'#ef4444', anim:'none',                    text:'Offline' },
+    };
+    const s = styles[state] || styles.offline;
+    badge.style.cssText = `display:flex;align-items:center;gap:5px;padding:5px 10px;border-radius:8px;font-size:10px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;transition:all .3s;background:${s.bg};color:${s.color};border:1px solid ${s.border}`;
+    dot.style.background  = s.dot;
+    dot.style.animation   = s.anim;
+    label.textContent     = s.text;
+}
+
+function animateKpi(el, toVal) {
+    if (!el) return;
+    const from = parseInt(el.textContent.replace(/,/g,''), 10) || 0;
+    if (from === toVal) return;
+    const dur = 600, start = performance.now();
+    const ease = t => 1 - Math.pow(1 - t, 3);
+    el.classList.remove('kpi-updated'); void el.offsetWidth; el.classList.add('kpi-updated');
+    (function tick(now) {
+        const p = Math.min((now - start) / dur, 1);
+        el.textContent = Math.floor(ease(p) * (toVal - from) + from).toLocaleString();
+        if (p < 1) requestAnimationFrame(tick);
+        else el.textContent = toVal.toLocaleString();
+    })(start);
+}
+
+function escHtml(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function renderActivity(logs) {
+    const feed = document.getElementById('activity-feed');
+    const link = feed?.querySelector('a[href]');
+    if (!feed) return;
+    feed.querySelectorAll('.feed-item').forEach(el => el.remove());
+    if (!logs?.length) return;
+    const frag = document.createDocumentFragment();
+    logs.forEach((log, i) => {
+        const ts = new Date(log.timestamp.replace(' ','T'));
+        const timeStr = ts.toLocaleString('th-TH',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
+        const row = document.createElement('div');
+        row.className = 'feed-item feed-new';
+        row.style.animationDelay = (i * 0.04) + 's';
+        row.innerHTML = `<div class="feed-dot"><i class="fa-solid fa-bolt text-[11px]"></i></div>
+            <div class="min-w-0 flex-1">
+                <div class="flex items-center justify-between gap-2 mb-0.5">
+                    <span class="text-[10px] font-black uppercase tracking-wider truncate" style="color:#2e9e63">${escHtml(log.action)}</span>
+                    <span class="text-[9px] text-gray-400 whitespace-nowrap">${timeStr}</span>
+                </div>
+                <p class="text-[12px] font-bold text-gray-800 leading-snug truncate">${escHtml(log.admin_name||'System')}</p>
+                <p class="text-[11px] text-gray-400 leading-snug mt-0.5 line-clamp-1">${escHtml(log.description||'')}</p>
+            </div>`;
+        frag.appendChild(row);
+    });
+    feed.insertBefore(frag, link);
+}
+
+// ── Polling ───────────────────────────────────────────────────────────────────
+const POLL_INTERVAL = 20000; // 20 seconds
+let pollTimer = null;
+
+function poll() {
+    setBadge('loading');
+    fetch('ajax_stats.php', { credentials: 'same-origin' })
+        .then(r => r.ok ? r.json() : Promise.reject(r.status))
+        .then(d => {
+            if (!d.ok) { setBadge('offline'); return; }
+            animateKpi(document.getElementById('kpi-users'),   d.users);
+            animateKpi(document.getElementById('kpi-camps'),   d.camps);
+            animateKpi(document.getElementById('kpi-borrows'), d.borrows);
+            const ub = document.getElementById('borrows-urgent');
+            if (ub) ub.classList.toggle('hidden', d.borrows === 0);
+            if (Array.isArray(d.activity)) renderActivity(d.activity);
+            setBadge('live');
+        })
+        .catch(() => setBadge('offline'));
+}
+
+// Pause when tab hidden, resume when visible
+document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+        clearInterval(pollTimer);
+        pollTimer = null;
+    } else {
+        poll();
+        pollTimer = setInterval(poll, POLL_INTERVAL);
+    }
+});
+
+// Start polling after page is fully loaded
+window.addEventListener('load', () => {
+    setBadge('live'); // optimistic: page data is fresh on load
+    pollTimer = setInterval(poll, POLL_INTERVAL);
+});
+</script>
 </body>
 </html>
