@@ -104,6 +104,20 @@ $projects = [
             ['label' => 'Activity Logs', 'url' => '../admin/activity_logs.php', 'primary' => false],
         ]
     ],
+    [
+        'id'            => 'admin_tool',
+        'title'         => 'Admin Tool',
+        'description'   => 'เครื่องมือสำหรับผู้ดูแลระบบ จัดการและตั้งค่าระบบขั้นสูง',
+        'icon'          => 'fa-screwdriver-wrench',
+        'bg_color'      => 'bg-violet-50',
+        'icon_color'    => 'text-violet-600',
+        'border_color'  => 'border-violet-100',
+        'allowed_roles' => ['admin', 'superadmin'],
+        'badges'        => [ 'Tools', 'Settings' ],
+        'actions'       => [
+            ['label' => 'Open Admin Tool', 'url' => 'admin_tool.php', 'primary' => true],
+        ]
+    ],
     /**
      * ตัวอย่างการเพิ่มโปรเจกต์ในอนาคต:
      * เพียงแค่ก๊อปปี้บล็อกนี้แล้วเปลี่ยน URL/Icon ระบบจะวาดหน้า Layout ให้เองทันที
