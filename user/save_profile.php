@@ -25,10 +25,16 @@ $citizenId = trim((string) ($_POST['citizen_id'] ?? ''));
 $phoneNumber = trim((string) ($_POST['phone_number'] ?? ''));
 $status = trim((string) ($_POST['status'] ?? ''));
 $email = trim((string) ($_POST['email'] ?? ''));
+$gender = trim((string) ($_POST['gender'] ?? ''));
 $redirectBack = trim((string) ($_POST['redirect_back'] ?? ''));
 
 if ($status === '') {
     header('Location: profile.php?error=no_status', true, 303);
+    exit;
+}
+
+if (!in_array($gender, ['male', 'female', 'other'], true)) {
+    header('Location: profile.php?error=no_gender', true, 303);
     exit;
 }
 
@@ -61,12 +67,13 @@ try {
                     citizen_id = :cid,
                     phone_number = :phone,
                     status = :status,
-                    email = :email
+                    email = :email,
+                    gender = :gender
                 WHERE line_user_id = :line_id";
     } else {
         // --- INSERT สำหรับผู้ใช้ใหม่ที่ยังไม่เคยลงทะเบียน ---
-        $sql = "INSERT INTO sys_users (line_user_id, full_name, student_personnel_id, citizen_id, phone_number, status, email)
-                VALUES (:line_id, :name, :sid, :cid, :phone, :status, :email)";
+        $sql = "INSERT INTO sys_users (line_user_id, full_name, student_personnel_id, citizen_id, phone_number, status, email, gender)
+                VALUES (:line_id, :name, :sid, :cid, :phone, :status, :email, :gender)";
     }
 
     $stmt = $pdo->prepare($sql);
@@ -77,6 +84,7 @@ try {
         ':phone'   => $phoneNumber,
         ':status'  => $status,
         ':email'   => $email,
+        ':gender'  => $gender,
         ':line_id' => $lineUserId,
     ]);
 

@@ -21,12 +21,13 @@ $userData = [
   'citizen_id' => '',
   'phone' => '',
   'status' => '',
-  'email' => ''
+  'email' => '',
+  'gender' => '',
 ];
 
 try {
   $pdo = db();
-  $stmt = $pdo->prepare("SELECT full_name, student_personnel_id, citizen_id, phone_number, status, email FROM sys_users WHERE line_user_id = :line_id LIMIT 1");
+  $stmt = $pdo->prepare("SELECT full_name, student_personnel_id, citizen_id, phone_number, status, email, gender FROM sys_users WHERE line_user_id = :line_id LIMIT 1");
   $stmt->execute([':line_id' => $lineUserId]);
   $user = $stmt->fetch();
 
@@ -37,6 +38,7 @@ try {
     $userData['phone'] = $user['phone_number'] ?? '';
     $userData['status'] = $user['status'] ?? '';
     $userData['email'] = $user['email'] ?? '';
+    $userData['gender'] = $user['gender'] ?? '';
   }
 } catch (PDOException $e) {
   // กรณี Error ให้ปล่อยผ่านไปกรอกใหม่
@@ -64,6 +66,8 @@ render_header('ข้อมูลส่วนตัว');
     <span>
       <?php if ($error_param === 'no_status'): ?>
         กรุณาเลือกประเภทผู้ใช้งาน (นักศึกษา / บุคลากร / บุคคลทั่วไป)
+      <?php elseif ($error_param === 'no_gender'): ?>
+        กรุณาเลือกเพศ
       <?php elseif ($error_param === 'empty_student'): ?>
         กรุณากรอกรหัสนักศึกษา / บุคลากร
       <?php else: ?>
@@ -129,6 +133,34 @@ render_header('ข้อมูลส่วนตัว');
               <div
                 class="py-3 px-1 text-center border border-gray-200 rounded-xl peer-checked:bg-[#E6F0FF] peer-checked:border-[#0052CC] peer-checked:text-[#0052CC] font-prompt text-[11px] font-bold transition-all h-full flex items-center justify-center">
                 บุคคลทั่วไป</div>
+            </label>
+          </div>
+        </div>
+
+        <!-- เพศ -->
+        <div class="space-y-2">
+          <label class="text-sm font-semibold text-gray-700 font-prompt">เพศ <span class="text-red-500">*</span></label>
+          <div class="grid grid-cols-3 gap-2">
+            <label class="cursor-pointer">
+              <input type="radio" name="gender" value="male" required class="peer hidden"
+                <?= $userData['gender'] === 'male' ? 'checked' : '' ?>>
+              <div class="py-3 px-1 text-center border border-gray-200 rounded-xl peer-checked:bg-[#E6F0FF] peer-checked:border-[#0052CC] peer-checked:text-[#0052CC] font-prompt text-[11px] font-bold transition-all h-full flex items-center justify-center gap-1.5">
+                <i class="fa-solid fa-mars text-xs"></i> ชาย
+              </div>
+            </label>
+            <label class="cursor-pointer">
+              <input type="radio" name="gender" value="female" required class="peer hidden"
+                <?= $userData['gender'] === 'female' ? 'checked' : '' ?>>
+              <div class="py-3 px-1 text-center border border-gray-200 rounded-xl peer-checked:bg-[#E6F0FF] peer-checked:border-[#0052CC] peer-checked:text-[#0052CC] font-prompt text-[11px] font-bold transition-all h-full flex items-center justify-center gap-1.5">
+                <i class="fa-solid fa-venus text-xs"></i> หญิง
+              </div>
+            </label>
+            <label class="cursor-pointer">
+              <input type="radio" name="gender" value="other" required class="peer hidden"
+                <?= $userData['gender'] === 'other' ? 'checked' : '' ?>>
+              <div class="py-3 px-1 text-center border border-gray-200 rounded-xl peer-checked:bg-[#E6F0FF] peer-checked:border-[#0052CC] peer-checked:text-[#0052CC] font-prompt text-[11px] font-bold transition-all h-full flex items-center justify-center">
+                ไม่ระบุ
+              </div>
             </label>
           </div>
         </div>
