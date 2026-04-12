@@ -67,13 +67,12 @@ try {
                     citizen_id = :cid,
                     phone_number = :phone,
                     status = :status,
-                    email = :email,
-                    gender = :gender
+                    email = :email
                 WHERE line_user_id = :line_id";
     } else {
         // --- INSERT สำหรับผู้ใช้ใหม่ที่ยังไม่เคยลงทะเบียน ---
-        $sql = "INSERT INTO sys_users (line_user_id, full_name, student_personnel_id, citizen_id, phone_number, status, email, gender)
-                VALUES (:line_id, :name, :sid, :cid, :phone, :status, :email, :gender)";
+        $sql = "INSERT INTO sys_users (line_user_id, full_name, student_personnel_id, citizen_id, phone_number, status, email)
+                VALUES (:line_id, :name, :sid, :cid, :phone, :status, :email)";
     }
 
     $stmt = $pdo->prepare($sql);
@@ -84,9 +83,23 @@ try {
         ':phone'   => $phoneNumber,
         ':status'  => $status,
         ':email'   => $email,
-        ':gender'  => $gender,
         ':line_id' => $lineUserId,
     ]);
+
+    // บันทึก gender แยก — ถ้า column ยังไม่มีใน DB ข้อมูลหลักยังบันทึกได้ปกติ
+    if ($gender !== '') {
+        try {
+            if ($existingUser) {
+                $gSql = "UPDATE sys_users SET gender = :gender WHERE line_user_id = :line_id";
+            } else {
+                $gSql = "UPDATE sys_users SET gender = :gender WHERE line_user_id = :line_id";
+            }
+            $gStmt = $pdo->prepare($gSql);
+            $gStmt->execute([':gender' => $gender, ':line_id' => $lineUserId]);
+        } catch (PDOException $e) {
+            // column gender ยังไม่ถูก migrate — ข้ามไป
+        }
+    }
 
     // 4. ดึง ID (PK) ของผู้ใช้เพื่อเก็บใส่ Session
     $stmtGetId = $pdo->prepare("SELECT id FROM sys_users WHERE line_user_id = :line_id LIMIT 1");
