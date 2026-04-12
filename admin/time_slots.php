@@ -805,16 +805,24 @@ function toggleMultiSelect(e) {
     const btn = document.querySelector('#multiSelectContainer button');
     if (dropdown.style.display === 'none' || dropdown.style.display === '') {
         // ย้ายไปยัง <body> เพื่อหนีจาก transformed ancestor
-        // (CSS transform สร้าง stacking context ทำให้ position:fixed ไม่ work ถูกต้อง)
         if (dropdown.parentElement !== document.body) {
             document.body.appendChild(dropdown);
         }
         const rect = btn.getBoundingClientRect();
+        const dw   = Math.min(256, window.innerWidth - 8); // dropdown width, ไม่กว้างกว่าจอ
+        const gap  = 6; // ระยะขอบขั้นต่ำจากขอบจอ
+
+        // right-align กับขอบขวาของปุ่ม แล้ว clamp ไม่ให้ล้นซ้าย/ขวา
+        let left = rect.right - dw;
+        if (left < gap) left = gap;
+        if (left + dw > window.innerWidth - gap) left = window.innerWidth - dw - gap;
+
+        dropdown.style.width    = dw + 'px';
         dropdown.style.position = 'fixed';
         dropdown.style.zIndex   = '9999';
         dropdown.style.top      = (rect.bottom + 8) + 'px';
-        dropdown.style.left     = 'auto';
-        dropdown.style.right    = Math.max(4, window.innerWidth - rect.right) + 'px';
+        dropdown.style.left     = left + 'px';
+        dropdown.style.right    = 'auto';
         dropdown.style.display  = 'flex';
     } else {
         dropdown.style.display = 'none';
