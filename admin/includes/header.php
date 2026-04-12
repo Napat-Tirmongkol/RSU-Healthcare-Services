@@ -119,6 +119,26 @@ if (!function_exists('renderPageHeader')) {
         .animate-slide-up { animation: adminSlideUp .4s cubic-bezier(.16,1,.3,1) both; }
 
         /* ── Mobile sidebar overlay ───────────────────────────── */
+
+        /* Control sidebar visibility with pure CSS (not Tailwind responsive) */
+        .admin-sidebar         { display: none; }  /* hidden on mobile */
+        @media (min-width: 768px) {
+            .admin-sidebar     { display: flex; }  /* show as sidebar on desktop */
+        }
+
+        /* Hamburger: visible on mobile only */
+        .sidebar-hamburger     { display: flex; }
+        @media (min-width: 768px) {
+            .sidebar-hamburger { display: none; }
+        }
+
+        /* Desktop spacer in topbar */
+        .topbar-desktop-spacer { display: none; }
+        @media (min-width: 768px) {
+            .topbar-desktop-spacer { display: block; }
+        }
+
+        /* Mobile slide-in overlay */
         .sidebar-backdrop {
             display: none;
             position: fixed;
@@ -132,7 +152,7 @@ if (!function_exists('renderPageHeader')) {
 
         @media (max-width: 767px) {
             .admin-sidebar.mobile-open {
-                display: flex !important;
+                display: flex;
                 position: fixed;
                 top: 0; left: 0; bottom: 0;
                 width: 280px;
@@ -152,7 +172,7 @@ if (!function_exists('renderPageHeader')) {
 
 <?php if (!$layout_none): ?>
 <!-- ── Sidebar ──────────────────────────────────────────────────────────── -->
-<aside class="admin-sidebar hidden md:flex flex-col">
+<aside class="admin-sidebar flex-col">
 
     <!-- Brand -->
     <div class="sidebar-brand">
@@ -261,7 +281,7 @@ function closeMobileSidebar(){
     <!-- Top bar -->
     <div class="admin-topbar">
         <!-- Mobile: hamburger + title -->
-        <div class="flex items-center gap-3 md:hidden">
+        <div class="sidebar-hamburger items-center gap-3">
             <button onclick="toggleMobileSidebar()"
                 class="w-9 h-9 flex items-center justify-center rounded-lg border"
                 style="background:#f0faf4; color:#2e9e63; border-color:#c7e8d5;">
@@ -269,7 +289,7 @@ function closeMobileSidebar(){
             </button>
             <span class="text-sm font-bold text-gray-700">e-Campaign</span>
         </div>
-        <div class="hidden md:block"></div>
+        <div class="topbar-desktop-spacer"></div>
 
         <!-- Right: user info -->
         <div class="flex items-center gap-3">
