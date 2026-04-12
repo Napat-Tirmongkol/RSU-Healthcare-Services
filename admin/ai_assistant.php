@@ -359,7 +359,7 @@ function getCsrf() {
 
 <?php
 // Inject CSRF token as meta tag เพื่อให้ JS ดึงได้
-echo '<script>document.head.insertAdjacentHTML("beforeend",\'<meta name="csrf-token" content="' . htmlspecialchars(generate_csrf_token()) . '">\');</script>';
+echo '<script>document.head.insertAdjacentHTML("beforeend",\'<meta name="csrf-token" content="' . htmlspecialchars(get_csrf_token()) . '">\');</script>';
 ?>
 
 <?php require_once __DIR__ . '/includes/footer.php'; ?>
