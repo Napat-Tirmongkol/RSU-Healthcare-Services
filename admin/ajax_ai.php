@@ -34,6 +34,54 @@ if (!$apiKey) {
     exit;
 }
 
+// ── Rate Limiting (server-side) ───────────────────────────────────────────────
+const AI_RATE_LIMIT  = 10;  // สูงสุด 10 ครั้ง/นาที (Gemini free tier = 15 RPM)
+const AI_RATE_WINDOW = 60;  // หน้าต่างเวลา (วินาที)
+const AI_COOLDOWN    = 4;   // หน่วงเวลาขั้นต่ำระหว่างแต่ละ request (วินาที)
+
+$now = time();
+
+// ล้าง timestamps ที่เกิน window ออก
+$_SESSION['_ai_ts'] = array_values(array_filter(
+    $_SESSION['_ai_ts'] ?? [],
+    fn($t) => $now - $t < AI_RATE_WINDOW
+));
+
+// ตรวจ cooldown ระหว่าง request
+if (!empty($_SESSION['_ai_ts'])) {
+    $lastTs  = end($_SESSION['_ai_ts']);
+    $elapsed = $now - $lastTs;
+    if ($elapsed < AI_COOLDOWN) {
+        $wait = AI_COOLDOWN - $elapsed;
+        http_response_code(429);
+        echo json_encode([
+            'ok'       => false,
+            'cooldown' => $wait,
+            'error'    => "กรุณารอ {$wait} วินาที ก่อนส่งคำถามถัดไป",
+        ]);
+        exit;
+    }
+}
+
+// ตรวจ rate limit รายนาที
+$used      = count($_SESSION['_ai_ts']);
+$remaining = AI_RATE_LIMIT - $used - 1; // -1 สำหรับ request นี้
+if ($used >= AI_RATE_LIMIT) {
+    $oldest  = reset($_SESSION['_ai_ts']);
+    $resetIn = AI_RATE_WINDOW - ($now - $oldest);
+    http_response_code(429);
+    echo json_encode([
+        'ok'          => false,
+        'rate_limited' => true,
+        'reset_in'    => max(1, $resetIn),
+        'error'       => "ถึงขีดจำกัด " . AI_RATE_LIMIT . " ครั้ง/นาที — รีเซ็ตใน {$resetIn} วินาที",
+    ]);
+    exit;
+}
+
+// บันทึก timestamp ของ request นี้
+$_SESSION['_ai_ts'][] = $now;
+
 // ── Fetch Campaign Data from DB ───────────────────────────────────────────────
 $pdo = db();
 
@@ -244,4 +292,10 @@ if (!$text) {
     exit;
 }
 
-echo json_encode(['ok' => true, 'reply' => $text]);
+echo json_encode([
+    'ok'        => true,
+    'reply'     => $text,
+    'remaining' => max(0, $remaining),
+    'limit'     => AI_RATE_LIMIT,
+    'cooldown'  => AI_COOLDOWN,
+]);

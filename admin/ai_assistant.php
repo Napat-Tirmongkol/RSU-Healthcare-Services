@@ -112,6 +112,35 @@ renderPageHeader(
 #chatMessages::-webkit-scrollbar { width: 4px; }
 #chatMessages::-webkit-scrollbar-thumb { background: #c4b5fd; border-radius: 99px; }
 
+/* ── Rate limit bar ──────────────────────────────── */
+.rate-bar {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 8px; padding: 6px 16px;
+    background: #faf8ff; border-top: 1px solid #ede9fe;
+    font-size: .72rem; color: #6b7280; flex-wrap: wrap;
+}
+.rate-bar-dots { display: flex; gap: 3px; }
+.rate-dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: #e5e7eb; transition: background .3s;
+}
+.rate-dot.used   { background: #8b5cf6; }
+.rate-dot.danger { background: #ef4444; }
+#cooldownBadge {
+    display: none; align-items: center; gap: 5px;
+    padding: 3px 10px; border-radius: 99px;
+    background: #fef3c7; color: #92400e;
+    font-weight: 700; font-size: .7rem;
+}
+#cooldownBadge.show { display: flex; }
+#rateLimitWarn {
+    display: none; align-items: center; gap: 5px;
+    padding: 3px 10px; border-radius: 99px;
+    background: #fee2e2; color: #991b1b;
+    font-weight: 700; font-size: .7rem;
+}
+#rateLimitWarn.show { display: flex; }
+
 /* ── Input area ──────────────────────────────────── */
 .chat-input-area {
     border-top: 1.5px solid #ede9fe;
@@ -228,6 +257,18 @@ renderPageHeader(
         </div>
     </div>
 
+    <!-- Rate limit bar -->
+    <div class="rate-bar">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+            <div class="rate-bar-dots" id="rateDots"></div>
+            <span id="rateText" style="color:#9ca3af">เหลือ <b id="remainingCount">10</b>/10 ครั้งในนาทีนี้</span>
+        </div>
+        <div style="display:flex;gap:6px;align-items:center">
+            <span id="cooldownBadge"><i class="fa-solid fa-clock"></i> รอ <b id="cdSec">0</b>s</span>
+            <span id="rateLimitWarn"><i class="fa-solid fa-ban"></i> ถึงลิมิต — รีเซ็ตใน <b id="resetSec">60</b>s</span>
+        </div>
+    </div>
+
     <!-- Input -->
     <div class="chat-input-area">
         <textarea id="chatInput" rows="1"
@@ -299,12 +340,92 @@ function hideTyping() {
     document.getElementById('typingIndicator')?.remove();
 }
 
+// ── Rate limit & cooldown state ───────────────────────────────────────────────
+let RATE_LIMIT = 10;
+let COOLDOWN   = 4;
+let cdInterval = null;
+let rlInterval = null;
+
+function initDots(limit) {
+    const el = document.getElementById('rateDots');
+    el.innerHTML = '';
+    for (let i = 0; i < limit; i++) {
+        const d = document.createElement('div');
+        d.className = 'rate-dot';
+        d.id = 'dot-' + i;
+        el.appendChild(d);
+    }
+}
+
+function updateRateUI(remaining, limit) {
+    RATE_LIMIT = limit || RATE_LIMIT;
+    const used = RATE_LIMIT - remaining;
+    document.getElementById('remainingCount').textContent = remaining;
+    document.getElementById('rateText').innerHTML =
+        `เหลือ <b id="remainingCount">${remaining}</b>/${RATE_LIMIT} ครั้งในนาทีนี้`;
+    // update dots
+    for (let i = 0; i < RATE_LIMIT; i++) {
+        const d = document.getElementById('dot-' + i);
+        if (!d) continue;
+        d.className = 'rate-dot' + (i < used ? (used >= RATE_LIMIT - 2 ? ' danger' : ' used') : '');
+    }
+}
+
+function startCooldown(seconds) {
+    clearInterval(cdInterval);
+    sendEl.disabled = true;
+    let left = seconds;
+    const badge  = document.getElementById('cooldownBadge');
+    const cdSecEl = document.getElementById('cdSec');
+    badge.classList.add('show');
+
+    function tick() {
+        cdSecEl.textContent = left;
+        sendEl.innerHTML = `<span style="font-size:.72rem;font-weight:800;letter-spacing:-.5px">${left}s</span>`;
+        if (left <= 0) {
+            clearInterval(cdInterval);
+            sendEl.disabled = false;
+            sendEl.innerHTML = '<i class="fa-solid fa-paper-plane"></i>';
+            badge.classList.remove('show');
+            inputEl.focus();
+        }
+        left--;
+    }
+    tick();
+    cdInterval = setInterval(tick, 1000);
+}
+
+function showRateLimited(resetIn) {
+    clearInterval(rlInterval);
+    sendEl.disabled = true;
+    let left = resetIn;
+    const warn   = document.getElementById('rateLimitWarn');
+    const resetEl = document.getElementById('resetSec');
+    warn.classList.add('show');
+    document.getElementById('cooldownBadge').classList.remove('show');
+
+    function tick() {
+        resetEl.textContent = left;
+        sendEl.innerHTML = `<span style="font-size:.65rem;font-weight:800">🚫${left}s</span>`;
+        if (left <= 0) {
+            clearInterval(rlInterval);
+            sendEl.disabled = false;
+            sendEl.innerHTML = '<i class="fa-solid fa-paper-plane"></i>';
+            warn.classList.remove('show');
+            updateRateUI(RATE_LIMIT, RATE_LIMIT); // reset display
+            inputEl.focus();
+        }
+        left--;
+    }
+    tick();
+    rlInterval = setInterval(tick, 1000);
+}
+
 // ── Core send ─────────────────────────────────────────────────────────────────
 async function sendMessage() {
     const query = inputEl.value.trim();
     if (!query || sendEl.disabled) return;
 
-    // Show user message
     appendMsg('user', escHtml(query).replace(/\n/g, '<br>'));
     inputEl.value = '';
     autoResize(inputEl);
@@ -320,19 +441,37 @@ async function sendMessage() {
         const data = await res.json();
 
         hideTyping();
+
         if (data.ok) {
             appendMsg('ai', marked.parse(data.reply));
+            // Update rate UI from server response
+            if (data.remaining !== undefined) updateRateUI(data.remaining, data.limit);
+            startCooldown(data.cooldown || COOLDOWN);
+        } else if (data.cooldown) {
+            // Server enforced cooldown
+            appendMsg('ai', `<span style="color:#b45309"><i class="fa-solid fa-clock mr-1"></i>${escHtml(data.error)}</span>`);
+            startCooldown(data.cooldown);
+        } else if (data.rate_limited) {
+            // Hit per-minute limit
+            appendMsg('ai', `<span style="color:#dc2626"><i class="fa-solid fa-ban mr-1"></i>${escHtml(data.error)}</span>`);
+            updateRateUI(0, RATE_LIMIT);
+            showRateLimited(data.reset_in || 60);
         } else {
             appendMsg('ai', `<span style="color:#dc2626"><i class="fa-solid fa-circle-exclamation mr-1"></i>${escHtml(data.error)}</span>`);
+            sendEl.disabled = false;
         }
     } catch (err) {
         hideTyping();
         appendMsg('ai', '<span style="color:#dc2626"><i class="fa-solid fa-circle-exclamation mr-1"></i>เกิดข้อผิดพลาด กรุณาลองใหม่</span>');
-    } finally {
         sendEl.disabled = false;
+    } finally {
         inputEl.focus();
     }
 }
+
+// Init dots on page load
+initDots(RATE_LIMIT);
+updateRateUI(RATE_LIMIT, RATE_LIMIT);
 
 // ── Quick prompt chips ────────────────────────────────────────────────────────
 function sendPrompt(text) {
