@@ -245,6 +245,12 @@ if (!function_exists('renderPageHeader')) {
             <?php navLink('../admin/error_logs.php',    'fa-bug',        'Error Logs',     $cur); ?>
         </div>
 
+        <!-- AI -->
+        <div class="nav-section-label">AI</div>
+        <div class="space-y-0.5">
+            <?php navLink('../admin/ai_assistant.php', 'fa-robot', 'AI Analyst', $cur); ?>
+        </div>
+
     </nav>
 
     <!-- Logout -->

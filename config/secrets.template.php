@@ -29,6 +29,9 @@ return [
     'GOOGLE_CLIENT_SECRET'                => '',
     'GOOGLE_REDIRECT_URI'                  => '',
 
+    // --- Gemini AI (get key from https://aistudio.google.com/app/apikey) ---
+    'GEMINI_API_KEY'                      => '',
+
     // --- Email System (SMTP) ---
     'SMTP_HOST'                           => '', // e.g., smtp.gmail.com
     'SMTP_PORT'                           => 587,
