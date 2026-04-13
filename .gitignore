@@ -5,7 +5,7 @@ config/db_connect.php
 # ซ่อนทั้งโฟลเดอร์ (ใส่เครื่องหมาย / ต่อท้าย)
 e_Borrow/uploads/
 node_modules/
-vendor/
+# vendor/ ไม่ได้ ignore — commit เข้า repo เพราะ server ไม่มี Composer
 
 # ซ่อนไฟล์ทุกตัวที่มีนามสกุลตามที่กำหนด (ใช้เครื่องหมายดอกจัน *)
 *.sql
