@@ -32,9 +32,16 @@ function smtp_send(string $to, string $subject, string $htmlBody, array $cfg): b
 
     // เลือก transport
     $useSsl = ($port === 465);
-    $host_connect = ($useSsl ? 'ssl://' : '') . $host;
 
-    $sock = @fsockopen($host_connect, $port, $errno, $errstr, $timeout);
+    // สร้าง SSL context ล่วงหน้า — ปิด verify_peer เพราะ mail server ในองค์กรมักใช้ self-signed cert
+    $sslCtx = stream_context_create(['ssl' => [
+        'verify_peer'       => false,
+        'verify_peer_name'  => false,
+        'allow_self_signed' => true,
+    ]]);
+
+    $proto = $useSsl ? 'ssl' : 'tcp';
+    $sock  = @stream_socket_client("{$proto}://{$host}:{$port}", $errno, $errstr, $timeout, STREAM_CLIENT_CONNECT, $sslCtx);
     if (!$sock) {
         error_log("SMTP connect failed ({$host}:{$port}): {$errstr}");
         return false;
