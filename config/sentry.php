@@ -15,11 +15,16 @@ declare(strict_types=1);
 // ── 1. Load Composer autoloader ───────────────────────────────────────────────
 $_autoload = __DIR__ . '/../vendor/autoload.php';
 if (!file_exists($_autoload)) {
-    // vendor/ ยังไม่ถูก install (composer install) — ปิด Sentry ไว้ก่อน
     defined('SENTRY_BROWSER_KEY') || define('SENTRY_BROWSER_KEY', '');
     return;
 }
-require_once $_autoload;
+try {
+    require_once $_autoload; // platform_check.php อยู่ใน autoload — throw ถ้า PHP เวอร์ชันต่ำ
+} catch (\RuntimeException $e) {
+    // PHP version ไม่ถึง 8.1 — ปิด Sentry อย่าง graceful ไม่ให้ทั้งระบบพัง
+    defined('SENTRY_BROWSER_KEY') || define('SENTRY_BROWSER_KEY', '');
+    return;
+}
 unset($_autoload);
 
 // ── 2. Read DSN ───────────────────────────────────────────────────────────────
