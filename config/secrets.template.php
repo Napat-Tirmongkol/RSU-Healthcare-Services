@@ -32,6 +32,9 @@ return [
     // --- Gemini AI (get key from https://aistudio.google.com/app/apikey) ---
     'GEMINI_API_KEY'                      => '',
 
+    // --- Sentry error monitoring (get DSN: sentry.io → Project → Settings → Client Keys) ---
+    'SENTRY_DSN'                          => '', // e.g. https://abc123@o0.ingest.sentry.io/456
+
     // --- Email System (SMTP) ---
     'SMTP_HOST'                           => '', // e.g., smtp.gmail.com
     'SMTP_PORT'                           => 587,

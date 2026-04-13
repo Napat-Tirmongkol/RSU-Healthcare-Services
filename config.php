@@ -4,6 +4,7 @@
 require_once __DIR__ . '/config/db_connect.php';
 require_once __DIR__ . '/includes/csrf.php';
 require_once __DIR__ . '/includes/error_logger.php';
+require_once __DIR__ . '/config/sentry.php'; // โหลดหลัง error_logger — Sentry wraps handler chain
 
 // ── Log Retention Settings ────────────────────────────────────────────────────
 defined('ERROR_LOG_RETENTION_DAYS')    || define('ERROR_LOG_RETENTION_DAYS',    30);  // วัน

@@ -1,0 +1,11 @@
+{
+    "name": "rsu/healthcare-services",
+    "require": {
+        "php": ">=8.1",
+        "sentry/sentry": "^4.8"
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "sort-packages": true
+    }
+}
