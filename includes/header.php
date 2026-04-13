@@ -60,6 +60,10 @@ function render_header(string $title = 'E-Vax'): void {
         .custom-scrollbar::-webkit-scrollbar { display: none; }
         .custom-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
       </style>
+      <?php if (defined('SENTRY_BROWSER_KEY') && SENTRY_BROWSER_KEY !== ''): ?>
+      <script>window.sentryOnLoad = function() { Sentry.init({ tracesSampleRate: 0.1 }); };</script>
+      <script src="https://js.sentry-cdn.com/<?= htmlspecialchars(SENTRY_BROWSER_KEY, ENT_QUOTES) ?>.min.js" crossorigin="anonymous" defer></script>
+      <?php endif; ?>
     </head>
     
     <body class="bg-[#f4f7fa] h-[100dvh] w-full overflow-hidden flex justify-center text-gray-900 font-prompt">

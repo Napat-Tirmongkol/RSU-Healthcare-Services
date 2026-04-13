@@ -172,6 +172,10 @@ if (!function_exists('renderPageHeader')) {
             to   { transform: translateX(0); }
         }
     </style>
+    <?php if (defined('SENTRY_BROWSER_KEY') && SENTRY_BROWSER_KEY !== ''): ?>
+    <script>window.sentryOnLoad = function() { Sentry.init({ tracesSampleRate: 0.1 }); };</script>
+    <script src="https://js.sentry-cdn.com/<?= htmlspecialchars(SENTRY_BROWSER_KEY, ENT_QUOTES) ?>.min.js" crossorigin="anonymous" defer></script>
+    <?php endif; ?>
 </head>
 <body style="display:flex; min-height:100vh; background:#e2f4ea;">
 
