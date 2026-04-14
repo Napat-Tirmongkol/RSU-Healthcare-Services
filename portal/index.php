@@ -49,7 +49,7 @@ try {
     if ($idSearch !== '') {
         $idSql .= " WHERE full_name LIKE :s OR student_personnel_id LIKE :s2 OR citizen_id LIKE :s3";
     }
-    $idSql .= " ORDER BY created_at DESC LIMIT 300";
+    $idSql .= " ORDER BY created_at DESC";
     $idStmt = $pdo->prepare($idSql);
     if ($idSearch !== '') {
         $like = "%{$idSearch}%";
@@ -62,7 +62,6 @@ try {
     $idActiveCount = (int)$pdo->query("
         SELECT COUNT(DISTINCT id) FROM sys_users
         WHERE id IN (SELECT student_id FROM camp_bookings WHERE student_id IS NOT NULL)
-           OR id IN (SELECT borrower_student_id FROM borrow_records WHERE borrower_student_id IS NOT NULL)
     ")->fetchColumn();
 } catch (PDOException $e) {
     $idUsers = [];
