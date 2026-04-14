@@ -95,6 +95,7 @@ if ($isUserFolder && !in_array($currentPage, $excludedPages)) {
 }
 
 function render_header(string $title = 'E-Vax'): void {
+  global $isUserFolder;
   ?>
   <!doctype html>
   <html lang="th">
