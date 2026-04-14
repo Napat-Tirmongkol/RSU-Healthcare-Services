@@ -1,82 +1,73 @@
 <?php
-// admin/users.php
+// portal/users.php
 require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/../admin/includes/auth.php';
 
+// ป้องกัน browser cache POST response
+header('Cache-Control: no-store, no-cache, must-revalidate');
+header('Pragma: no-cache');
+
 $pdo = db();
-$message = '';
-$messageType = '';
 
 // ==========================================
-// ส่วนจัดการ POST Request (อัปเดตข้อมูลนักศึกษา)
+// POST Handler — PRG pattern (redirect หลัง save ทันที)
 // ==========================================
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $action = $_POST['action'] ?? '';
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'edit_user') {
+    $userId    = (int)($_POST['user_id']               ?? 0);
+    $fullName  = trim($_POST['full_name']               ?? '');
+    $studentId = trim($_POST['student_personnel_id']    ?? '');
+    $citizenId = trim($_POST['citizen_id']              ?? '');
+    $phone     = trim($_POST['phone_number']            ?? '');
+    $status    = trim($_POST['status']                  ?? '');
+    $search    = trim($_POST['search_carry']            ?? '');
 
-    if ($action === 'edit_user') {
-        $userId = (int)($_POST['user_id'] ?? 0);
-        $fullName = trim($_POST['full_name'] ?? '');
-        $studentId = trim($_POST['student_personnel_id'] ?? '');
-        $phone = trim($_POST['phone_number'] ?? '');
-
-        if ($userId > 0 && $fullName !== '' && $studentId !== '') {
-            try {
-                $sql = "UPDATE sys_users 
-                        SET full_name = :name, 
-                            student_personnel_id = :studentid, 
-                            citizen_id = :citizenid,
-                            phone_number = :phone,
-                            status = :status 
-                        WHERE id = :id";
-                $stmt = $pdo->prepare($sql);
-                $stmt->execute([
-                    ':name' => $fullName,
-                    ':studentid' => trim($_POST['student_personnel_id'] ?? ''),
-                    ':citizenid' => trim($_POST['citizen_id'] ?? ''),
-                    ':phone' => $phone,
-                    ':status' => trim($_POST['status'] ?? ''),
-                    ':id' => $userId
-                ]);
-                $message = "อัปเดตข้อมูลนักศึกษาเรียบร้อยแล้ว!";
-                log_activity("Updated User Profile", "แก้ไขข้อมูลงรายชื่อ: $fullName (#$studentId)");
-                $messageType = "success";
-            } catch (PDOException $e) {
-                $message = "เกิดข้อผิดพลาด: " . $e->getMessage();
-                $messageType = "error";
-            }
-        } else {
-            $message = "กรุณากรอกข้อมูลให้ครบถ้วน";
-            $messageType = "error";
+    if ($userId > 0 && $fullName !== '') {
+        try {
+            $pdo->prepare("UPDATE sys_users
+                           SET full_name = :name,
+                               student_personnel_id = :sid,
+                               citizen_id = :cid,
+                               phone_number = :phone,
+                               status = :status
+                           WHERE id = :id")
+                ->execute([':name'=>$fullName,':sid'=>$studentId,':cid'=>$citizenId,
+                           ':phone'=>$phone,':status'=>$status,':id'=>$userId]);
+            log_activity("Updated User Profile", "แก้ไขรายชื่อ: $fullName (#$studentId)");
+            $qs = http_build_query(array_filter(['saved'=>'1','search'=>$search]));
+        } catch (PDOException $e) {
+            error_log("portal edit_user: " . $e->getMessage());
+            $qs = http_build_query(array_filter(['error'=>'1','search'=>$search]));
         }
+    } else {
+        $qs = http_build_query(array_filter(['error'=>'missing','search'=>$search]));
     }
+    header('Location: users.php' . ($qs ? "?$qs" : ''));
+    exit;
 }
 
 // ==========================================
-// ดึงข้อมูลและระบบค้นหา (แก้ไข Error HY093)
+// GET — ดึงข้อมูลใหม่เสมอ (หลัง redirect ข้อมูลจะเป็นปัจจุบัน)
 // ==========================================
-$search = $_GET['search'] ?? '';
-$users = [];
-$params = [];
+$search   = trim($_GET['search'] ?? '');
+$saved    = isset($_GET['saved'])  && $_GET['saved']  === '1';
+$hasError = isset($_GET['error']);
+$users    = [];
+$params   = [];
 
 try {
     $sql = "SELECT * FROM sys_users WHERE 1=1";
-    
     if ($search !== '') {
-        // แยกชื่อ Parameter ให้ไม่ซ้ำกัน
-        $sql .= " AND (full_name LIKE :search1 OR student_personnel_id LIKE :search2 OR phone_number LIKE :search3)";
-        $searchTerm = "%{$search}%";
-        $params[':search1'] = $searchTerm;
-        $params[':search2'] = $searchTerm;
-        $params[':search3'] = $searchTerm;
+        $sql .= " AND (full_name LIKE :s1 OR student_personnel_id LIKE :s2 OR phone_number LIKE :s3)";
+        $like = "%{$search}%";
+        $params = [':s1'=>$like,':s2'=>$like,':s3'=>$like];
     }
-    
-    $sql .= " ORDER BY created_at DESC"; // เรียงจากคนที่สมัครล่าสุดขึ้นก่อน
-    
+    $sql .= " ORDER BY created_at DESC";
     $stmt = $pdo->prepare($sql);
     $stmt->execute($params);
     $users = $stmt->fetchAll();
 } catch (PDOException $e) {
-    error_log("portal users error: " . $e->getMessage()); $users = [];
+    error_log("portal users fetch: " . $e->getMessage());
+    $users = [];
 }
 
 // portal/users.php ไม่แสดง admin sidebar ของ e-campaign
@@ -126,6 +117,19 @@ require_once __DIR__ . '/../admin/includes/header.php';
 </style>
 
 <div class="max-w-6xl mx-auto px-4 py-8">
+
+<?php if ($saved): ?>
+<div id="u-toast" style="position:fixed;top:20px;right:20px;z-index:9999;display:flex;align-items:center;gap:10px;background:#f0fdf4;border:1.5px solid #bbf7d0;border-radius:14px;padding:12px 18px;font-size:13px;font-weight:700;color:#15803d;box-shadow:0 4px 20px rgba(0,0,0,.08)">
+    <i class="fa-solid fa-circle-check"></i> บันทึกข้อมูลสำเร็จ
+</div>
+<script>setTimeout(function(){var t=document.getElementById('u-toast');if(t){t.style.transition='opacity .5s';t.style.opacity='0';setTimeout(function(){t.remove()},500)}},3000)</script>
+<?php elseif ($hasError): ?>
+<div style="position:fixed;top:20px;right:20px;z-index:9999;display:flex;align-items:center;gap:10px;background:#fff1f2;border:1.5px solid #fecaca;border-radius:14px;padding:12px 18px;font-size:13px;font-weight:700;color:#dc2626;box-shadow:0 4px 20px rgba(0,0,0,.08)">
+    <i class="fa-solid fa-circle-exclamation"></i>
+    <?= $_GET['error']==='missing' ? 'กรุณากรอกข้อมูลให้ครบถ้วน' : 'เกิดข้อผิดพลาด กรุณาลองใหม่' ?>
+</div>
+<?php endif; ?>
+
 <?php
     // (A) PREPARE HEADER ACTIONS
     $header_actions = '
@@ -306,6 +310,7 @@ require_once __DIR__ . '/../admin/includes/header.php';
             <?php csrf_field(); ?>
             <input type="hidden" name="action" value="edit_user">
             <input type="hidden" name="user_id" id="edit_user_id">
+            <input type="hidden" name="search_carry" value="<?= htmlspecialchars($search) ?>">
 
             <!-- Header -->
             <div class="px-8 py-6 premium-modal-header flex justify-between items-center sticky top-0 z-10">
