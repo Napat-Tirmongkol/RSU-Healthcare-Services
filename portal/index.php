@@ -49,7 +49,7 @@ try {
     if ($idSearch !== '') {
         $idSql .= " WHERE full_name LIKE :s OR student_personnel_id LIKE :s2 OR citizen_id LIKE :s3";
     }
-    $idSql .= " ORDER BY created_at DESC LIMIT 25";
+    $idSql .= " ORDER BY created_at DESC";
     $idStmt = $pdo->prepare($idSql);
     if ($idSearch !== '') {
         $like = "%{$idSearch}%";
@@ -672,7 +672,7 @@ try {
                     <span style="font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.14em;color:#374151">Master Records</span>
                     <span style="margin-left:auto;font-size:11px;font-weight:700;color:#94a3b8"><?= number_format(count($idUsers)) ?> รายการ</span>
                 </div>
-                <div style="overflow-x:auto">
+                <div style="overflow-x:auto" id="idTableWrap">
                 <table style="width:100%;border-collapse:collapse;font-size:13px" id="idUserTable">
                     <thead>
                         <tr style="background:#f8fafc;border-bottom:1px solid #f1f5f9">
@@ -738,6 +738,28 @@ try {
                     <?php endif; ?>
                     </tbody>
                 </table>
+                </div>
+
+                <!-- Pagination bar -->
+                <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;padding:14px 20px;border-top:1px solid #f1f5f9">
+                    <div style="display:flex;align-items:center;gap:6px">
+                        <span style="font-size:11px;font-weight:700;color:#94a3b8">แสดง</span>
+                        <?php foreach ([25, 50, 100] as $sz): ?>
+                        <button class="id-ps-btn" data-size="<?= $sz ?>" onclick="idSetPageSize(<?= $sz ?>)"
+                                style="padding:5px 13px;border-radius:8px;border:1.5px solid #e2e8f0;background:<?= $sz===25?'#2e9e63':'#f8fafc' ?>;color:<?= $sz===25?'#fff':'#374151' ?>;font-size:12px;font-weight:700;cursor:pointer;transition:all .15s">
+                            <?= $sz ?>
+                        </button>
+                        <?php endforeach; ?>
+                        <span style="font-size:11px;font-weight:700;color:#94a3b8">รายการ</span>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:8px">
+                        <span id="id-page-info" style="font-size:12px;font-weight:700;color:#64748b;min-width:120px;text-align:center"></span>
+                        <button id="id-page-prev" onclick="idPrevPage()"
+                                style="width:32px;height:32px;border-radius:9px;border:1.5px solid #e2e8f0;background:#f8fafc;color:#374151;cursor:pointer;font-size:15px;font-weight:700;transition:all .15s;line-height:1"
+                                disabled>‹</button>
+                        <button id="id-page-next" onclick="idNextPage()"
+                                style="width:32px;height:32px;border-radius:9px;border:1.5px solid #e2e8f0;background:#f8fafc;color:#374151;cursor:pointer;font-size:15px;font-weight:700;transition:all .15s;line-height:1">›</button>
+                    </div>
                 </div>
             </div>
 
@@ -1186,12 +1208,71 @@ function idOpenView(u) {
     }).join('');
     document.getElementById('idViewModal').style.display = 'flex';
 }
-function idFilterUsers(val) {
-    val = val.toLowerCase();
-    document.querySelectorAll('#idUserTable tbody .id-user-row').forEach(function(row) {
-        row.style.display = row.innerText.toLowerCase().includes(val) ? '' : 'none';
-    });
-}
+/* ── Identity pagination ── */
+(function () {
+    var allRows      = [];
+    var filtered     = [];
+    var currentPage  = 1;
+    var pageSize     = 25;
+
+    function init() {
+        allRows  = Array.from(document.querySelectorAll('#idUserTable tbody .id-user-row'));
+        filtered = allRows.slice();
+        render();
+    }
+
+    function render() {
+        var total      = filtered.length;
+        var totalPages = Math.max(1, Math.ceil(total / pageSize));
+        if (currentPage > totalPages) currentPage = totalPages;
+        var start = (currentPage - 1) * pageSize;
+        var end   = start + pageSize;
+
+        allRows.forEach(function (r) { r.style.display = 'none'; });
+        filtered.slice(start, end).forEach(function (r) { r.style.display = ''; });
+
+        var from = total === 0 ? 0 : start + 1;
+        var to   = Math.min(end, total);
+        var info = document.getElementById('id-page-info');
+        if (info) info.textContent = total === 0 ? 'ไม่พบรายการ' : from + '–' + to + ' จาก ' + total.toLocaleString();
+
+        var prev = document.getElementById('id-page-prev');
+        var next = document.getElementById('id-page-next');
+        if (prev) { prev.disabled = currentPage <= 1; prev.style.opacity = currentPage <= 1 ? '.35' : '1'; }
+        if (next) { next.disabled = currentPage >= totalPages; next.style.opacity = currentPage >= totalPages ? '.35' : '1'; }
+    }
+
+    window.idFilterUsers = function (val) {
+        val = val.toLowerCase().trim();
+        filtered     = val ? allRows.filter(function (r) { return r.innerText.toLowerCase().includes(val); }) : allRows.slice();
+        currentPage  = 1;
+        render();
+    };
+
+    window.idSetPageSize = function (size) {
+        pageSize    = size;
+        currentPage = 1;
+        render();
+        document.querySelectorAll('.id-ps-btn').forEach(function (b) {
+            var active = parseInt(b.dataset.size) === size;
+            b.style.background = active ? '#2e9e63' : '#f8fafc';
+            b.style.color      = active ? '#fff'    : '#374151';
+            b.style.borderColor= active ? '#2e9e63' : '#e2e8f0';
+        });
+    };
+
+    window.idPrevPage = function () { if (currentPage > 1) { currentPage--; render(); } };
+    window.idNextPage = function () {
+        if (currentPage < Math.ceil(filtered.length / pageSize)) { currentPage++; render(); }
+    };
+
+    // run after DOM is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+})();
 // Close modals on backdrop click
 ['idEditModal','idViewModal'].forEach(function(id) {
     document.getElementById(id).addEventListener('click', function(e) {
