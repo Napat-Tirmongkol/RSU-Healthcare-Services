@@ -160,9 +160,9 @@ try {
 
 function levelBadge(string $level): string {
     return match($level) {
-        'error'   => 'bg-rose-50 text-rose-700 border border-rose-200',
-        'warning' => 'bg-amber-50 text-amber-700 border border-amber-200',
-        default   => 'bg-blue-50 text-blue-700 border border-blue-200',
+        'error'   => 'bg-gradient-to-br from-rose-50 to-rose-100 text-rose-700 border border-rose-200 shadow-inner',
+        'warning' => 'bg-gradient-to-br from-amber-50 to-amber-100 text-amber-700 border border-amber-200 shadow-inner',
+        default   => 'bg-gradient-to-br from-blue-50 to-blue-100 text-blue-700 border border-blue-200 shadow-inner',
     };
 }
 function levelIcon(string $level): string {
@@ -233,22 +233,22 @@ function levelIcon(string $level): string {
     <?php endif; ?>
 
     <!-- Summary Grid -->
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-        <a href="?level=error<?= isset($_GET['embed']) ? '&embed=1' : '' ?>" class="bg-white border border-slate-100 rounded-2xl p-4 flex items-center gap-4 hover:border-rose-300 hover:shadow-md transition-all">
-            <div class="w-10 h-10 rounded-xl bg-rose-50 text-rose-500 flex items-center justify-center text-lg"><i class="fa-solid fa-circle-xmark"></i></div>
-            <div><div class="text-[10px] font-black uppercase tracking-widest text-slate-400">Error</div><div class="text-xl font-black text-slate-800"><?= number_format($summary['error'] ?? 0) ?></div></div>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <a href="?level=error<?= isset($_GET['embed']) ? '&embed=1' : '' ?>" class="bg-white border border-slate-100 rounded-[20px] p-5 flex items-center gap-4 hover:border-rose-300 hover:shadow-lg hover:shadow-rose-100 transition-all group">
+            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-rose-50 to-rose-100 text-rose-500 shadow-inner flex items-center justify-center text-xl group-hover:scale-110 transition-transform"><i class="fa-solid fa-circle-xmark"></i></div>
+            <div><div class="text-[10px] font-black uppercase tracking-widest text-slate-400">Error</div><div class="text-2xl font-[900] text-slate-800 tracking-tight"><?= number_format($summary['error'] ?? 0) ?></div></div>
         </a>
-        <a href="?level=warning<?= isset($_GET['embed']) ? '&embed=1' : '' ?>" class="bg-white border border-slate-100 rounded-2xl p-4 flex items-center gap-4 hover:border-amber-300 hover:shadow-md transition-all">
-            <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center text-lg"><i class="fa-solid fa-triangle-exclamation"></i></div>
-            <div><div class="text-[10px] font-black uppercase tracking-widest text-slate-400">Warning</div><div class="text-xl font-black text-slate-800"><?= number_format($summary['warning'] ?? 0) ?></div></div>
+        <a href="?level=warning<?= isset($_GET['embed']) ? '&embed=1' : '' ?>" class="bg-white border border-slate-100 rounded-[20px] p-5 flex items-center gap-4 hover:border-amber-300 hover:shadow-lg hover:shadow-amber-100 transition-all group">
+            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-50 to-amber-100 text-amber-500 shadow-inner flex items-center justify-center text-xl group-hover:scale-110 transition-transform"><i class="fa-solid fa-triangle-exclamation"></i></div>
+            <div><div class="text-[10px] font-black uppercase tracking-widest text-slate-400">Warning</div><div class="text-2xl font-[900] text-slate-800 tracking-tight"><?= number_format($summary['warning'] ?? 0) ?></div></div>
         </a>
-        <a href="?level=info<?= isset($_GET['embed']) ? '&embed=1' : '' ?>" class="bg-white border border-slate-100 rounded-2xl p-4 flex items-center gap-4 hover:border-blue-300 hover:shadow-md transition-all">
-            <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-500 flex items-center justify-center text-lg"><i class="fa-solid fa-info-circle"></i></div>
-            <div><div class="text-[10px] font-black uppercase tracking-widest text-slate-400">Info</div><div class="text-xl font-black text-slate-800"><?= number_format($summary['info'] ?? 0) ?></div></div>
+        <a href="?level=info<?= isset($_GET['embed']) ? '&embed=1' : '' ?>" class="bg-white border border-slate-100 rounded-[20px] p-5 flex items-center gap-4 hover:border-blue-300 hover:shadow-lg hover:shadow-blue-100 transition-all group">
+            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-50 to-blue-100 text-blue-500 shadow-inner flex items-center justify-center text-xl group-hover:scale-110 transition-transform"><i class="fa-solid fa-info-circle"></i></div>
+            <div><div class="text-[10px] font-black uppercase tracking-widest text-slate-400">Info</div><div class="text-2xl font-[900] text-slate-800 tracking-tight"><?= number_format($summary['info'] ?? 0) ?></div></div>
         </a>
-        <a href="?<?= isset($_GET['embed']) ? 'embed=1' : '' ?>" class="bg-white border border-slate-100 rounded-2xl p-4 flex items-center gap-4 hover:border-emerald-300 hover:shadow-md transition-all">
-            <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-500 flex items-center justify-center text-lg"><i class="fa-solid fa-globe"></i></div>
-            <div><div class="text-[10px] font-black uppercase tracking-widest text-slate-400">Total</div><div class="text-xl font-black text-slate-800"><?= number_format(array_sum($summary)) ?></div></div>
+        <a href="?<?= isset($_GET['embed']) ? 'embed=1' : '' ?>" class="bg-white border border-slate-100 rounded-[20px] p-5 flex items-center gap-4 hover:border-emerald-300 hover:shadow-lg hover:shadow-emerald-100 transition-all group">
+            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-50 to-emerald-100 text-emerald-500 shadow-inner flex items-center justify-center text-xl group-hover:scale-110 transition-transform"><i class="fa-solid fa-globe"></i></div>
+            <div><div class="text-[10px] font-black uppercase tracking-widest text-slate-400">Total Logs</div><div class="text-2xl font-[900] text-slate-800 tracking-tight"><?= number_format(array_sum($summary)) ?></div></div>
         </a>
     </div>
 
@@ -318,21 +318,21 @@ function levelIcon(string $level): string {
                         <?php foreach ($logs as $log): ?>
                             <tr class="hover:bg-slate-50/80 transition-colors group items-start">
                                 <td class="px-6 py-5 whitespace-nowrap align-top">
-                                    <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-[10px] font-black uppercase tracking-wider shadow-sm <?= levelBadge($log['level']) ?>">
+                                    <div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest <?= levelBadge($log['level']) ?>">
                                         <i class="fa-solid <?= levelIcon($log['level']) ?> text-xs"></i> <?= $log['level'] ?>
                                     </div>
-                                    <div class="text-[10px] text-slate-400 font-bold mt-2 truncate w-28" title="<?= htmlspecialchars($log['source']) ?>">
-                                        <?= htmlspecialchars($log['source'] ?: 'system') ?>
+                                    <div class="text-[10px] text-slate-400 font-bold mt-2 truncate w-28 pl-1" title="<?= htmlspecialchars($log['source']) ?>">
+                                        <i class="fa-solid fa-code-branch text-[9px] mr-1 opacity-50"></i><?= htmlspecialchars($log['source'] ?: 'system') ?>
                                     </div>
                                 </td>
                                 <td class="px-6 py-5 text-xs text-slate-500 font-bold whitespace-nowrap align-top">
                                     <i class="fa-regular fa-clock mr-1 opacity-40"></i> <?= date('d/m/Y H:i:s', strtotime($log['created_at'])) ?>
                                     <div class="text-[10px] mt-1 text-slate-400 font-mono"><?= htmlspecialchars($log['ip_address'] ?? '') ?></div>
                                 </td>
-                                <td class="px-6 py-5">
-                                    <div class="text-sm text-slate-800 font-bold leading-relaxed mb-2 break-all"><?= htmlspecialchars($log['message']) ?></div>
+                                <td class="px-6 py-5 align-top">
+                                    <div class="text-sm text-slate-800 font-bold leading-relaxed mb-2 break-words"><?= htmlspecialchars($log['message']) ?></div>
                                     <?php if ($log['context']): ?>
-                                        <pre class="text-[10px] text-slate-500 bg-slate-50 border border-slate-100 p-3 rounded-xl overflow-x-auto font-mono whitespace-pre-wrap"><code class="break-all"><?= htmlspecialchars($log['context']) ?></code></pre>
+                                        <pre class="text-[10px] text-slate-500 bg-slate-50 border border-slate-100/80 p-3.5 rounded-2xl overflow-x-auto font-mono whitespace-pre-wrap leading-relaxed shadow-inner"><code class="break-words"><?= htmlspecialchars($log['context']) ?></code></pre>
                                     <?php endif; ?>
                                 </td>
                             </tr>
