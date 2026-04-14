@@ -191,7 +191,7 @@ try {
     <link rel="stylesheet" href="../assets/css/tailwind.min.css">
     <link rel="stylesheet" href="../assets/css/portal.css">
 </head>
-<body class="font-sans text-gray-800" style="min-height:100vh;display:flex;flex-direction:column">
+<body class="font-sans text-gray-800" style="height:100vh;overflow:hidden;display:flex;flex-direction:column">
 
     <!-- Ambient background dots -->
     <div class="amb-dot" style="width:320px;height:320px;background:rgba(46,158,99,.1);top:5%;left:10%;--dur:16s;--delay:0s;--dx:40px;--dy:-30px"></div>
@@ -237,7 +237,7 @@ try {
     </header>
 
     <!-- ══════════════════ APP SHELL ══════════════════ -->
-    <div id="app-shell" style="display:flex;flex:1;min-height:0">
+    <div id="app-shell" style="display:flex;flex:1;min-height:0;overflow:hidden">
 
         <!-- ── Collapsible Sidebar ── -->
         <nav id="portal-sidebar">

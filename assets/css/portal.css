@@ -229,8 +229,8 @@ body {
     width: 220px; background: #fff;
     border-right: 1.5px solid #c7e8d5;
     display: flex; flex-direction: column; flex-shrink: 0;
-    position: sticky; top: 0;
-    height: 100vh; overflow-y: auto; overflow-x: hidden;
+    height: 100%;
+    overflow-y: auto; overflow-x: hidden;
     transition: width .28s cubic-bezier(.4,0,.2,1);
     z-index: 30;
     box-shadow: 2px 0 12px rgba(46,158,99,.05);
