@@ -937,6 +937,16 @@ try {
         </div>
         </div><!-- /section-settings -->
 
+        <!-- ════════════ SECTION: ACTIVITY LOGS ════════════ -->
+        <div id="section-activity_logs" class="portal-section" style="display:none; height:100%; border-radius:inherit; background:#f8fafc;">
+            <iframe src="activity_logs.php?embed=1" style="width:100%; height:100%; border:none; border-radius:inherit;"></iframe>
+        </div>
+
+        <!-- ════════════ SECTION: ERROR LOGS ════════════ -->
+        <div id="section-error_logs" class="portal-section" style="display:none; height:100%; border-radius:inherit; background:#f8fafc;">
+            <iframe src="error_logs.php?embed=1" style="width:100%; height:100%; border:none; border-radius:inherit;"></iframe>
+        </div>
+
         </main><!-- /portal-main -->
     </div><!-- /app-shell -->
 
