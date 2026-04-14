@@ -247,12 +247,7 @@ if (!function_exists('renderPageHeader')) {
         </div>
         <?php endif; ?>
 
-        <!-- System -->
-        <div class="nav-section-label">System</div>
-        <div class="space-y-0.5">
-            <?php navLink('../admin/activity_logs.php', 'fa-file-lines', 'บันทึกกิจกรรม', $cur); ?>
-            <?php navLink('../admin/error_logs.php',    'fa-bug',        'Error Logs',     $cur); ?>
-        </div>
+
 
         <!-- AI -->
         <div class="nav-section-label">AI</div>

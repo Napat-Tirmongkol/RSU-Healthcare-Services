@@ -327,6 +327,14 @@ try {
                     <div class="psb-icon"><i class="fa-solid fa-gear"></i></div>
                     <span class="psb-label">Settings</span>
                 </button>
+                <a href="../admin/activity_logs.php" class="psb-item" style="text-decoration:none; display:flex;">
+                    <div class="psb-icon"><i class="fa-solid fa-file-lines"></i></div>
+                    <span class="psb-label">บันทึกกิจกรรมระบบ</span>
+                </a>
+                <a href="../admin/error_logs.php" class="psb-item" style="text-decoration:none; display:flex;">
+                    <div class="psb-icon"><i class="fa-solid fa-bug"></i></div>
+                    <span class="psb-label">Error Logs</span>
+                </a>
             </div>
 
             <!-- Bottom: user identity + logout -->
