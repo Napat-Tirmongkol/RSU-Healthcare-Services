@@ -43,6 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             $dates_array = explode(',', $selected_dates);
             $insertedCount = 0;
+            $skippedCount = 0;
             
             // หาจำนวนช่วงเวลาที่กรอกมาแบบถูกต้อง (เพื่อนำโควต้ารวมมาหารเฉลี่ย)
             $valid_slots_count = 0;
@@ -69,6 +70,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             $st = $start_times[$i];
                             $et = $end_times[$i];
                             if ($st && $et) {
+                                // เช็คว่ามีรอบเวลานี้ในฐานข้อมูลแล้วหรือไม่ (ป้องกันการสร้างซ้ำ)
+                                $check_dup = $pdo->prepare("SELECT COUNT(*) FROM camp_slots WHERE campaign_id = ? AND slot_date = ? AND start_time = ?");
+                                $check_dup->execute([$campaign_id, $date, $st]);
+                                if ($check_dup->fetchColumn() > 0) {
+                                    $skippedCount++;
+                                    continue; // ข้ามไปหากมีรอบเวลานี้อยู่แล้ว
+                                }
+
                                 $capacity_for_this_slot = $base_capacity + ($remainder > 0 ? 1 : 0);
                                 $remainder--;
                                 
@@ -80,7 +89,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
             }
 
-            echo json_encode(['status' => 'success', 'message' => "เพิ่มข้อมูลเรียบร้อยแล้วทั้งหมด {$insertedCount} รอบเวลา"]);
+            $msg = "เพิ่มข้อมูลสำเร็จ {$insertedCount} รอบเวลา";
+            if ($skippedCount > 0) {
+                $msg .= " (ข้าม {$skippedCount} รอบที่ซ้ำซ้อนกัน)";
+            }
+            echo json_encode(['status' => 'success', 'message' => $msg]);
             exit;
         }
     }
@@ -401,6 +414,21 @@ renderPageHeader("Campaign Time Slots", "กำหนดช่วงเวลา
     #multiSelectContainer button { max-width: 160px; min-width: 0; }
 }
 </style>
+
+<?php if (count($slots) === 0): ?>
+<div class="mb-6 flex flex-col items-center justify-center p-10 bg-white border border-gray-200 border-dashed rounded-3xl animate-slide-up">
+    <div class="w-20 h-20 mb-4 bg-gray-50 rounded-full flex items-center justify-center text-gray-300">
+        <i class="fa-regular fa-calendar-times text-4xl"></i>
+    </div>
+    <h3 class="text-xl font-black text-gray-700 mb-2">ยังไม่มีเวลารับคิวสำหรับเดือนนี้</h3>
+    <p class="text-gray-500 font-medium mb-6 text-center text-sm max-w-sm">
+        เลือกเดือนและปี จากแถบเครื่องมือด้านบน<br>แล้วกดสร้างรอบเวลาแคมเปญ เพื่อเริ่มต้นเพิ่มคิวจอง
+    </p>
+    <button onclick="openAddSlotModal('<?= date('Y-m-d') ?>')" class="bg-[#0052CC] text-white px-6 py-2.5 rounded-xl font-prompt text-sm font-bold shadow-md hover:shadow-blue-500/30 hover:-translate-y-0.5 transition-all flex items-center gap-2">
+        <i class="fa-solid fa-plus-circle"></i> สร้างรอบเวลาแรก
+    </button>
+</div>
+<?php endif; ?>
 
 <div id="calendarViewContainer" class="animate-slide-up delay-100 mb-10">
     <div class="cal-wrap">
