@@ -168,20 +168,7 @@ $projects = [
             ['label' => 'Activity Logs', 'url' => 'javascript:switchSection(\'activity_logs\', document.querySelector(\'[data-section=activity_logs]\'))', 'primary' => false],
         ]
     ],
-    [
-        'id' => 'admin_tool',
-        'title' => 'Admin Tool',
-        'description' => 'เครื่องมือสำหรับผู้ดูแลระบบ จัดการและตั้งค่าระบบขั้นสูง (ตอนนี้รวมอยู่ในเมนู Settings แล้ว)',
-        'icon' => 'fa-screwdriver-wrench',
-        'bg_color' => 'bg-violet-50',
-        'icon_color' => 'text-violet-600',
-        'border_color' => 'border-violet-100',
-        'allowed_roles' => ['admin', 'superadmin'],
-        'badges' => ['Tools', 'Settings'],
-        'actions' => [
-            ['label' => 'Open in Settings', 'url' => 'javascript:switchSection(\'settings\', document.querySelector(\'[data-section=settings]\'))', 'primary' => true],
-        ]
-    ],
+
     /**
      * ตัวอย่างการเพิ่มโปรเจกต์ในอนาคต:
      * เพียงแค่ก๊อปปี้บล็อกนี้แล้วเปลี่ยน URL/Icon ระบบจะวาดหน้า Layout ให้เองทันที
@@ -243,6 +230,7 @@ try {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="../assets/css/tailwind.min.css">
     <link rel="stylesheet" href="../assets/css/portal.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         /* ── Toggle Switch (Maintenance Mode) ──────────────────────────────── */
         .toggle-wrap {
@@ -525,7 +513,8 @@ try {
                     <div class="relative group">
                         <input type="text" placeholder="ค้นหาเมนู หรือแคมเปญ"
                             class="w-full pl-5 pr-10 py-2 bg-gray-50/50 border border-gray-200 rounded-xl text-[13px] font-semibold text-gray-700 outline-none focus:bg-white focus:border-[#2e9e63] focus:ring-4 focus:ring-[#2e9e63]/10 transition-all font-prompt">
-                        <button class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#2e9e63] transition-colors flex items-center justify-center">
+                        <button
+                            class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#2e9e63] transition-colors flex items-center justify-center">
                             <i class="fa-solid fa-magnifying-glass text-sm"></i>
                         </button>
                     </div>
@@ -561,7 +550,8 @@ try {
                                 class="text-[9px] font-extrabold uppercase tracking-widest text-gray-400 leading-none mb-1">
                                 Admin</div>
                             <div class="text-[13px] font-black text-gray-800 leading-none">
-                                <?= htmlspecialchars($_SESSION['admin_username'] ?? 'Administrator') ?></div>
+                                <?= htmlspecialchars($_SESSION['admin_username'] ?? 'Administrator') ?>
+                            </div>
                         </div>
                         <div class="w-9 h-9 rounded-xl flex flex-shrink-0 items-center justify-center shadow-md shadow-emerald-500/20 text-sm"
                             style="background: linear-gradient(135deg, #2e9e63, #10b981); color:#fff;">
@@ -964,10 +954,12 @@ try {
                                                     <div style="display:flex;align-items:center;gap:12px">
                                                         <div
                                                             style="width:38px;height:38px;border-radius:11px;background:#f1f5f9;color:#64748b;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;flex-shrink:0">
-                                                            <?= htmlspecialchars($initial) ?></div>
+                                                            <?= htmlspecialchars($initial) ?>
+                                                        </div>
                                                         <div>
                                                             <div style="font-weight:750;color:#0f172a">
-                                                                <?= htmlspecialchars($u['full_name']) ?></div>
+                                                                <?= htmlspecialchars($u['full_name']) ?>
+                                                            </div>
                                                             <div
                                                                 style="font-size:10px;color:#94a3b8;font-weight:700;margin-top:2px">
                                                                 #<?= htmlspecialchars($u['student_personnel_id'] ?? '—') ?>
@@ -977,15 +969,19 @@ try {
                                                 </td>
                                                 <td style="padding:14px 20px">
                                                     <div style="font-size:12px;color:#374151;font-weight:600">
-                                                        <?= htmlspecialchars($u['phone_number'] ?: '—') ?></div>
+                                                        <?= htmlspecialchars($u['phone_number'] ?: '—') ?>
+                                                    </div>
                                                     <div style="font-size:11px;color:#94a3b8;margin-top:2px">
-                                                        <?= htmlspecialchars($u['email'] ?? '—') ?></div>
+                                                        <?= htmlspecialchars($u['email'] ?? '—') ?>
+                                                    </div>
                                                 </td>
                                                 <td style="padding:14px 20px">
                                                     <div style="font-size:12px;font-weight:700;color:#374151">
-                                                        <?= date('d M Y', strtotime($u['created_at'])) ?></div>
+                                                        <?= date('d M Y', strtotime($u['created_at'])) ?>
+                                                    </div>
                                                     <div style="font-size:10px;color:#94a3b8;margin-top:1px">
-                                                        <?= date('H:i', strtotime($u['created_at'])) ?></div>
+                                                        <?= date('H:i', strtotime($u['created_at'])) ?>
+                                                    </div>
                                                 </td>
                                                 <td style="padding:14px 20px;text-align:right">
                                                     <div style="display:flex;gap:6px;justify-content:flex-end">
@@ -1075,10 +1071,12 @@ try {
                                             <tr style="border-bottom:1px solid #f1f5f9" class="id-admin-row">
                                                 <td style="padding:14px 20px">
                                                     <div style="font-weight:750;color:#0f172a">
-                                                        <?= htmlspecialchars($adm['full_name']) ?></div>
+                                                        <?= htmlspecialchars($adm['full_name']) ?>
+                                                    </div>
                                                     <div style="font-size:11px;color:#94a3b8">
                                                         @<?= htmlspecialchars($adm['username']) ?> ·
-                                                        <?= htmlspecialchars($adm['email']) ?></div>
+                                                        <?= htmlspecialchars($adm['email']) ?>
+                                                    </div>
                                                 </td>
                                                 <td style="padding:14px 20px">
                                                     <span
@@ -1144,7 +1142,8 @@ try {
                                             <tr style="border-bottom:1px solid #f1f5f9" class="id-staff-row">
                                                 <td style="padding:14px 20px">
                                                     <div style="font-weight:750;color:#0f172a">
-                                                        <?= htmlspecialchars($st['full_name']) ?></div>
+                                                        <?= htmlspecialchars($st['full_name']) ?>
+                                                    </div>
                                                     <div style="font-size:11px;color:#94a3b8">
                                                         @<?= htmlspecialchars($st['username']) ?> · <span
                                                             style="font-weight:700"><?= htmlspecialchars($st['role']) ?></span>
@@ -1321,7 +1320,8 @@ try {
                         <div style="display:flex;align-items:center;gap:10px">
                             <div
                                 style="width:36px;height:36px;background:#eef2ff;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#4f46e5">
-                                <i class="fa-solid fa-user"></i></div>
+                                <i class="fa-solid fa-user"></i>
+                            </div>
                             <span style="font-size:15px;font-weight:900;color:#4f46e5">ข้อมูลผู้ใช้งาน</span>
                         </div>
                         <button onclick="document.getElementById('idViewModal').style.display='none'"
@@ -1767,50 +1767,67 @@ try {
     <?php if ($adminRole === 'superadmin'): ?>
         <script>
             function triggerGitPull() {
-                const btn = document.getElementById('btnGitPull');
-                btn.disabled = true;
-                btn.style.opacity = '0.6';
-                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> <span>Pulling...</span>';
+                Swal.fire({
+                    title: 'กำลังดำเนินการ Git Pull...',
+                    text: 'กรุณารอสักครู่ ระบบกำลังอัปเดตโค้ดล่าสุดจาก Server',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                    showConfirmButton: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                        const btn = document.getElementById('btnGitPull');
+                        const btnHistory = document.getElementById('btnGitPullHistory');
+                        if (btn) { btn.disabled = true; btn.style.opacity = '0.6'; }
+                        if (btnHistory) { btnHistory.disabled = true; btnHistory.style.opacity = '0.6'; }
 
-                fetch('../admin/ajax_git_pull.php', { method: 'POST' })
-                    .then(r => r.json())
-                    .then(data => {
-                        if (data.status === 'success') {
-                            btn.style.background = '#dcfce7';
-                            btn.style.color = '#15803d';
-                            btn.innerHTML = '<i class="fa-solid fa-check"></i> <span>สำเร็จ!</span>';
-                            if (data.detail && !data.detail.includes('Already up to date')) {
-                                // มีโค้ดใหม่ — แจ้งให้ refresh
-                                setTimeout(() => {
-                                    if (confirm('Git Pull สำเร็จ!\n\n' + data.detail + '\n\nรีโหลดหน้าเพื่อใช้งานโค้ดใหม่?')) {
-                                        location.reload();
+                        fetch('../admin/ajax_git_pull.php', { method: 'POST' })
+                            .then(r => r.json())
+                            .then(data => {
+                                if (data.status === 'success') {
+                                    if (data.detail && !data.detail.includes('Already up to date')) {
+                                        Swal.fire({
+                                            icon: 'success',
+                                            title: 'Git Pull สำเร็จ!',
+                                            html: `<div style="text-align:left; font-size:13px; background:#f8fafc; padding:10px; border-radius:8px; border:1px solid #e2e8f0; font-family:monospace; margin-top:10px; max-height:200px; overflow-y:auto;">${data.detail.replace(/\n/g, '<br>')}</div><p style="margin-top:15px; font-weight:700;">รีโหลดหน้าเพื่อใช้งานโค้ดใหม่?</p>`,
+                                            showCancelButton: true,
+                                            confirmButtonText: 'ตกลง (Reload)',
+                                            cancelButtonText: 'ยังไม่รีโหลด',
+                                            confirmButtonColor: '#2e9e63'
+                                        }).then((result) => {
+                                            if (result.isConfirmed) {
+                                                location.reload();
+                                            }
+                                        });
+                                    } else {
+                                        Swal.fire({
+                                            icon: 'info',
+                                            title: 'Git Pull สำเร็จ',
+                                            text: 'ระบบเป็นเวอร์ชันล่าสุดอยู่แล้ว (Already up to date)',
+                                            confirmButtonColor: '#2e9e63'
+                                        });
                                     }
-                                }, 500);
-                            }
-                        } else {
-                            btn.style.background = '#fef2f2';
-                            btn.style.color = '#dc2626';
-                            btn.style.borderColor = '#fecaca';
-                            btn.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> <span>ล้มเหลว</span>';
-                            alert('Git Pull ล้มเหลว:\n' + data.message + (data.detail ? '\n\n' + data.detail : ''));
-                        }
-                    })
-                    .catch(() => {
-                        btn.style.background = '#fef2f2';
-                        btn.style.color = '#dc2626';
-                        btn.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> <span>Error</span>';
-                    })
-                    .finally(() => {
-                        // Reset button หลัง 3 วินาที
-                        setTimeout(() => {
-                            btn.disabled = false;
-                            btn.style.opacity = '1';
-                            btn.style.background = '#f0fdf4';
-                            btn.style.color = '#16a34a';
-                            btn.style.borderColor = '#d1fae5';
-                            btn.innerHTML = '<i class="fa-solid fa-code-branch"></i> <span>Git Pull</span>';
-                        }, 3000);
-                    });
+                                } else {
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Git Pull ล้มเหลว',
+                                        text: data.message,
+                                        footer: data.detail ? `<pre style="text-align:left; font-size:10px;">${data.detail}</pre>` : ''
+                                    });
+                                }
+                            })
+                            .catch((err) => {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'เกิดข้อผิดพลาด',
+                                    text: 'ไม่สามารถเชื่อมต่อกับ AJAX Git Pull ได้'
+                                });
+                            })
+                            .finally(() => {
+                                if (btn) { btn.disabled = false; btn.style.opacity = '1'; }
+                                if (btnHistory) { btnHistory.disabled = false; btnHistory.style.opacity = '1'; }
+                            });
+                    }
+                });
             }
         </script>
     <?php endif; ?>
