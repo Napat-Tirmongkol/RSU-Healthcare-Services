@@ -21,6 +21,10 @@
     --rsu-font: 'rsufont', 'Prompt', sans-serif;
 }
 
+html {
+    font-size: 18px; /* Standard is 16px, so we increase it to 18px */
+}
+
 * {
     font-family: var(--rsu-font) !important;
 }
