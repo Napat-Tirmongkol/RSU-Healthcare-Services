@@ -15,7 +15,7 @@ $fileExists  = file_exists($secretsPath);
 $fileWritable= $fileExists ? is_writable($secretsPath) : is_writable(dirname($secretsPath));
 $embed       = isset($_GET['embed']);
 
-// ใช้ Header/Footer จาก Admin เพื่อความสม่ำเสมอในเรื่อง Styles/Scripts
+$_GET['layout'] = 'none'; // บังคับไม่ให้โหลด sidebar ของ admin
 require_once __DIR__ . '/../admin/includes/header.php';
 ?>
 
