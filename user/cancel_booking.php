@@ -24,7 +24,7 @@ try {
   $pdo = db();
   
   // ดึงข้อมูลก่อนลบเพื่อนำไปใส่ในอีเมล
-  $stmtInfo = $pdo->prepare("SELECT u.email, c.title, s.slot_date, s.start_time, s.end_time 
+  $stmtInfo = $pdo->prepare("SELECT u.email, u.full_name, c.title, s.slot_date, s.start_time, s.end_time 
                              FROM camp_bookings b 
                              JOIN sys_users u ON b.student_id = u.id 
                              JOIN camp_list c ON b.campaign_id = c.id 
@@ -50,8 +50,9 @@ try {
     require_once __DIR__ . '/../includes/mail_helper.php';
     notify_booking_status($bInfo['email'], 'cancelled_by_user', [
         'campaign_title' => $bInfo['title'],
-        'date' => date('d/m/Y', strtotime($bInfo['slot_date'])),
-        'time' => substr($bInfo['start_time'], 0, 5) . ' - ' . substr($bInfo['end_time'], 0, 5)
+        'date'           => date('d/m/Y', strtotime($bInfo['slot_date'])),
+        'time'           => substr($bInfo['start_time'], 0, 5) . ' - ' . substr($bInfo['end_time'], 0, 5),
+        'full_name'      => $bInfo['full_name'] ?? '',
     ]);
   }
 
