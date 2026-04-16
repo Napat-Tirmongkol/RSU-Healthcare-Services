@@ -124,7 +124,10 @@ $projects = [
         'actions' => array_filter([
             ['label' => 'Search Users', 'url' => 'users.php?layout=none', 'primary' => false],
             $adminRole === 'superadmin'
-            ? ['label' => 'Manage Admins', 'url' => 'manage_admins.php?layout=none', 'primary' => true]
+            ? ['label' => 'Manage Admins', 'url' => 'manage_admins.php?layout=none', 'primary' => false]
+            : null,
+            $adminRole === 'superadmin'
+            ? ['label' => 'SMTP Settings', 'url' => '../admin/smtp_settings.php', 'primary' => true]
             : null,
         ])
     ],
