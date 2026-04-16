@@ -493,7 +493,7 @@ function renderAndExit(array $results): never
 
             <div class="actions">
                 <a href="?" class="btn secondary">🔄 รัน Diagnostic อีกครั้ง</a>
-                <a href="../portal/smtp_settings.php" class="btn" target="_blank">⚙️ ตั้งค่า SMTP</a>
+                <a href="../portal/index.php?section=smtp_settings" class="btn" target="_blank">⚙️ ตั้งค่า SMTP</a>
             </div>
 
             <div class="ts">Generated at <?= date('Y-m-d H:i:s') ?> | Server: <?= php_uname('n') ?> | PHP <?= PHP_VERSION ?>

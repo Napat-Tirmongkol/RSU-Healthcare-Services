@@ -2264,7 +2264,7 @@ try {
             var tab = params.get('tab');
             if (sec) {
                 var btn = document.querySelector('.psb-item[data-section="' + sec + '"]');
-                if (btn) switchSection(sec, btn);
+                switchSection(sec, btn);
             }
             if (sec === 'identity' && tab) {
                 var tabBtn = document.querySelector('.id-tab[data-tab="' + tab + '"]');
@@ -2293,7 +2293,7 @@ try {
             var target = document.getElementById('section-' + sectionId);
             if (target) target.style.display = '';
             document.querySelectorAll('.psb-item').forEach(function (b) { b.classList.remove('psb-active'); });
-            btn.classList.add('psb-active');
+            if (btn) btn.classList.add('psb-active');
         }
 
         // Pause when tab hidden, resume when visible
