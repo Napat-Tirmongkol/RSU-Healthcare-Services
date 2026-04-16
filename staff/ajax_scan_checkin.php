@@ -3,7 +3,11 @@
 session_start();
 header('Content-Type: application/json; charset=utf-8');
 
-if (!isset($_SESSION['staff_logged_in']) || $_SESSION['staff_logged_in'] !== true) {
+$viaStaffLogin  = !empty($_SESSION['staff_logged_in']) && $_SESSION['staff_logged_in'] === true;
+$viaPortalLogin = !empty($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] === true
+               && !empty($_SESSION['is_ecampaign_staff']);
+
+if (!$viaStaffLogin && !$viaPortalLogin) {
     echo json_encode(['status' => 'error', 'message' => 'Unauthorized']);
     exit;
 }

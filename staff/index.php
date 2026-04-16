@@ -1,10 +1,24 @@
 <?php
 // staff/index.php
 session_start();
-if (!isset($_SESSION['staff_logged_in']) || $_SESSION['staff_logged_in'] !== true) {
+
+// รับ session ทั้ง 2 แบบ:
+// 1. staff_logged_in  — login ผ่าน staff/login.php (เดิม)
+// 2. admin_logged_in + is_ecampaign_staff — login ผ่าน admin/staff_login.php → portal
+$viaStaffLogin  = !empty($_SESSION['staff_logged_in']) && $_SESSION['staff_logged_in'] === true;
+$viaPortalLogin = !empty($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] === true
+               && !empty($_SESSION['is_ecampaign_staff']);
+
+if (!$viaStaffLogin && !$viaPortalLogin) {
     header('Location: login.php');
     exit;
 }
+
+// normalize ชื่อให้แสดงใน topbar ได้ไม่ว่าจะ login ทางไหน
+if (empty($_SESSION['staff_name']) && !empty($_SESSION['admin_username'])) {
+    $_SESSION['staff_name'] = $_SESSION['admin_username'];
+}
+
 require_once __DIR__ . '/../config.php';
 ?>
 <!DOCTYPE html>
