@@ -27,6 +27,32 @@ $popular_stmt = $pdo->query("
 ");
 $popular_campaigns = $popular_stmt->fetchAll();
 
+// Peak Times Heatmap — กดจองช่วงเวลาไหนเยอะสุด
+$heatmap_rows = $pdo->query("
+    SELECT DAYOFWEEK(created_at) AS dow,
+           HOUR(created_at)      AS hr,
+           COUNT(*)              AS cnt
+    FROM camp_bookings
+    GROUP BY dow, hr
+")->fetchAll(PDO::FETCH_ASSOC);
+
+$heatmap  = [];
+$hmap_max = 1;
+foreach ($heatmap_rows as $r) {
+    $heatmap[(int)$r['dow']][(int)$r['hr']] = (int)$r['cnt'];
+    if ((int)$r['cnt'] > $hmap_max) $hmap_max = (int)$r['cnt'];
+}
+
+function hmapColor(int $cnt, int $max): string {
+    if ($cnt === 0) return '#ede3df';
+    $ratio = $cnt / $max;
+    if ($ratio < 0.15) return '#f5cec4';
+    if ($ratio < 0.35) return '#e9977f';
+    if ($ratio < 0.60) return '#d9664e';
+    if ($ratio < 0.80) return '#c04030';
+    return '#8c2416';
+}
+
 require_once __DIR__ . '/includes/header.php';
 ?>
 
@@ -215,6 +241,84 @@ renderPageHeader($header_title, "สถิติการลงทะเบี�
             <i class="fa-solid fa-chevron-right text-gray-400 group-hover:text-gray-600 transition-colors flex-shrink-0"></i>
         </a>
 
+    </div>
+</div>
+
+<!-- PEAK TIMES HEATMAP -->
+<div class="mt-5 sm:mt-8 bg-white rounded-[20px] sm:rounded-[24px] shadow-sm border border-gray-100 animate-slide-up" style="animation-delay:0.4s; opacity:0;">
+    <div class="p-4 sm:p-6 border-b border-gray-50 flex justify-between items-center">
+        <div>
+            <h3 class="font-bold text-gray-900 text-base sm:text-lg">e-Campaign Peak Times</h3>
+            <p class="text-xs text-gray-500 mt-1">ดูว่าช่วงเวลาไหนของแต่ละวันที่มีคนกดจองวัคซีนเข้ามาเยอะที่สุด</p>
+        </div>
+        <div class="w-10 h-10 bg-red-50 rounded-full flex items-center justify-center flex-shrink-0">
+            <i class="fa-solid fa-fire-flame-curved text-red-400 text-lg"></i>
+        </div>
+    </div>
+    <div class="p-4 sm:p-6">
+        <div class="overflow-x-auto">
+            <div style="min-width:540px;">
+
+                <!-- HOUR LABELS -->
+                <div class="flex items-end mb-1.5">
+                    <div style="width:38px; flex-shrink:0;"></div>
+                    <div class="flex flex-1 gap-[3px]">
+                        <?php
+                        $hourLabels = [0=>'12am',3=>'3am',6=>'6am',9=>'9am',12=>'12pm',15=>'3pm',18=>'6pm',21=>'9pm'];
+                        for ($h = 0; $h < 24; $h++): ?>
+                        <div style="flex:1; text-align:center;" class="text-[9px] sm:text-[10px] text-gray-400 font-medium leading-tight">
+                            <?= isset($hourLabels[$h]) ? $hourLabels[$h] : '' ?>
+                        </div>
+                        <?php endfor; ?>
+                    </div>
+                </div>
+
+                <!-- GRID ROWS -->
+                <?php
+                $hmapDays = [
+                    ['label'=>'Mon','dow'=>2],
+                    ['label'=>'Tue','dow'=>3],
+                    ['label'=>'Wed','dow'=>4],
+                    ['label'=>'Thu','dow'=>5],
+                    ['label'=>'Fri','dow'=>6],
+                    ['label'=>'Sat','dow'=>7],
+                    ['label'=>'Sun','dow'=>1],
+                ];
+                foreach ($hmapDays as $day): ?>
+                <div class="flex items-center mb-[3px]">
+                    <div style="width:38px; flex-shrink:0;" class="text-[10px] sm:text-[11px] text-gray-500 font-semibold text-right pr-2.5">
+                        <?= $day['label'] ?>
+                    </div>
+                    <div class="flex flex-1 gap-[3px]">
+                        <?php for ($h = 0; $h < 24; $h++):
+                            $cnt = $heatmap[$day['dow']][$h] ?? 0;
+                            $col = hmapColor($cnt, $hmap_max);
+                            $timeLabel = date('g:ia', mktime($h, 0, 0));
+                            $tip = $cnt > 0
+                                ? "{$day['label']} {$timeLabel} — {$cnt} การจอง"
+                                : "{$day['label']} {$timeLabel} — ไม่มีข้อมูล";
+                        ?>
+                        <div style="flex:1; aspect-ratio:1/1; background:<?= $col ?>; border-radius:3px; min-width:0; cursor:default;"
+                             title="<?= htmlspecialchars($tip) ?>"
+                             class="transition-opacity duration-150 hover:opacity-60">
+                        </div>
+                        <?php endfor; ?>
+                    </div>
+                </div>
+                <?php endforeach; ?>
+
+                <!-- LEGEND -->
+                <div class="flex items-center gap-1.5 mt-4">
+                    <div style="width:38px; flex-shrink:0;"></div>
+                    <span class="text-[10px] text-gray-400 font-medium mr-0.5">Less</span>
+                    <?php foreach (['#ede3df','#f5cec4','#e9977f','#d9664e','#c04030','#8c2416'] as $lc): ?>
+                    <div style="width:13px; height:13px; background:<?= $lc ?>; border-radius:3px; flex-shrink:0;"></div>
+                    <?php endforeach; ?>
+                    <span class="text-[10px] text-gray-400 font-medium ml-0.5">More</span>
+                </div>
+
+            </div>
+        </div>
     </div>
 </div>
 
