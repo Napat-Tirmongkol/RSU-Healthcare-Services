@@ -516,10 +516,11 @@ async function doDryRun() {
 
 function renderDryRunResult(data) {
     // Guard warning
+    const totalWillInactivate = data.total_will_inactivate ?? data.total_inactivated;
     const guardDiv = document.getElementById('guardWarning');
     if (data.guard_triggered) {
         document.getElementById('guardMsg').textContent =
-            `จะมีการ Inactivate ${data.total_inactivated} คน (${data.guard_percent}% ของ Active ทั้งหมด) กรุณากด "บังคับยืนยัน" เพื่อดำเนินการต่อ`;
+            `จะมีการ Inactivate ${totalWillInactivate} คน (${data.guard_percent}% ของ Active ทั้งหมด) กรุณากด "บังคับยืนยัน" เพื่อดำเนินการต่อ`;
         guardDiv.classList.remove('hidden');
         document.getElementById('btnExecute').textContent = '';
         document.getElementById('btnExecute').innerHTML = '<i class="fa-solid fa-triangle-exclamation mr-2"></i>บังคับยืนยัน (Override Guard)';
@@ -536,14 +537,14 @@ function renderDryRunResult(data) {
     document.getElementById('drySummary').innerHTML = `
         <div class="stat-card text-center">
             <div class="text-2xl font-black text-green-600">${data.total_matched}</div>
-            <div class="text-xs text-gray-400 mt-1 font-bold">Matched (Active)</div>
+            <div class="text-xs text-gray-400 mt-1 font-bold">Matched</div>
         </div>
         <div class="stat-card text-center">
             <div class="text-2xl font-black text-blue-600">${data.total_newcomers}</div>
             <div class="text-xs text-gray-400 mt-1 font-bold">Newcomers</div>
         </div>
         <div class="stat-card text-center">
-            <div class="text-2xl font-black text-red-500">${data.total_inactivated}</div>
+            <div class="text-2xl font-black text-red-500">${totalWillInactivate}</div>
             <div class="text-xs text-gray-400 mt-1 font-bold">Will Inactivate</div>
         </div>
     `;
@@ -552,15 +553,36 @@ function renderDryRunResult(data) {
     let html = '';
 
     if (data.newcomers.length > 0) {
+        const showStatus = data.has_registry;
         html += `<h4 class="text-xs font-bold text-blue-700 uppercase tracking-widest mt-4 mb-2">รายชื่อใหม่ (Newcomers) — แสดง ${data.newcomers.length} คน</h4>
         <div class="overflow-x-auto rounded-xl border border-blue-100"><table>
-            <thead><tr><th>รหัส</th><th>ชื่อ-สกุล</th><th>ตำแหน่ง</th></tr></thead>
-            <tbody>${data.newcomers.map(r => `<tr><td class="font-mono text-xs">${esc(r.member_id)}</td><td>${esc(r.full_name)}</td><td class="text-gray-400">${esc(r.position||'')}</td></tr>`).join('')}</tbody>
+            <thead><tr><th>รหัส</th><th>ชื่อ-สกุล</th><th>ตำแหน่ง</th>${showStatus ? '<th>สถานะ</th>' : ''}</tr></thead>
+            <tbody>${data.newcomers.map(r => `<tr>
+                <td class="font-mono text-xs">${esc(r.member_id)}</td>
+                <td>${esc(r.full_name)}</td>
+                <td class="text-gray-400">${esc(r.position||'')}</td>
+                ${showStatus ? `<td><span class="badge-${r.new_status === 'Active' ? 'active' : 'inactive'}">${r.new_status}</span></td>` : ''}
+            </tr>`).join('')}</tbody>
+        </table></div>`;
+    }
+
+    // Matched but going Inactive (in registry but not covered by insurance)
+    if (data.matched_inactive && data.matched_inactive.length > 0) {
+        html += `<h4 class="text-xs font-bold text-orange-600 uppercase tracking-widest mt-5 mb-2">อยู่ในทะเบียนแต่ไม่มีในประกัน → Inactive — แสดง ${data.matched_inactive.length} คน</h4>
+        <div class="overflow-x-auto rounded-xl border border-orange-100"><table>
+            <thead><tr><th>รหัส</th><th>ชื่อ-สกุล</th><th>สถานะเดิม</th><th>หมายเหตุ</th></tr></thead>
+            <tbody>${data.matched_inactive.map(r => `<tr>
+                <td class="font-mono text-xs">${esc(r.member_id)}</td>
+                <td>${esc(r.full_name)}</td>
+                <td><span class="badge-${r.old_status === 'Active' ? 'active' : 'inactive'}">${r.old_status}</span></td>
+                <td class="text-xs text-gray-400">${r.manually_overridden ? '🔒 Manual Override — จะไม่เปลี่ยน' : ''}</td>
+            </tr>`).join('')}</tbody>
         </table></div>`;
     }
 
     if (data.inactivated.length > 0) {
-        html += `<h4 class="text-xs font-bold text-red-600 uppercase tracking-widest mt-5 mb-2">จะถูก Inactivate — แสดง ${data.inactivated.length} คน</h4>
+        const label = data.has_registry ? 'ไม่อยู่ในทะเบียนอีกต่อไป → Inactive' : 'จะถูก Inactivate';
+        html += `<h4 class="text-xs font-bold text-red-600 uppercase tracking-widest mt-5 mb-2">${label} — แสดง ${data.inactivated.length} คน</h4>
         <div class="overflow-x-auto rounded-xl border border-red-100"><table>
             <thead><tr><th>รหัส</th><th>ชื่อ-สกุล</th><th>หมายเหตุ</th></tr></thead>
             <tbody>${data.inactivated.map(r => `<tr><td class="font-mono text-xs">${esc(r.member_id)}</td><td>${esc(r.full_name)}</td><td class="text-xs text-gray-400">${r.manually_overridden ? '🔒 Manual Override — จะไม่เปลี่ยน' : ''}</td></tr>`).join('')}</tbody>
