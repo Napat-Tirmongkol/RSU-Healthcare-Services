@@ -165,22 +165,99 @@ require_once __DIR__ . '/../admin/includes/header.php';
     <div class="smtp-card shadow-sm">
         <h2 class="font-black text-gray-900 mb-5 flex items-center gap-2">
             <span class="w-8 h-8 bg-green-100 text-green-600 rounded-xl flex items-center justify-center">
-                <i class="fa-solid fa-paper-plane text-sm"></i>
+                <i class="fa-solid fa-flask text-sm"></i>
             </span>
-            ทดสอบส่งอีเมล
+            ทดสอบส่งอีเมลทุกระบบ
         </h2>
 
-        <div class="flex gap-3">
-            <div class="flex-1">
-                <label class="smtp-label">ส่งอีเมลทดสอบไปที่</label>
-                <input type="email" id="testEmail" class="smtp-input"
-                       placeholder="your@email.com"
-                       value="<?= htmlspecialchars($secrets['SMTP_USER'] ?? '') ?>">
+        <div class="mb-5">
+            <label class="smtp-label">ส่งอีเมลทดสอบไปที่</label>
+            <input type="email" id="testEmail" class="smtp-input"
+                   placeholder="your@email.com"
+                   value="<?= htmlspecialchars($secrets['SMTP_USER'] ?? '') ?>">
+        </div>
+
+        <div class="space-y-2.5">
+            <!-- SMTP Connection -->
+            <div class="flex items-center gap-3 p-3 rounded-xl bg-gray-50 border border-gray-100">
+                <div class="w-9 h-9 rounded-lg flex items-center justify-center bg-gray-200 text-gray-600 shrink-0">
+                    <i class="fa-solid fa-server text-xs"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="font-bold text-gray-800 text-sm">ทดสอบการเชื่อมต่อ SMTP</p>
+                    <p class="text-xs text-gray-500">ส่ง email พื้นฐานเพื่อยืนยันว่า SMTP ทำงานได้</p>
+                </div>
+                <button onclick="sendTest('basic', this)"
+                        data-label='<i class="fa-solid fa-paper-plane"></i> ส่งทดสอบ'
+                        class="btn-test px-4 py-2 rounded-xl font-bold text-xs text-white transition-all active:scale-95 flex items-center gap-1.5 shrink-0 bg-gray-700 hover:bg-gray-900">
+                    <i class="fa-solid fa-paper-plane"></i> ส่งทดสอบ
+                </button>
             </div>
-            <div class="flex items-end">
-                <button onclick="sendTest()" id="btnTest"
-                        class="px-6 py-3 rounded-xl font-bold text-sm text-white transition-all active:scale-95 shadow-lg flex items-center gap-2"
-                        style="background:linear-gradient(135deg,#059669,#047857)">
+
+            <!-- Confirmation -->
+            <div class="flex items-center gap-3 p-3 rounded-xl bg-emerald-50 border border-emerald-100">
+                <div class="w-9 h-9 rounded-lg flex items-center justify-center bg-emerald-100 text-emerald-600 shrink-0">
+                    <i class="fa-solid fa-circle-check text-xs"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="font-bold text-gray-800 text-sm">ยืนยันการจอง</p>
+                    <p class="text-xs text-gray-500">อีเมลแจ้งเมื่อผู้ใช้จองกิจกรรมสำเร็จ</p>
+                </div>
+                <button onclick="sendTest('confirmation', this)"
+                        data-label='<i class="fa-solid fa-paper-plane"></i> ส่งทดสอบ'
+                        class="btn-test px-4 py-2 rounded-xl font-bold text-xs text-white transition-all active:scale-95 flex items-center gap-1.5 shrink-0"
+                        style="background:#059669">
+                    <i class="fa-solid fa-paper-plane"></i> ส่งทดสอบ
+                </button>
+            </div>
+
+            <!-- Approved -->
+            <div class="flex items-center gap-3 p-3 rounded-xl bg-blue-50 border border-blue-100">
+                <div class="w-9 h-9 rounded-lg flex items-center justify-center bg-blue-100 text-blue-600 shrink-0">
+                    <i class="fa-solid fa-thumbs-up text-xs"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="font-bold text-gray-800 text-sm">อนุมัติการจอง</p>
+                    <p class="text-xs text-gray-500">อีเมลแจ้งเมื่อแอดมินอนุมัติคิวของผู้ใช้</p>
+                </div>
+                <button onclick="sendTest('approved', this)"
+                        data-label='<i class="fa-solid fa-paper-plane"></i> ส่งทดสอบ'
+                        class="btn-test px-4 py-2 rounded-xl font-bold text-xs text-white transition-all active:scale-95 flex items-center gap-1.5 shrink-0"
+                        style="background:#0052CC">
+                    <i class="fa-solid fa-paper-plane"></i> ส่งทดสอบ
+                </button>
+            </div>
+
+            <!-- Cancelled by user -->
+            <div class="flex items-center gap-3 p-3 rounded-xl bg-orange-50 border border-orange-100">
+                <div class="w-9 h-9 rounded-lg flex items-center justify-center bg-orange-100 text-orange-600 shrink-0">
+                    <i class="fa-solid fa-user-xmark text-xs"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="font-bold text-gray-800 text-sm">ยกเลิกโดยผู้ใช้</p>
+                    <p class="text-xs text-gray-500">อีเมลแจ้งเมื่อผู้ใช้ยกเลิกการจองของตัวเอง</p>
+                </div>
+                <button onclick="sendTest('cancelled_by_user', this)"
+                        data-label='<i class="fa-solid fa-paper-plane"></i> ส่งทดสอบ'
+                        class="btn-test px-4 py-2 rounded-xl font-bold text-xs text-white transition-all active:scale-95 flex items-center gap-1.5 shrink-0"
+                        style="background:#ea580c">
+                    <i class="fa-solid fa-paper-plane"></i> ส่งทดสอบ
+                </button>
+            </div>
+
+            <!-- Cancelled by admin -->
+            <div class="flex items-center gap-3 p-3 rounded-xl bg-red-50 border border-red-100">
+                <div class="w-9 h-9 rounded-lg flex items-center justify-center bg-red-100 text-red-600 shrink-0">
+                    <i class="fa-solid fa-user-shield text-xs"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="font-bold text-gray-800 text-sm">ยกเลิกโดยแอดมิน</p>
+                    <p class="text-xs text-gray-500">อีเมลแจ้งเมื่อแอดมินยกเลิกคิวให้ผู้ใช้</p>
+                </div>
+                <button onclick="sendTest('cancelled_by_admin', this)"
+                        data-label='<i class="fa-solid fa-paper-plane"></i> ส่งทดสอบ'
+                        class="btn-test px-4 py-2 rounded-xl font-bold text-xs text-white transition-all active:scale-95 flex items-center gap-1.5 shrink-0"
+                        style="background:#dc2626">
                     <i class="fa-solid fa-paper-plane"></i> ส่งทดสอบ
                 </button>
             </div>
@@ -232,43 +309,41 @@ function saveConfig() {
         .catch(() => alert('ไม่สามารถเชื่อมต่อ server ได้'));
 }
 
-function sendTest() {
-    const to  = document.getElementById('testEmail').value.trim();
+function sendTest(type, btnEl) {
+    const to = document.getElementById('testEmail').value.trim();
     if (!to) { alert('กรุณาระบุอีเมลปลายทาง'); return; }
 
-    const btn = document.getElementById('btnTest');
-    btn.disabled = true;
-    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังส่ง...';
+    const origLabel = btnEl.dataset.label;
+    document.querySelectorAll('.btn-test').forEach(b => b.disabled = true);
+    btnEl.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังส่ง...';
 
     const fd = new FormData();
     const d  = getFormData();
-    d.action   = 'test';
     d.to_email = to;
+    d.action   = type === 'basic' ? 'test' : 'test_template';
+    if (type !== 'basic') d.template_type = type;
     for (const [k, v] of Object.entries(d)) fd.append(k, v);
 
     fetch('ajax_test_smtp.php', { method: 'POST', body: fd })
         .then(r => r.json())
-        .then(data => {
-            const el = document.getElementById('testResult');
-            el.classList.remove('hidden');
-            if (data.ok) {
-                el.className = 'mt-4 p-4 rounded-xl text-sm font-semibold flex items-start gap-3 bg-emerald-50 border border-emerald-100 text-emerald-700';
-                el.innerHTML = '<i class="fa-solid fa-circle-check mt-0.5 shrink-0"></i><span>' + data.message + '</span>';
-            } else {
-                el.className = 'mt-4 p-4 rounded-xl text-sm font-semibold flex items-start gap-3 bg-red-50 border border-red-100 text-red-600';
-                el.innerHTML = '<i class="fa-solid fa-circle-exclamation mt-0.5 shrink-0"></i><span>' + (data.error || 'ส่งอีเมลไม่สำเร็จ') + '</span>';
-            }
-        })
-        .catch(() => {
-            const el = document.getElementById('testResult');
-            el.classList.remove('hidden');
-            el.className = 'mt-4 p-4 rounded-xl text-sm font-semibold flex items-start gap-3 bg-red-50 border border-red-100 text-red-600';
-            el.innerHTML = '<i class="fa-solid fa-circle-exclamation mt-0.5 shrink-0"></i><span>ไม่สามารถเชื่อมต่อ server ได้</span>';
-        })
+        .then(data => showTestResult(data.ok, data.ok ? data.message : (data.error || 'ส่งอีเมลไม่สำเร็จ')))
+        .catch(() => showTestResult(false, 'ไม่สามารถเชื่อมต่อ server ได้'))
         .finally(() => {
-            btn.disabled = false;
-            btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> ส่งทดสอบ';
+            document.querySelectorAll('.btn-test').forEach(b => b.disabled = false);
+            btnEl.innerHTML = origLabel;
         });
+}
+
+function showTestResult(ok, msg) {
+    const el = document.getElementById('testResult');
+    el.classList.remove('hidden');
+    if (ok) {
+        el.className = 'mt-4 p-4 rounded-xl text-sm font-semibold flex items-start gap-3 bg-emerald-50 border border-emerald-100 text-emerald-700';
+        el.innerHTML = '<i class="fa-solid fa-circle-check mt-0.5 shrink-0"></i><span>' + msg + '</span>';
+    } else {
+        el.className = 'mt-4 p-4 rounded-xl text-sm font-semibold flex items-start gap-3 bg-red-50 border border-red-100 text-red-600';
+        el.innerHTML = '<i class="fa-solid fa-circle-exclamation mt-0.5 shrink-0"></i><span>' + msg + '</span>';
+    }
 }
 
 function togglePass() {

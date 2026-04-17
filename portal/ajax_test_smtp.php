@@ -61,6 +61,76 @@ if ($action === 'save') {
     exit;
 }
 
+// ── ทดสอบส่งอีเมลตาม template ─────────────────────────────────────────────────
+if ($action === 'test_template') {
+    $toEmail = trim($_POST['to_email'] ?? '');
+    if (!filter_var($toEmail, FILTER_VALIDATE_EMAIL)) {
+        echo json_encode(['ok' => false, 'error' => 'อีเมลปลายทางไม่ถูกต้อง']);
+        exit;
+    }
+
+    $templateType   = $_POST['template_type'] ?? '';
+    $allowedTypes   = ['confirmation', 'approved', 'cancelled_by_user', 'cancelled_by_admin'];
+    if (!in_array($templateType, $allowedTypes, true)) {
+        echo json_encode(['ok' => false, 'error' => 'template_type ไม่ถูกต้อง']);
+        exit;
+    }
+
+    $secrets = get_secrets();
+    $cfg = [
+        'SMTP_HOST'       => trim($_POST['SMTP_HOST']       ?? $secrets['SMTP_HOST']       ?? ''),
+        'SMTP_PORT'       => (int)($_POST['SMTP_PORT']       ?? $secrets['SMTP_PORT']       ?? 587),
+        'SMTP_USER'       => trim($_POST['SMTP_USER']       ?? $secrets['SMTP_USER']       ?? ''),
+        'SMTP_PASS'       => trim($_POST['SMTP_PASS']       ?? $secrets['SMTP_PASS']       ?? ''),
+        'SMTP_FROM_EMAIL' => trim($_POST['SMTP_FROM_EMAIL'] ?? $secrets['SMTP_FROM_EMAIL'] ?? ''),
+        'SMTP_FROM_NAME'  => trim($_POST['SMTP_FROM_NAME']  ?? $secrets['SMTP_FROM_NAME']  ?? 'RSU Medical Clinic Services'),
+    ];
+    if ($cfg['SMTP_PASS'] === '' && !empty($secrets['SMTP_PASS'])) {
+        $cfg['SMTP_PASS'] = $secrets['SMTP_PASS'];
+    }
+    if (empty($cfg['SMTP_HOST']) || empty($cfg['SMTP_USER'])) {
+        echo json_encode(['ok' => false, 'error' => 'ยังไม่ได้ตั้งค่า SMTP_HOST หรือ SMTP_USER']);
+        exit;
+    }
+
+    // ข้อมูลจำลองสำหรับ preview
+    $dummyData = [
+        'full_name'      => 'นาย ทดสอบ ระบบ',
+        'campaign_title' => '[ทดสอบ] ตรวจสุขภาพประจำปี 2026',
+        'date'           => date('d/m/Y', strtotime('+3 days')),
+        'time'           => '09:00 – 09:30 น.',
+    ];
+
+    $map = [
+        'confirmation'       => ['ยืนยันการจองกิจกรรม', 'จองกิจกรรมสำเร็จ!',               'ระบบได้รับการลงทะเบียนของคุณเรียบร้อยแล้ว',                'success',  null],
+        'approved'           => ['การจองได้รับการอนุมัติ', 'การจองได้รับการอนุมัติแล้ว!',  'เจ้าหน้าที่ได้อนุมัติคิวการจองของคุณเรียบร้อยแล้ว',      'approved', 'อนุมัติแล้ว'],
+        'cancelled_by_user'  => ['ยกเลิกการจอง',          'ยกเลิกการจองแล้ว',              'การจองกิจกรรมต่อไปนี้ถูกยกเลิกตามคำขอของคุณ',             'cancel',   'ยกเลิกแล้ว'],
+        'cancelled_by_admin' => ['แจ้งยกเลิกคิว',         'ขออภัย — มีการยกเลิกคิวของคุณ', 'เจ้าหน้าที่ขอยกเลิกคิวเดิมของคุณ เนื่องจากมีเหตุจำเป็น', 'cancel',   'คิวถูกยกเลิก (กรุณาจองใหม่)'],
+    ];
+
+    [$subjectPrefix, $emailTitle, $msgText, $tplType, $statusLabel] = $map[$templateType];
+
+    $details = [
+        'กิจกรรม' => $dummyData['campaign_title'],
+        'วันที่'   => $dummyData['date'],
+        'เวลา'    => $dummyData['time'],
+    ];
+    if ($statusLabel !== null) {
+        $details['สถานะ'] = $statusLabel;
+    }
+
+    $greeting = 'สวัสดีคุณ ' . $dummyData['full_name'];
+    $body     = get_email_template($emailTitle, "{$greeting} — {$msgText} (อีเมลนี้เป็นการทดสอบระบบ)", $details, $tplType);
+    $subject  = "[ทดสอบ] {$subjectPrefix}: " . $dummyData['campaign_title'];
+    $ok       = smtp_send($toEmail, $subject, $body, $cfg);
+
+    echo json_encode($ok
+        ? ['ok' => true,  'message' => "ส่ง template '{$subjectPrefix}' ไปที่ {$toEmail} สำเร็จ! กรุณาตรวจสอบ Inbox"]
+        : ['ok' => false, 'error'   => "ส่ง template '{$subjectPrefix}' ไม่สำเร็จ — ตรวจสอบ SMTP credentials และ PHP error_log"]
+    );
+    exit;
+}
+
 // ── ทดสอบส่งอีเมล ──────────────────────────────────────────────────────────────
 $toEmail = trim($_POST['to_email'] ?? '');
 if (!filter_var($toEmail, FILTER_VALIDATE_EMAIL)) {
