@@ -10,6 +10,13 @@ require_once __DIR__ . '/config/sentry.php'; // โหลดหลัง error_l
 defined('ERROR_LOG_RETENTION_DAYS')    || define('ERROR_LOG_RETENTION_DAYS',    30);  // วัน
 defined('ACTIVITY_LOG_RETENTION_DAYS') || define('ACTIVITY_LOG_RETENTION_DAYS', 90);  // วัน
 
+// ── Site Settings ─────────────────────────────────────────────────────────────
+$__siteSettingsFile = __DIR__ . '/config/site_settings.json';
+$__siteSettings = file_exists($__siteSettingsFile) ? json_decode(file_get_contents($__siteSettingsFile), true) : [];
+defined('SITE_NAME') || define('SITE_NAME', $__siteSettings['site_name'] ?? 'e-Campaign V2');
+defined('SITE_LOGO') || define('SITE_LOGO', $__siteSettings['site_logo'] ?? ''); // Empty means use default icon
+
+
 /**
  * ฟังก์ชันกลางสำหรับบันทึกกิจกรรมในระบบ (Activity Logging)
  */

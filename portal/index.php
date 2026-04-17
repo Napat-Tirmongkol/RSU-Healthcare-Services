@@ -256,7 +256,7 @@ try {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Management Smart Portal - Central Intelligence HUB</title>
+    <title><?= htmlspecialchars(SITE_NAME) ?> - Central Intelligence HUB</title>
 
     <!-- UI Framework & Fonts -->
     <link
@@ -497,10 +497,15 @@ try {
         <div
             style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px 12px;border-bottom:1px solid #f0faf4;min-height:60px">
             <div class="flex items-center gap-2" id="psb-brand-text">
-                <div class="brand-icon" style="width:30px;height:30px;font-size:12px;border-radius:10px;"><i
-                        class="fa-solid fa-heart"></i></div>
+                <div class="brand-icon" style="width:30px;height:30px;font-size:12px;border-radius:10px;overflow:hidden;display:flex;align-items:center;justify-content:center;<?= defined('SITE_LOGO') && SITE_LOGO !== '' ? 'background:transparent;' : '' ?>">
+                    <?php if (defined('SITE_LOGO') && SITE_LOGO !== ''): ?>
+                        <img src="../<?= htmlspecialchars(SITE_LOGO) ?>" style="width:100%;height:100%;object-fit:contain;" alt="Logo">
+                    <?php else: ?>
+                        <i class="fa-solid fa-heart"></i>
+                    <?php endif; ?>
+                </div>
                 <div>
-                    <div class="font-black text-gray-900 text-[15px] leading-tight tracking-tight">Central HUB</div>
+                    <div class="font-black text-gray-900 text-[15px] leading-tight tracking-tight"><?= htmlspecialchars(SITE_NAME ?: 'Central HUB') ?></div>
                 </div>
             </div>
             <button onclick="toggleSidebar()" id="sidebar-toggle" title="Toggle sidebar"
@@ -1665,6 +1670,35 @@ try {
                                 </div>
                             </div>
                         </div>
+
+                        <!-- Site Settings & Logo Upload -->
+                        <div style="background:#fff;border:1.5px solid #e2e8f0;border-radius:20px;padding:24px;margin-top:24px">
+                            <div style="font-size:11px;font-weight:800;color:#94a3b8;text-transform:uppercase;letter-spacing:.12em;margin-bottom:16px">
+                                Configuration & Branding
+                            </div>
+                            <form id="siteSettingsForm" method="POST" action="ajax_site_settings.php" enctype="multipart/form-data" style="display:flex;flex-direction:column;gap:16px;">
+                                <?php csrf_field(); ?>
+                                <div>
+                                    <label style="display:block;font-size:12px;font-weight:800;color:#475569;margin-bottom:6px">ชื่อเว็บไซต์ (Site Name)</label>
+                                    <input type="text" name="site_name" value="<?= htmlspecialchars(SITE_NAME) ?>" class="premium-input" style="width:100%;max-width:400px;">
+                                </div>
+                                <div>
+                                    <label style="display:block;font-size:12px;font-weight:800;color:#475569;margin-bottom:6px">โลโก้เว็บไซต์ (Site Logo)</label>
+                                    <?php if (defined('SITE_LOGO') && SITE_LOGO !== ''): ?>
+                                        <div style="margin-bottom:10px;padding:10px;border:1px solid #e2e8f0;border-radius:8px;display:inline-block;background:#f8fafc;">
+                                            <img src="../<?= htmlspecialchars(SITE_LOGO) ?>" style="max-height:60px;" alt="Current Site Logo">
+                                        </div>
+                                    <?php endif; ?>
+                                    <input type="file" name="site_logo" accept="image/png, image/jpeg, image/svg+xml" class="premium-input" style="width:100%;max-width:400px;font-size:12px;">
+                                    <div style="font-size:10px;color:#94a3b8;margin-top:4px;">* รองรับ PNG, JPG, SVG ขนาดไม่เกิน 2MB. หากไม่เลือกจะใช้ภาพเดิม.</div>
+                                </div>
+                                <div>
+                                    <button type="submit" style="padding:12px 24px;border-radius:12px;border:none;background:#2563eb;color:#fff;font-size:13px;font-weight:800;cursor:pointer;display:inline-flex;align-items:center;gap:8px;">
+                                        <i class="fa-solid fa-floppy-disk"></i> บันทึกการตั้งค่า
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
 
                     <!-- Git Pull History -->
@@ -1897,6 +1931,57 @@ try {
             }
         </script>
     <?php endif; ?>
+
+    <script>
+        document.getElementById('siteSettingsForm')?.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const form = this;
+            const formData = new FormData(form);
+            const btn = form.querySelector('button[type="submit"]');
+            
+            btn.disabled = true;
+            btn.style.opacity = '0.6';
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังบันทึก...';
+
+            fetch(form.action, {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'สำเร็จ!',
+                        text: data.message,
+                        confirmButtonColor: '#2563eb'
+                    }).then(() => {
+                        location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'ผิดพลาด',
+                        text: data.message,
+                        confirmButtonColor: '#ef4444'
+                    });
+                }
+            })
+            .catch(err => {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'ข้อผิดพลาดระบบ',
+                    text: 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้',
+                    confirmButtonColor: '#ef4444'
+                });
+            })
+            .finally(() => {
+                btn.disabled = false;
+                btn.style.opacity = '1';
+                btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> บันทึกการตั้งค่า';
+            });
+        });
+    </script>
 
     <script>
         /* ══════════════════════════════════════════════════════════════

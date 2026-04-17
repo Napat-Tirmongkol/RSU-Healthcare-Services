@@ -64,7 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Login — E-Campaign V2</title>
+    <title>Admin Login — <?= htmlspecialchars(SITE_NAME) ?></title>
     <link rel="stylesheet" href="../assets/css/tailwind.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="../assets/css/rsufont.css">
@@ -459,7 +459,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="right-panel">
 
         <p class="welcome-label">Welcome to RSU Healthy Campus | Clinic Admin Portal</p>
-        <h1 class="main-title">E-Campaign V2<br>Administration</h1>
+        <h1 class="main-title"><?= htmlspecialchars(SITE_NAME) ?><br>Administration</h1>
         <p class="sign-in-sub">Sign in to your secure account.</p>
 
         <?php if ($error): ?>
