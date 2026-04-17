@@ -46,6 +46,13 @@ if (!$originOk && !$sessionOk) {
     exit;
 }
 
+// Detect PHP silently dropping POST body when post_max_size exceeded
+if (empty($_POST) && !empty($_SERVER['CONTENT_LENGTH']) && (int)$_SERVER['CONTENT_LENGTH'] > 0) {
+    $limit = ini_get('post_max_size');
+    echo json_encode(['status' => 'error', 'message' => "ไฟล์มีขนาดใหญ่เกิน limit ({$limit}) กรุณาลดขนาดไฟล์หรือติดต่อผู้ดูแลระบบ"]);
+    exit;
+}
+
 $action = $_POST['action'] ?? '';
 $pdo    = db();
 
