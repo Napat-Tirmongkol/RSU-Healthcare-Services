@@ -77,6 +77,7 @@ $csrfToken = get_csrf_token();
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="../assets/css/tailwind.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <style>
         * { font-family: 'Prompt', sans-serif; }
         body { background: #f0f4ff; }
@@ -170,7 +171,7 @@ $csrfToken = get_csrf_token();
 
             <!-- CSV Format hint -->
             <div class="bg-blue-50 border border-blue-100 rounded-xl p-4 mb-5 text-xs text-blue-700">
-                <div class="font-bold mb-1"><i class="fa-solid fa-circle-info mr-1"></i>รูปแบบ CSV ที่รองรับ</div>
+                <div class="font-bold mb-1"><i class="fa-solid fa-circle-info mr-1"></i>รูปแบบที่รองรับ (.csv / .xlsx / .xls)</div>
                 <code class="text-blue-800">member_id, full_name, member_status, position, citizen_id, date_of_birth, coverage_start, coverage_end, policy_number, remarks</code>
                 <div class="mt-1 text-blue-500">* คอลัมน์ที่จำเป็น: <strong>member_id</strong> และ <strong>full_name</strong></div>
             </div>
@@ -178,10 +179,11 @@ $csrfToken = get_csrf_token();
             <!-- Upload area -->
             <div class="upload-area text-center py-10 px-6 mb-5" id="uploadArea" onclick="document.getElementById('csvFile').click()">
                 <i class="fa-solid fa-cloud-arrow-up text-3xl text-blue-300 mb-3 block"></i>
-                <p class="text-sm font-bold text-gray-600">คลิกหรือลากไฟล์ CSV มาวางที่นี่</p>
+                <p class="text-sm font-bold text-gray-600">คลิกหรือลากไฟล์ CSV / Excel มาวางที่นี่</p>
+                <p class="text-xs text-gray-400 mt-1">รองรับ .csv, .xlsx, .xls</p>
                 <p class="text-xs text-gray-400 mt-1" id="fileNameLabel">ยังไม่ได้เลือกไฟล์</p>
             </div>
-            <input type="file" id="csvFile" accept=".csv" class="hidden">
+            <input type="file" id="csvFile" accept=".csv,.xlsx,.xls" class="hidden">
 
             <button id="btnDryRun" onclick="doDryRun()" disabled
                 class="w-full bg-[#0052CC] hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold py-3 rounded-xl transition-all flex items-center justify-center gap-2">
@@ -389,15 +391,54 @@ uploadArea.addEventListener('drop', e => {
     }
 });
 
+// ── Excel → CSV conversion ─────────────────────────────────────────────────
+function isExcelFile(file) {
+    return /\.(xlsx|xls)$/i.test(file.name);
+}
+
+async function fileToCSVBlob(file) {
+    if (!isExcelFile(file)) return file; // already CSV
+
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const data = new Uint8Array(e.target.result);
+                const wb   = XLSX.read(data, { type: 'array', cellDates: true });
+                const ws   = wb.Sheets[wb.SheetNames[0]];
+                const csv  = XLSX.utils.sheet_to_csv(ws, { blankrows: false });
+                const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+                // keep original name but with .csv extension
+                const csvFile = new File([blob], file.name.replace(/\.(xlsx|xls)$/i, '.csv'), { type: 'text/csv' });
+                resolve(csvFile);
+            } catch (err) {
+                reject(new Error('แปลงไฟล์ Excel ไม่สำเร็จ: ' + err.message));
+            }
+        };
+        reader.onerror = () => reject(new Error('อ่านไฟล์ไม่สำเร็จ'));
+        reader.readAsArrayBuffer(file);
+    });
+}
+
 // ── Dry Run ────────────────────────────────────────────────────────────────
 let dryRunData = null;
 
 async function doDryRun() {
-    const file = csvFileInput.files[0];
-    if (!file) return;
+    const rawFile = csvFileInput.files[0];
+    if (!rawFile) return;
 
     btnDryRun.disabled = true;
     btnDryRun.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>กำลังตรวจสอบ...';
+
+    let file;
+    try {
+        file = await fileToCSVBlob(rawFile);
+    } catch (err) {
+        Swal.fire('ข้อผิดพลาด', err.message, 'error');
+        btnDryRun.disabled = false;
+        btnDryRun.innerHTML = '<i class="fa-solid fa-magnifying-glass mr-2"></i>ตรวจสอบ (Dry Run)';
+        return;
+    }
 
     const fd = new FormData();
     fd.append('action', 'dryrun');
