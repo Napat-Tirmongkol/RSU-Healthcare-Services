@@ -218,25 +218,7 @@ if ($isUserFolder && !in_array($currentPage, $excludedPages)) {
   }
 }
 
-$GLOBALS['HEADER_USER_DATA'] = $uProf;
 
-// --- เพิ่มส่วนนี้: กำหนดสีธีมตามสถานะ ---
-$userStatus = $uProf['status'] ?? 'student';
-if ($userStatus === 'staff' || $userStatus === 'faculty') {
-  // โทนสี Indigo สำหรับบุคลากร/อาจารย์
-  $GLOBALS['THEME_COLOR'] = [
-    'bg' => 'from-[#312e81] to-[#4338ca]', // Indigo 900 to 700
-    'accent' => 'bg-white/10',
-    'loader' => '#4338ca'
-  ];
-} else {
-  // โทนสี Blue เดิมสำหรับนักศึกษาและอื่นๆ
-  $GLOBALS['THEME_COLOR'] = [
-    'bg' => 'from-[#0052CC] to-[#0070f3]',
-    'accent' => 'bg-white/15',
-    'loader' => '#0052CC'
-  ];
-}
 
 function render_header(string $title = 'E-Vax'): void
 {
@@ -322,7 +304,10 @@ function render_header(string $title = 'E-Vax'): void
                   <i class="fa-solid fa-chevron-left text-sm"></i>
                 </a>
               <?php endif; ?>
-              <span class="text-[10px] font-black uppercase tracking-[0.2em] text-white/60">RSU Medical Hub</span>
+              <div class="inline-flex items-center gap-2 py-1.5 px-3 bg-white/5 rounded-full border border-white/10 backdrop-blur-sm shadow-sm">
+                  <i class="fa-solid fa-heart-pulse text-[10px] text-white/40 animate-pulse"></i>
+                  <span class="text-[10px] font-black uppercase tracking-[0.2em] text-white/80 leading-none">RSU Medical Hub</span>
+              </div>
             </div>
             <div class="flex items-center gap-2">
               <!-- Language Switcher -->
