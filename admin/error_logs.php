@@ -6,7 +6,7 @@ require_once __DIR__ . '/includes/auth.php';
 
 $pdo = db();
 
-// ─── Auto-create table if not exists ─────────────────────────────────────────
+// ─── Auto-create tables ───────────────────────────────────────────────────────
 try {
     $pdo->exec("CREATE TABLE IF NOT EXISTS sys_error_logs (
         id         INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -17,12 +17,36 @@ try {
         ip_address VARCHAR(45)   NOT NULL DEFAULT '',
         user_id    INT UNSIGNED  NULL,
         created_at TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        notified_at DATETIME     NULL DEFAULT NULL,
         INDEX idx_level      (level),
         INDEX idx_created_at (created_at)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+    $pdo->exec("CREATE TABLE IF NOT EXISTS sys_settings (
+        `key`      VARCHAR(100) NOT NULL PRIMARY KEY,
+        `value`    TEXT         NOT NULL DEFAULT '',
+        updated_at TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
 } catch (PDOException $e) {
     $fatal = $e->getMessage();
 }
+
+// ─── Save alert email setting ─────────────────────────────────────────────────
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save_alert_email') {
+    $emailVal = trim($_POST['alert_email'] ?? '');
+    if ($emailVal !== '' && !filter_var($emailVal, FILTER_VALIDATE_EMAIL)) {
+        $setting_error = 'รูปแบบอีเมลไม่ถูกต้อง';
+    } else {
+        $pdo->prepare("INSERT INTO sys_settings (`key`, `value`) VALUES ('admin_alert_email', ?)
+                       ON DUPLICATE KEY UPDATE `value` = VALUES(`value`)")->execute([$emailVal]);
+        header('Location: error_logs.php?saved=1');
+        exit;
+    }
+}
+
+// ─── Load current alert email ─────────────────────────────────────────────────
+$currentAlertEmail = (string)($pdo->query(
+    "SELECT `value` FROM sys_settings WHERE `key` = 'admin_alert_email' LIMIT 1"
+)->fetchColumn() ?: '');
 
 // ─── Clear logs action ────────────────────────────────────────────────────────
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'clear') {
@@ -199,6 +223,12 @@ require_once __DIR__ . '/includes/header.php';
 </div>
 <?php endif; ?>
 
+<?php if (isset($_GET['saved'])): ?>
+<div class="mb-4 p-4 bg-green-50 border border-green-200 rounded-2xl text-green-700 text-sm flex items-center gap-2">
+    <i class="fa-solid fa-check-circle"></i> บันทึกการตั้งค่าเรียบร้อยแล้ว
+</div>
+<?php endif; ?>
+
 <?php
 // Build filter query string (ไม่รวม page)
 $filterQs = http_build_query(array_filter([
@@ -240,6 +270,48 @@ renderPageHeader(
         </div>
     </div>
     <?php endforeach; ?>
+</div>
+
+<!-- ─── Alert Email Settings ──────────────────────────────────────────────── -->
+<div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 mb-6 animate-slide-up">
+    <div class="flex items-center gap-3 mb-4">
+        <div class="w-9 h-9 bg-blue-50 rounded-xl flex items-center justify-center shrink-0">
+            <i class="fa-solid fa-bell text-blue-500 text-sm"></i>
+        </div>
+        <div>
+            <p class="text-sm font-bold text-gray-800">แจ้งเตือน Error ทางอีเมล</p>
+            <p class="text-xs text-gray-400">ส่ง Error Digest ทุก 30 นาทีเมื่อมี error ใหม่ในระบบ</p>
+        </div>
+    </div>
+    <form method="POST" class="flex flex-wrap gap-3 items-end">
+        <input type="hidden" name="action" value="save_alert_email">
+        <div class="flex-1 min-w-[220px]">
+            <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 block">อีเมล Admin (ว่างเปล่า = ปิดการแจ้งเตือน)</label>
+            <div class="relative">
+                <i class="fa-solid fa-envelope absolute left-3 top-1/2 -translate-y-1/2 text-gray-300 text-xs"></i>
+                <input type="email" name="alert_email" value="<?= htmlspecialchars($currentAlertEmail) ?>"
+                    placeholder="admin@example.com"
+                    class="w-full pl-8 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-all">
+            </div>
+            <?php if (isset($setting_error)): ?>
+                <p class="text-xs text-red-500 font-semibold mt-1"><?= htmlspecialchars($setting_error) ?></p>
+            <?php endif; ?>
+        </div>
+        <button type="submit"
+            class="px-5 py-2.5 bg-blue-600 text-white text-sm font-bold rounded-xl hover:bg-blue-700 transition-colors flex items-center gap-2 shadow-sm">
+            <i class="fa-solid fa-floppy-disk"></i> บันทึก
+        </button>
+        <?php if ($currentAlertEmail): ?>
+        <div class="flex items-center gap-2 text-xs text-emerald-700 font-semibold px-4 py-2.5 bg-emerald-50 border border-emerald-200 rounded-xl">
+            <i class="fa-solid fa-circle-check text-emerald-500"></i>
+            กำลังส่งไปยัง <?= htmlspecialchars($currentAlertEmail) ?>
+        </div>
+        <?php else: ?>
+        <div class="flex items-center gap-2 text-xs text-gray-400 font-semibold px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl">
+            <i class="fa-solid fa-bell-slash"></i> ปิดการแจ้งเตือน
+        </div>
+        <?php endif; ?>
+    </form>
 </div>
 
 <!-- ─── Filter Bar ────────────────────────────────────────────────────────── -->
