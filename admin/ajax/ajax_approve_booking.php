@@ -9,7 +9,7 @@ if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== tru
     exit;
 }
 
-require_once __DIR__ . '/../config.php'; // ปรับ Path ให้ถอยออกไป 1 ชั้น
+require_once __DIR__ . '/../../config.php'; // ปรับ Path ให้ถอยออกไป 1 ชั้น
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     validate_csrf_or_die();
@@ -37,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $bInfo = $stmtInfo->fetch(PDO::FETCH_ASSOC);
 
                     if ($bInfo && !empty($bInfo['email'])) {
-                        require_once __DIR__ . '/../includes/mail_helper.php';
+                        require_once __DIR__ . '/../../includes/mail_helper.php';
                         notify_booking_status($bInfo['email'], 'approved', [
                             'campaign_title' => $bInfo['title'],
                             'full_name'      => $bInfo['full_name'],

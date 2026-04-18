@@ -3,8 +3,8 @@
 // Trigger Plesk Git webhook ผ่าน localhost (same server)
 // เฉพาะ Superadmin เท่านั้น
 
-require_once __DIR__ . '/../config.php';
-require_once __DIR__ . '/../portal/includes/auth.php';
+require_once __DIR__ . '/../../config.php';
+require_once __DIR__ . '/../../portal/includes/auth.php';
 header('Content-Type: application/json; charset=utf-8');
 
 // 1. Superadmin เท่านั้น

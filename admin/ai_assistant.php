@@ -409,7 +409,7 @@ async function loadSuggestions(force = false) {
         fd.append('csrf_token', getCsrf());
         if (force) fd.append('force', '1');
 
-        const res  = await fetch('ajax_ai.php', { method: 'POST', body: fd, credentials: 'same-origin' });
+        const res  = await fetch('ajax/ajax_ai.php', { method: 'POST', body: fd, credentials: 'same-origin' });
         const data = await res.json();
 
         if (data.ok && Array.isArray(data.suggestions) && data.suggestions.length) {
@@ -522,7 +522,7 @@ async function sendMessage() {
         fd.append('query', query);
         fd.append('csrf_token', getCsrf());
 
-        const res  = await fetch('ajax_ai.php', { method: 'POST', body: fd, credentials: 'same-origin' });
+        const res  = await fetch('ajax/ajax_ai.php', { method: 'POST', body: fd, credentials: 'same-origin' });
         const data = await res.json();
 
         hideTyping();

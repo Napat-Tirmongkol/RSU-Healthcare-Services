@@ -91,7 +91,7 @@ if ($admin) {
 } else {
     // ไม่พบอีเมลนี้ในรายชื่อแอดมินที่ได้รับอนุญาต
     $_SESSION['login_error'] = "ขออภัย อีเมล $email ไม่ได้รับอนุญาตให้เข้าสู่ระบบจัดการหลังบ้าน";
-    header("Location: login.php");
+    header("Location: auth/login.php");
     exit;
 }
 

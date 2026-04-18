@@ -277,7 +277,7 @@ if (!function_exists('renderPageHeader')) {
 
     <!-- Logout -->
     <div class="p-3 border-t" style="border-color:#d0ead9">
-        <a href="../admin/logout.php"
+        <a href="../admin/auth/logout.php"
             class="flex items-center justify-center gap-2 w-full p-2.5 rounded-xl text-sm font-semibold text-red-500 hover:bg-red-50 transition-colors">
             <i class="fa-solid fa-right-from-bracket"></i> ออกจากระบบ
         </a>
@@ -324,8 +324,8 @@ function closeMobileSidebar(){
         // Compute relative URL to ajax_notifications.php from current page
         $_curDir = rtrim(dirname($_SERVER['PHP_SELF']), '/');
         $notifAjaxUrl = (substr($_curDir, -6) === '/admin')
-            ? 'ajax_notifications.php'
-            : '../admin/ajax_notifications.php';
+            ? 'ajax/ajax_notifications.php'
+            : '../admin/ajax/ajax_notifications.php';
         $notifErrorUrl   = (substr($_curDir, -6) === '/admin') ? 'error_logs.php'   : '../admin/error_logs.php';
         $notifBookingUrl = (substr($_curDir, -6) === '/admin') ? 'bookings.php'      : '../admin/bookings.php';
         unset($_curDir);

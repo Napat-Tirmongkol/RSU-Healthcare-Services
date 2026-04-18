@@ -9,11 +9,11 @@ if (session_status() === PHP_SESSION_NONE) {
 
 // ถ้า login แล้ว ข้ามไปหน้า index
 if (isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] === true) {
-    header('Location: ../portal/index.php');
+    header('Location: ../../portal/index.php');
     exit;
 }
 
-require_once __DIR__ . '/../config.php';
+require_once __DIR__ . '/../../config.php';
 
 $error = '';
 
@@ -74,7 +74,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     log_activity('staff_login', "เจ้าหน้าที่ '{$staff['full_name']}' (Username: {$staff['username']}) เข้าสู่ระบบ e-Campaign", (int)$staff['id']);
 
-                    header('Location: ../portal/index.php');
+                    header('Location: ../../portal/index.php');
                     exit;
                 }
             } else {
@@ -93,9 +93,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Staff Login — E-Campaign</title>
     <link rel="icon" href="data:,">
-    <link rel="stylesheet" href="../assets/css/tailwind.min.css">
+    <link rel="stylesheet" href="../../assets/css/tailwind.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="../assets/css/rsufont.css">
+    <link rel="stylesheet" href="../../assets/css/rsufont.css">
     <style>
         * { font-family: 'rsufont', 'Prompt', sans-serif; box-sizing: border-box; }
 
@@ -395,7 +395,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <a href="login.php">
                 <i class="fa-solid fa-shield-halved mr-1"></i>Portal Admin Login
             </a>
-            <a href="../index.php">
+            <a href="../../index.php">
                 <i class="fa-solid fa-house mr-1"></i>หน้าหลัก
             </a>
         </div>
