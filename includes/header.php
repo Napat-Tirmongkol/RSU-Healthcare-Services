@@ -167,7 +167,3 @@ function render_header(string $title = 'E-Vax'): void {
         <?php endif; ?>
   <?php
 }
-
-
-  <?php
-}
