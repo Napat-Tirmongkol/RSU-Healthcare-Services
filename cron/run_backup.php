@@ -12,6 +12,10 @@
  */
 declare(strict_types=1);
 
+// ── เพิ่ม time limit และ memory เผื่อ DB ใหญ่ ─────────────────────────────────
+set_time_limit(0);
+ini_set('memory_limit', '512M');
+
 // ── Secret Token (เปลี่ยนเป็นรหัสของคุณ) ─────────────────────────────────────
 define('BACKUP_SECRET_TOKEN', 'rsu_purge_a8f3k2m9x');
 
@@ -22,16 +26,18 @@ if (!hash_equals(BACKUP_SECRET_TOKEN, $token)) {
     exit('Forbidden');
 }
 
-// ── โหลด DB credentials ────────────────────────────────────────────────────────
+// ── โหลด DB credentials จาก secrets.php ──────────────────────────────────────
 $projectRoot = dirname(__DIR__);
 require_once $projectRoot . '/config/db_connect.php';
 
-// ดึงค่าจาก variables ที่ db_connect.php ประกาศไว้
-$dbHost = $db_host ?? 'localhost';
-$dbUser = $db_user ?? '';
-$dbPass = $db_pass ?? '';
-$dbName = $db_name ?? '';
-$dbPort = $db_port ?? 3306;
+$secretsPath = $projectRoot . '/config/secrets.php';
+$secrets = file_exists($secretsPath) ? (require $secretsPath) : [];
+
+$dbHost = $secrets['DB_HOST'] ?? '127.0.0.1';
+$dbPort = (int)($secrets['DB_PORT'] ?? 3306);
+$dbUser = $secrets['DB_USER'] ?? '';
+$dbPass = $secrets['DB_PASS'] ?? '';
+$dbName = $secrets['DB_NAME'] ?? '';
 
 $backupDir = __DIR__ . '/backups';
 $logDir    = __DIR__ . '/logs';
