@@ -80,6 +80,10 @@ if ($isUserFolder && !in_array($currentPage, $excludedPages)) {
         try {
             require_once __DIR__ . '/../config/db_connect.php';
             $pdoCheck = db();
+            
+            // Safe auto-migration
+            try { @$pdoCheck->exec("ALTER TABLE sys_users ADD COLUMN picture_url TEXT"); } catch (Exception $e) {}
+
             $stmtCheck = $pdoCheck->prepare("SELECT prefix, full_name, student_personnel_id, citizen_id, phone_number, status, picture_url FROM sys_users WHERE line_user_id = :lid LIMIT 1");
             $stmtCheck->execute([':lid' => $lineUserId]);
             $uProf = $stmtCheck->fetch();
