@@ -26,6 +26,7 @@ $userData = [
   'status'     => '',
   'email'      => '',
   'gender'     => '',
+  'department' => '',
 ];
 
 try {
