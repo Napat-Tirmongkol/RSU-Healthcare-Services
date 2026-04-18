@@ -189,9 +189,18 @@ if ($isUserFolder && !in_array($currentPage, $excludedPages)) {
       $stmtCheck->execute([':lid' => $lineUserId]);
       $uProf = $stmtCheck->fetch();
 
-      if (!$uProf || empty($uProf['full_name']) || empty($uProf['citizen_id']) || empty($uProf['phone_number']) || empty($uProf['status']) || ($uProf['status'] !== 'other' && empty($uProf['student_personnel_id']))) {
-        header('Location: profile.php');
-        exit;
+      $isProfileIncomplete = (
+          !$uProf ||
+          trim((string)($uProf['full_name'] ?? '')) === '' ||
+          trim((string)($uProf['citizen_id'] ?? '')) === '' ||
+          trim((string)($uProf['phone_number'] ?? '')) === '' ||
+          trim((string)($uProf['status'] ?? '')) === '' ||
+          (($uProf['status'] ?? 'other') !== 'other' && trim((string)($uProf['student_personnel_id'] ?? '')) === '')
+      );
+
+      if ($isProfileIncomplete) {
+          header('Location: profile.php');
+          exit;
       }
       // Store global user data for header
       $GLOBALS['HEADER_USER_DATA'] = $uProf;
