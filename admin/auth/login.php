@@ -3,12 +3,12 @@
 session_start();
 
 if (isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] === true) {
-    header('Location: index.php');
+    header('Location: ../index.php');
     exit;
 }
 
-require_once __DIR__ . '/../config.php';
-require_once __DIR__ . '/../includes/rate_limit.php';
+require_once __DIR__ . '/../../config.php';
+require_once __DIR__ . '/../../includes/rate_limit.php';
 
 // Check rate limit (5 attempts per 5 minutes)
 rate_limit_check('admin_login', 5, 300, 'login.php');
@@ -48,7 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // บันทึกกิจกรรม: เข้าสู่ระบบ
             log_activity('Login', "Admin '{$admin['username']}' เข้าสู่ระบบระบบจัดการกลาง (Portal)", (int)$admin['id']);
 
-            header('Location: ../portal/index.php');
+            header('Location: ../../portal/index.php');
             exit;
         } else {
             rate_limit_hit('admin_login', 5, 300);
@@ -65,9 +65,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Login — <?= htmlspecialchars(SITE_NAME) ?></title>
-    <link rel="stylesheet" href="../assets/css/tailwind.min.css">
+    <link rel="stylesheet" href="../../assets/css/tailwind.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="../assets/css/rsufont.css">
+    <link rel="stylesheet" href="../../assets/css/rsufont.css">
     <style>
         * { font-family: 'rsufont', 'Prompt', sans-serif; box-sizing: border-box; }
 
@@ -490,7 +490,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         <div class="divider">หรือ</div>
 
-        <a href="google_login.php" class="btn-google">
+        <a href="../google_login.php" class="btn-google">
             <svg width="18" height="18" viewBox="0 0 48 48">
                 <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
                 <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
@@ -504,7 +504,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <a href="staff_login.php">
                 <i class="fa-solid fa-user-tie mr-1"></i>Staff Login
             </a>
-            <a href="../portal/manage_admins.php">Register New Admin Account</a>
+            <a href="../../portal/manage_admins.php">Register New Admin Account</a>
         </div>
 
     </div>

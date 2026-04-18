@@ -20,7 +20,9 @@ if (isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] === true
             $isStaff = !empty($_SESSION['is_ecampaign_staff']);
             session_unset();
             session_destroy();
-            header('Location: ' . ($isStaff ? 'staff_login.php' : 'login.php') . '?reason=timeout');
+            $_inAjax = basename(dirname($_SERVER['SCRIPT_NAME'] ?? '')) === 'ajax';
+            $pfx = $_inAjax ? '../auth/' : 'auth/';
+            header('Location: ' . $pfx . ($isStaff ? 'staff_login.php' : 'login.php') . '?reason=timeout');
             exit;
         }
     }
@@ -29,7 +31,8 @@ if (isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] === true
 
 // ── Auth Check ──────────────────────────────────────────────────────────────
 if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
-    header('Location: login.php');
+    $_inAjax = basename(dirname($_SERVER['SCRIPT_NAME'] ?? '')) === 'ajax';
+    header('Location: ' . ($_inAjax ? '../auth/login.php' : 'auth/login.php'));
     exit;
 }
 

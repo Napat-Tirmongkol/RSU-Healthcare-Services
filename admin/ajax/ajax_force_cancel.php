@@ -9,7 +9,7 @@ if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== tru
     exit;
 }
 
-require_once __DIR__ . '/../config.php';
+require_once __DIR__ . '/../../config.php';
 
 validate_csrf_or_die();
 
@@ -64,7 +64,7 @@ try {
     // 3. ส่งอีเมลแจ้งเตือน (ถ้ามีอีเมล)
     if (!empty($booking['email'])) {
         try {
-            require_once __DIR__ . '/../includes/mail_helper.php';
+            require_once __DIR__ . '/../../includes/mail_helper.php';
             notify_booking_status($booking['email'], 'cancelled_by_admin', [
                 'campaign_title' => $booking['campaign_title'],
                 'date' => date('d/m/Y', strtotime($booking['slot_date'])),

@@ -445,7 +445,7 @@ require_once __DIR__ . '/includes/header.php';
             cancelButtonText: 'ยกเลิก'
         }).then((result) => {
             if (result.isConfirmed) {
-                performApiCall('ajax_approve_booking.php', id, 'อนุมัติเรียบร้อย!', 'success');
+                performApiCall('ajax/ajax_approve_booking.php', id, 'อนุมัติเรียบร้อย!', 'success');
             }
         });
     }
@@ -468,7 +468,7 @@ require_once __DIR__ . '/includes/header.php';
                 // วนลูปส่งทีละตัว (เพื่อความง่ายและใช้ API เดิม) 
                 // หรือจะปรับ API ให้รับ Array ก็ได้ แต่ในขั้นนี้เพื่อความรวดเร็วจะใช้วิธี Promise.all
                 const requests = ids.map(id => {
-                    return fetch('ajax_approve_booking.php', {
+                    return fetch('ajax/ajax_approve_booking.php', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                         body: 'appointment_id=' + id + '&csrf_token=<?= get_csrf_token() ?>'
@@ -499,7 +499,7 @@ require_once __DIR__ . '/includes/header.php';
             if (result.isConfirmed) {
                 Swal.fire({ title: 'กำลังดำเนินการ...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
                 const requests = ids.map(id => {
-                    return fetch('ajax_force_cancel.php', {
+                    return fetch('ajax/ajax_force_cancel.php', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                         body: 'appointment_id=' + id + '&csrf_token=<?= get_csrf_token() ?>'
@@ -523,7 +523,7 @@ require_once __DIR__ . '/includes/header.php';
             confirmButtonText: 'Reject'
         }).then((result) => {
             if (result.isConfirmed) {
-                performApiCall('ajax_force_cancel.php', id, 'Rejected', 'error');
+                performApiCall('ajax/ajax_force_cancel.php', id, 'Rejected', 'error');
             }
         });
     }
@@ -539,7 +539,7 @@ require_once __DIR__ . '/includes/header.php';
             cancelButtonText: 'ยกเลิก'
         }).then((result) => {
             if (result.isConfirmed) {
-                performApiCall('ajax_force_cancel.php', id, 'แจ้งเลื่อนคิวสำเร็จ!', 'success');
+                performApiCall('ajax/ajax_force_cancel.php', id, 'แจ้งเลื่อนคิวสำเร็จ!', 'success');
             }
         });
     }

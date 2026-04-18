@@ -667,7 +667,7 @@ try {
                             style="background: linear-gradient(135deg, #2e9e63, #10b981); color:#fff;">
                             <i class="fa-solid fa-user-shield"></i>
                         </div>
-                        <a href="../admin/logout.php" title="ออกจากระบบ"
+                        <a href="../admin/auth/logout.php" title="ออกจากระบบ"
                             class="w-9 h-9 rounded-xl bg-red-50 text-red-500 flex flex-shrink-0 items-center justify-center hover:bg-red-500 hover:text-white transition-colors border border-red-100 ml-1">
                             <i class="fa-solid fa-power-off text-xs"></i>
                         </a>
@@ -1779,7 +1779,7 @@ try {
                                         style="display:flex;align-items:center;gap:10px;padding:12px 16px;border-radius:12px;border:1.5px solid #e2e8f0;background:#f8fafc;color:#374151;font-size:13px;font-weight:700;text-decoration:none;transition:all .2s">
                                         <i class="fa-brands fa-sentry" style="color:#94a3b8"></i> Sentry Monitoring
                                     </a>
-                                    <a href="../admin/logout.php"
+                                    <a href="../admin/auth/logout.php"
                                         style="display:flex;align-items:center;gap:10px;padding:12px 16px;border-radius:12px;border:1.5px solid #fee2e2;background:#fff1f2;color:#dc2626;font-size:13px;font-weight:700;text-decoration:none;transition:all .2s">
                                         <i class="fa-solid fa-right-from-bracket"></i> ออกจากระบบ
                                     </a>
@@ -2023,7 +2023,7 @@ try {
                         if (btn) { btn.disabled = true; btn.style.opacity = '0.6'; }
                         if (btnHistory) { btnHistory.disabled = true; btnHistory.style.opacity = '0.6'; }
 
-                        fetch('../admin/ajax_git_pull.php', { method: 'POST' })
+                        fetch('../admin/ajax/ajax_git_pull.php', { method: 'POST' })
                             .then(r => r.json())
                             .then(data => {
                                 if (data.status === 'success') {

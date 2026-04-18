@@ -355,7 +355,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
     function updateDashboardRealtime() {
-        fetch('ajax_dashboard.php')
+        fetch('ajax/ajax_dashboard.php')
             .then(response => response.json())
             .then(data => {
                 if(data.status === 'success') {

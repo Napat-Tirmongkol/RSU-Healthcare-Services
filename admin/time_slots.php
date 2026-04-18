@@ -1452,7 +1452,7 @@ function loadDailySlots(date) {
     fd.append('date', date);
     fd.append('csrf_token', '<?= get_csrf_token() ?>');
 
-    fetch('ajax_get_daily_slots.php', { method: 'POST', body: fd })
+    fetch('ajax/ajax_get_daily_slots.php', { method: 'POST', body: fd })
     .then(r => r.json())
     .then(data => {
         if (data.status !== 'success') {
@@ -1600,7 +1600,7 @@ function dailySaveEdit(id) {
     fd.append('max_capacity', cap);
     fd.append('csrf_token', '<?= get_csrf_token() ?>');
 
-    fetch('ajax_get_daily_slots.php', { method:'POST', body:fd })
+    fetch('ajax/ajax_get_daily_slots.php', { method:'POST', body:fd })
     .then(r => r.json())
     .then(data => {
         if (data.status === 'success') {
@@ -1630,7 +1630,7 @@ function dailyDeleteSlot(id, date) {
         fd.append('slot_id', id);
         fd.append('csrf_token', '<?= get_csrf_token() ?>');
 
-        fetch('ajax_get_daily_slots.php', { method:'POST', body:fd })
+        fetch('ajax/ajax_get_daily_slots.php', { method:'POST', body:fd })
         .then(r => r.json())
         .then(data => {
             if (data.status === 'success') {
