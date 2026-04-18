@@ -19,7 +19,6 @@ if (!function_exists('__')) {
 }
 
 $currentPage = basename($_SERVER['PHP_SELF']);
-$excludedPages = ['profile.php', 'save_profile.php', 'index.php', 'logout.php', 'consent.php'];
 $isUserFolder = (strpos($_SERVER['REQUEST_URI'], '/user/') !== false);
 
 // ── Maintenance Check ────────────────────────────────────────────────────────
@@ -172,7 +171,8 @@ if ($isUserFolder) {
   }
 }
 
-if ($isUserFolder && !in_array($currentPage, $excludedPages)) {
+// ── User Session & Data logic ────────────────────────────────────────────────
+if ($isUserFolder && !in_array($currentPage, ['index.php', 'logout.php'])) {
   $lineUserId = $_SESSION['line_user_id'] ?? '';
   if ($lineUserId !== '') {
     try {
@@ -182,27 +182,31 @@ if ($isUserFolder && !in_array($currentPage, $excludedPages)) {
       // Safe auto-migration
       try {
         @$pdoCheck->exec("ALTER TABLE sys_users ADD COLUMN picture_url TEXT");
-      } catch (Exception $e) {
-      }
+      } catch (Exception $e) { }
 
       $stmtCheck = $pdoCheck->prepare("SELECT prefix, full_name, student_personnel_id, citizen_id, phone_number, status, picture_url FROM sys_users WHERE line_user_id = :lid LIMIT 1");
       $stmtCheck->execute([':lid' => $lineUserId]);
       $uProf = $stmtCheck->fetch();
 
-      $isProfileIncomplete = (
-          !$uProf ||
-          trim((string)($uProf['full_name'] ?? '')) === '' ||
-          trim((string)($uProf['citizen_id'] ?? '')) === '' ||
-          trim((string)($uProf['phone_number'] ?? '')) === '' ||
-          trim((string)($uProf['status'] ?? '')) === '' ||
-          (($uProf['status'] ?? 'other') !== 'other' && trim((string)($uProf['student_personnel_id'] ?? '')) === '')
-      );
+      // ── Profile Completion Check (Redirect) ──
+      $redirectExcluded = ['profile.php', 'save_profile.php', 'consent.php'];
+      if (!in_array($currentPage, $redirectExcluded)) {
+          $isProfileIncomplete = (
+              !$uProf ||
+              trim((string)($uProf['full_name'] ?? '')) === '' ||
+              trim((string)($uProf['citizen_id'] ?? '')) === '' ||
+              trim((string)($uProf['phone_number'] ?? '')) === '' ||
+              trim((string)($uProf['status'] ?? '')) === '' ||
+              (($uProf['status'] ?? 'other') !== 'other' && trim((string)($uProf['student_personnel_id'] ?? '')) === '')
+          );
 
-      // [Safety Bypass] หากเป็นหน้า hub.php ให้ผ่านเข้ามาก่อน เพื่อเลิกการวนซ้ำ (Redirect Loop)
-      if ($isProfileIncomplete && $currentPage !== 'hub.php') {
-          header('Location: profile.php');
-          exit;
+          // [Safety Bypass] หากเป็นหน้า hub.php ให้ผ่านเข้ามาก่อน เพื่อเลิกการวนซ้ำ (Redirect Loop)
+          if ($isProfileIncomplete && $currentPage !== 'hub.php') {
+              header('Location: profile.php');
+              exit;
+          }
       }
+
       // Store global user data for header
       $GLOBALS['HEADER_USER_DATA'] = $uProf;
 
