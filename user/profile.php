@@ -118,7 +118,7 @@ render_header('ข้อมูลส่วนตัว');
 ?>
 
 <div
-  class="p-5 pb-56 -mt-6 relative z-10 flex flex-col min-h-screen animate-in fade-in slide-in-from-right-4 duration-500">
+  class="p-6 pt-10 pb-56 relative z-10 flex flex-col min-h-screen bg-white rounded-t-[32px] animate-in fade-in slide-in-from-right-4 duration-500">
 
   <?php if ($isEditing && $_nameNeedsReview): ?>
     <div
@@ -154,16 +154,17 @@ render_header('ข้อมูลส่วนตัว');
 
     <div class="flex-1 space-y-6">
 
-      <!-- Header -->
-      <div class="flex items-start justify-between gap-3">
-        <div>
-          <h2 class="text-2xl font-bold text-gray-900 font-prompt">
+      <!-- Header Section -->
+      <div class="mb-2">
+        <div class="flex items-center gap-3 mb-1">
+          <div class="w-1.5 h-6 bg-orange-500 rounded-full"></div>
+          <h2 class="text-2xl font-black text-gray-900 font-prompt tracking-tight">
             <?= $isEditing ? 'แก้ไขข้อมูลส่วนตัว' : 'ข้อมูลส่วนตัว' ?>
           </h2>
-          <p class="text-sm text-gray-500 mt-1 font-prompt">
-            <?= $isEditing ? 'แก้ไขข้อมูลของคุณได้ตามต้องการ' : 'กรุณากรอกข้อมูลของคุณเพื่อใช้ในการจองคิว' ?>
-          </p>
         </div>
+        <p class="text-[13px] text-gray-400 font-medium font-prompt ml-4">
+          <?= $isEditing ? 'ปรับปรุงข้อมูลของคุณให้เป็นปัจจุบันเพื่อให้การนัดหมายราบรื่น' : 'กรุณากรอกข้อมูลของคุณเพื่อใช้ในการเข้าถึงบริการต่างๆ' ?>
+        </p>
       </div>
 
       <?php if ($isEditing): ?>
