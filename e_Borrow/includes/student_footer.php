@@ -18,10 +18,7 @@ $active_page = $active_page ?? '';
         <i class="fas fa-history"></i>
         ประวัติ
     </a>
-    <a href="profile.php" class="<?php echo ($active_page == 'settings') ? 'active' : ''; ?>">
-        <i class="fas fa-user-cog"></i>
-        ตั้งค่า
-    </a>
+
 </nav>
 
 <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
