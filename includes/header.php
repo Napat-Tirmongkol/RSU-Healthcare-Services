@@ -193,7 +193,10 @@ function render_header(string $title = 'E-Vax'): void {
               <div class="flex-1">
                 <h2 class="text-[17px] font-extrabold text-white leading-tight">สวัสดี, <?= htmlspecialchars($displayName) ?> 👋</h2>
                 <div class="flex items-center gap-1.5 mt-1.5">
-                  <span class="px-2 py-0.5 bg-white/15 rounded-md text-[9px] font-bold text-white/90 uppercase letter-spacing-wider"><?= htmlspecialchars($statusLabel) ?></span>
+                  <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-white/10 border border-white/20 rounded-full text-[10px] font-black text-white uppercase tracking-wider shadow-sm backdrop-blur-md">
+                    <span class="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
+                    <?= htmlspecialchars($statusLabel) ?>
+                  </span>
                   <?php if (!empty($user['student_personnel_id'])): ?>
                     <span class="text-[10px] font-bold text-white/60">• รหัส <?= htmlspecialchars($user['student_personnel_id']) ?></span>
                   <?php endif; ?>

@@ -111,9 +111,15 @@ render_header('RSU Medical Hub');
               <span class="text-gray-300">•</span>
               <span><?= substr($appt['start_time'],0,5) ?>–<?= substr($appt['end_time'],0,5) ?> น.</span>
               <?php if ($appt['status'] === 'confirmed'): ?>
-                <span class="ml-auto bg-emerald-100 text-emerald-700 text-[10px] font-bold py-1 px-2.5 rounded-lg border border-emerald-200">ยืนยันแล้ว</span>
+                <span class="ml-auto inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-50 text-emerald-700 text-[10px] font-black rounded-full border border-emerald-100 shadow-sm">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                  ยืนยันแล้ว
+                </span>
               <?php else: ?>
-                <span class="ml-auto bg-amber-100 text-amber-700 text-[10px] font-bold py-1 px-2.5 rounded-lg border border-amber-200">รอยืนยัน</span>
+                <span class="ml-auto inline-flex items-center gap-1.5 px-3 py-1 bg-amber-50 text-amber-700 text-[10px] font-black rounded-full border border-amber-100 shadow-sm">
+                  <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+                  รอยืนยัน
+                </span>
               <?php endif; ?>
             </div>
           </a>
