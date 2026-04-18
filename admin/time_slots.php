@@ -577,7 +577,7 @@ renderPageHeader("Campaign Time Slots", "กำหนดช่วงเวลา
     </div>
 </div>
 
-<div id="slotModal" class="fixed inset-0 z-[1000] bg-gray-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+<div id="slotModal" class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4" style="z-index: 9999;">
     <div class="glass-modal rounded-[24px] w-full max-w-lg flex flex-col max-h-[90vh] overflow-hidden animate-slide-up border border-white/50">
         <div class="modal-hdr-blue p-5 flex justify-between items-center shrink-0">
             <h3 class="text-lg font-black text-white flex items-center gap-3">
@@ -684,7 +684,7 @@ renderPageHeader("Campaign Time Slots", "กำหนดช่วงเวลา
     </div>
 </div>
 
-<div id="editSlotModal" class="fixed inset-0 z-[1000] bg-gray-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+<div id="editSlotModal" class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4" style="z-index: 9999;">
     <div class="glass-modal rounded-[24px] w-full max-w-lg flex flex-col max-h-[90vh] overflow-hidden animate-slide-up border border-white/50">
         <div class="modal-hdr-amber p-5 flex justify-between items-center shrink-0">
             <h3 class="text-lg font-black text-white flex items-center gap-3">
