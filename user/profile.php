@@ -102,7 +102,7 @@ $error_param = $_GET['error'] ?? '';
 render_header('ข้อมูลส่วนตัว');
 ?>
 
-<div class="p-5 pb-36 flex flex-col min-h-screen animate-in fade-in slide-in-from-right-4 duration-500">
+<div class="p-5 pb-56 -mt-6 relative z-10 flex flex-col min-h-screen animate-in fade-in slide-in-from-right-4 duration-500">
 
   <?php if ($isEditing && $_nameNeedsReview): ?>
   <div class="mb-4 p-4 bg-amber-50 border border-amber-200 rounded-xl text-sm text-amber-800 font-prompt flex items-start gap-3">

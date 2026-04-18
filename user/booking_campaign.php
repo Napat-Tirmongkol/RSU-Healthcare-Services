@@ -35,7 +35,7 @@ function getBadge($type): array {
 render_header(__('campaign.page_title'));
 ?>
 
-<div class="max-w-md mx-auto px-4 py-6 pb-24">
+<div class="max-w-md mx-auto px-4 py-6 pb-24 -mt-6 relative z-10">
     <div class="mb-8">
         <h1 class="text-2xl font-black text-gray-900 leading-tight">
             <?= htmlspecialchars(__('campaign.heading')) ?><br>

@@ -80,7 +80,7 @@ if ($isUserFolder && !in_array($currentPage, $excludedPages)) {
         try {
             require_once __DIR__ . '/../config/db_connect.php';
             $pdoCheck = db();
-            $stmtCheck = $pdoCheck->prepare("SELECT full_name, student_personnel_id, citizen_id, phone_number, status FROM sys_users WHERE line_user_id = :lid LIMIT 1");
+            $stmtCheck = $pdoCheck->prepare("SELECT prefix, full_name, student_personnel_id, citizen_id, phone_number, status FROM sys_users WHERE line_user_id = :lid LIMIT 1");
             $stmtCheck->execute([':lid' => $lineUserId]);
             $uProf = $stmtCheck->fetch();
 
@@ -88,14 +88,15 @@ if ($isUserFolder && !in_array($currentPage, $excludedPages)) {
                 header('Location: profile.php');
                 exit;
             }
-        } catch (Exception $e) {
-            // ปล่อยผ่านถ้า DB มีปัญหา
-        }
+            // Store global user data for header
+            $GLOBALS['HEADER_USER_DATA'] = $uProf;
+        } catch (Exception $e) { }
     }
 }
 
 function render_header(string $title = 'E-Vax'): void {
-  global $isUserFolder;
+  global $isUserFolder, $currentPage, $excludedPages;
+  $user = $GLOBALS['HEADER_USER_DATA'] ?? null;
   ?>
   <!doctype html>
   <html lang="th">
@@ -103,43 +104,70 @@ function render_header(string $title = 'E-Vax'): void {
       <meta charset="utf-8" />
       <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
       <title><?= htmlspecialchars($title, ENT_QUOTES, 'UTF-8') ?></title>
-
       <link rel="icon" href="data:,">
-
       <link rel="stylesheet" href="../assets/css/tailwind.min.css">
 	  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
       <link rel="stylesheet" href="../assets/css/rsufont.css">
-<script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
-      
+      <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
       <style>
         .custom-scrollbar::-webkit-scrollbar { display: none; }
         .custom-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        @font-face { font-family: 'rsufont'; src: url('../assets/fonts/RSU_BOLD.ttf') format('truetype'); font-weight: bold; }
+        @font-face { font-family: 'rsufont'; src: url('../assets/fonts/RSU_REGULAR.ttf') format('truetype'); font-weight: normal; }
+        * { font-family: 'rsufont', 'Prompt', sans-serif; }
       </style>
-      <?php if (defined('SENTRY_BROWSER_KEY') && SENTRY_BROWSER_KEY !== ''): ?>
-      <script>window.sentryOnLoad = function() { Sentry.init({ tracesSampleRate: 0.1 }); };</script>
-      <script src="https://js.sentry-cdn.com/<?= htmlspecialchars(SENTRY_BROWSER_KEY, ENT_QUOTES) ?>.min.js" crossorigin="anonymous" defer></script>
-      <?php endif; ?>
     </head>
-    
     <body class="bg-[#f4f7fa] h-[100dvh] w-full overflow-hidden flex justify-center text-gray-900">
-      
       <div id="page-loader" class="fixed inset-0 z-[9999] bg-[#f4f7fa] flex flex-col items-center justify-center transition-opacity duration-300">
-        <div class="relative w-16 h-16">
-          <div class="absolute inset-0 rounded-full border-4 border-blue-100"></div>
-          <div class="absolute inset-0 rounded-full border-4 border-[#0052CC] border-t-transparent animate-spin"></div>
-        </div>
+        <div class="relative w-16 h-16"><div class="absolute inset-0 rounded-full border-4 border-blue-100"></div><div class="absolute inset-0 rounded-full border-4 border-[#0052CC] border-t-transparent animate-spin"></div></div>
         <p class="mt-4 text-[#0052CC] font-semibold text-sm animate-pulse font-prompt"><?= htmlspecialchars(__('loading')) ?></p>
       </div>
 
       <main class="w-full max-w-md h-full bg-white shadow-xl relative overflow-y-auto overflow-x-hidden custom-scrollbar">
+        <?php if ($isUserFolder && $user && !in_array($currentPage, ['index.php', 'logout.php'])): ?>
+          <?php
+            $statusMap   = ['student' => 'นักศึกษา', 'faculty' => 'อาจารย์', 'staff' => 'เจ้าหน้าที่', 'other' => 'บุคคลทั่วไป'];
+            $statusLabel = $statusMap[$user['status'] ?? ''] ?? ($user['status'] ?? '');
+            $displayName = ($user['prefix'] ?? '') . ($user['full_name'] ?? 'ผู้ใช้');
+          ?>
+          <!-- ── Global User Header ────────────────────────────────────────── -->
+          <div class="bg-gradient-to-br from-[#0052CC] to-[#0070f3] p-6 pb-11 flex-shrink-0 relative overflow-hidden">
+            <!-- Ambient Light Effect -->
+            <div class="absolute -right-10 -top-10 w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
+            
+            <div class="flex items-center justify-between mb-5 relative z-10">
+              <span class="text-[10px] font-black uppercase tracking-[0.2em] text-white/60">RSU Medical Hub</span>
+              <div class="flex items-center gap-2">
+                <!-- Language Switcher -->
+                <a href="<?= htmlspecialchars(lang_switch_url()) ?>" class="flex items-center gap-1.5 py-1.5 px-3 bg-white/10 hover:bg-white/20 border border-white/10 rounded-full text-[10px] font-black text-white transition-all">
+                  <i class="fa-solid fa-globe"></i> <?= htmlspecialchars(__('lang.switch')) ?>
+                </a>
+                <a href="logout.php" class="flex items-center gap-1.5 py-1.5 px-3 bg-white/10 hover:bg-white/20 border border-white/10 rounded-full text-[10px] font-black text-white transition-all">
+                  <i class="fa-solid fa-power-off"></i>
+                </a>
+              </div>
+            </div>
 
-        <?php if ($isUserFolder): ?>
-        <!-- Language Switcher -->
-        <a href="<?= htmlspecialchars(lang_switch_url()) ?>"
-           class="fixed top-3 right-3 z-[200] flex items-center gap-1.5 bg-white/90 backdrop-blur-sm border border-gray-200 rounded-full px-3 py-1.5 text-[11px] font-bold text-gray-500 hover:text-[#0052CC] hover:border-[#0052CC] shadow-sm transition-all select-none">
-          <i class="fa-solid fa-globe text-[10px]"></i><?= htmlspecialchars(__('lang.switch')) ?>
-        </a>
+            <div class="flex items-center gap-4 relative z-10">
+              <div class="w-14 h-14 rounded-2xl bg-white/15 backdrop-blur-md flex items-center justify-center border-2 border-white/20 shadow-lg">
+                <i class="fa-solid fa-user-astronaut text-2xl text-white"></i>
+              </div>
+              <div class="flex-1">
+                <h2 class="text-[17px] font-extrabold text-white leading-tight">สวัสดี, <?= htmlspecialchars($displayName) ?> 👋</h2>
+                <div class="flex items-center gap-1.5 mt-1.5">
+                  <span class="px-2 py-0.5 bg-white/15 rounded-md text-[9px] font-bold text-white/90 uppercase letter-spacing-wider"><?= htmlspecialchars($statusLabel) ?></span>
+                  <?php if (!empty($user['student_personnel_id'])): ?>
+                    <span class="text-[10px] font-bold text-white/60">• รหัส <?= htmlspecialchars($user['student_personnel_id']) ?></span>
+                  <?php endif; ?>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Pull-up content container indicator (handled by individual page margins usually) -->
         <?php endif; ?>
+  <?php
+}
+
 
   <?php
 }

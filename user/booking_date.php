@@ -95,7 +95,7 @@ function density_for_day($y, $m, $d, $stats, $dbErr): string {
 render_header(__('date.page_title'));
 ?>
 
-<div class="p-5 pb-36 flex flex-col h-full bg-[#f4f7fa]">
+<div class="p-5 pb-56 -mt-6 relative z-10 flex flex-col h-full bg-[#f4f7fa]">
     <div class="mb-6">
         <h2 class="text-2xl font-bold text-gray-900"><?= htmlspecialchars(__('date.heading')) ?></h2>
         <p class="text-sm text-gray-500 mt-1"><?= htmlspecialchars(__('date.desc')) ?></p>

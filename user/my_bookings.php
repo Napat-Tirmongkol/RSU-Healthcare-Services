@@ -197,45 +197,21 @@ function renderBookingCard($b): void {
 
 <!-- ===== PAGE STRUCTURE ===== -->
 
-<!-- Header Hero -->
-<div class="bg-gradient-to-br from-[#0052CC] to-[#0070f3] pt-10 pb-16 px-5 relative overflow-hidden">
-    <div class="absolute -right-10 -top-10 w-48 h-48 bg-white opacity-[0.05] rounded-full blur-3xl"></div>
-    <div class="absolute -left-8 bottom-0 w-40 h-40 bg-cyan-300 opacity-[0.08] rounded-full blur-2xl"></div>
-    <div class="relative z-10 flex items-start justify-between gap-3">
-        <div>
-            <h1 class="text-[22px] font-bold text-white">การจองของฉัน</h1>
-            <p class="text-blue-200 text-sm mt-1">คิวจองกิจกรรมและประวัติการเข้าร่วม</p>
+<!-- Quick stats panel (floats under global header) -->
+<div class="px-4 -mt-5 relative z-20 mb-6">
+    <div class="bg-white/90 backdrop-blur-md border border-white rounded-[2rem] p-4 shadow-xl flex gap-3">
+        <div class="flex-1 bg-blue-50/50 rounded-2xl p-3 text-center border border-blue-100/50">
+            <p class="text-xl font-black text-[#0052CC]"><?= count($upcomingBookings) ?></p>
+            <p class="text-[10px] text-gray-500 font-bold uppercase tracking-wider mt-0.5">คิวที่รอ</p>
         </div>
-        <div class="flex items-center gap-2 mt-1">
-            <a href="profile.php?redirect_back=my_bookings.php"
-               class="shrink-0 flex items-center gap-1.5 bg-white/15 hover:bg-white/25 border border-white/20 rounded-xl px-3 py-2 text-white text-xs font-bold font-prompt transition-all">
-                <i class="fa-solid fa-user-pen text-[11px]"></i>
-                แก้ไขโปรไฟล์
-            </a>
-            <button onclick="openLogout()"
-                class="shrink-0 w-9 h-9 flex items-center justify-center bg-white/15 hover:bg-red-500/80 border border-white/20 rounded-xl text-white transition-all"
-                title="ออกจากระบบ">
-                <i class="fa-solid fa-right-from-bracket text-sm"></i>
-            </button>
+        <div class="flex-1 bg-gray-50/50 rounded-2xl p-3 text-center border border-gray-100">
+            <p class="text-xl font-black text-gray-900"><?= count($historyBookings) ?></p>
+            <p class="text-[10px] text-gray-500 font-bold uppercase tracking-wider mt-0.5">ประวัติ</p>
         </div>
-    </div>
-
-    <!-- Floating stats -->
-    <div class="relative z-10 mt-5 flex gap-3">
-        <div class="flex-1 bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-3 text-center">
-            <p class="text-2xl font-bold text-white"><?= count($upcomingBookings) ?></p>
-            <p class="text-[11px] text-blue-200 font-medium mt-0.5">คิวที่รอ</p>
-        </div>
-        <div class="flex-1 bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-3 text-center">
-            <p class="text-2xl font-bold text-white"><?= count($historyBookings) ?></p>
-            <p class="text-[11px] text-blue-200 font-medium mt-0.5">ประวัติ</p>
-        </div>
-        <div class="flex-1 bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-3 text-center">
-            <?php
-            $attended = count(array_filter($historyBookings, fn($b) => !empty($b['attended_at'])));
-            ?>
-            <p class="text-2xl font-bold text-white"><?= $attended ?></p>
-            <p class="text-[11px] text-blue-200 font-medium mt-0.5">เช็คอิน</p>
+        <div class="flex-1 bg-emerald-50/50 rounded-2xl p-3 text-center border border-emerald-100/50">
+            <?php $attended = count(array_filter($historyBookings, fn($b) => !empty($b['attended_at']))); ?>
+            <p class="text-xl font-black text-emerald-600"><?= $attended ?></p>
+            <p class="text-[10px] text-gray-500 font-bold uppercase tracking-wider mt-0.5">เช็คอิน</p>
         </div>
     </div>
 </div>

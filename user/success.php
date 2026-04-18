@@ -61,7 +61,7 @@ render_header(__('success.page_title'));
 ?>
 
 <div class="p-5 flex flex-col h-full bg-[#f4f7fa] animate-in fade-in slide-in-from-bottom-8 duration-700">
-  <div class="flex-1 flex flex-col items-center pb-36">
+  <div class="flex-1 flex flex-col items-center pb-56 -mt-6 relative z-10">
     <div class="mt-6 mb-8 flex flex-col items-center text-center">
       <div class="relative mb-4">
         <div class="absolute inset-0 bg-green-200 rounded-full animate-ping opacity-20"></div>

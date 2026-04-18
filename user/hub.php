@@ -79,32 +79,6 @@ render_header('RSU Medical Hub');
 
 <div style="display:flex;flex-direction:column;min-height:100%;">
 
-  <!-- ── Header / Greeting ─────────────────────────────────────────────── -->
-  <div style="background:linear-gradient(135deg,#0052CC 0%,#0070f3 100%);padding:24px 20px 44px;flex-shrink:0;">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
-      <span style="font-size:11px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.65);">RSU Medical Hub</span>
-      <a href="logout.php" style="display:flex;align-items:center;gap:5px;font-size:12px;font-weight:600;color:rgba(255,255,255,.65);text-decoration:none;padding:5px 10px;background:rgba(255,255,255,.12);border-radius:20px;">
-        <i class="fa-solid fa-right-from-bracket" style="font-size:11px;"></i> ออก
-      </a>
-    </div>
-    <div style="display:flex;align-items:center;gap:14px;">
-      <div style="width:50px;height:50px;border-radius:16px;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;border:2px solid rgba(255,255,255,.3);">
-        <i class="fa-solid fa-user" style="font-size:20px;color:#fff;"></i>
-      </div>
-      <div>
-        <div style="color:#fff;font-size:17px;font-weight:800;line-height:1.25;">
-          สวัสดี, <?= htmlspecialchars($displayName) ?> 👋
-        </div>
-        <div style="color:rgba(255,255,255,.7);font-size:12px;margin-top:4px;">
-          <?= htmlspecialchars($statusLabel) ?>
-          <?php if (!empty($user['student_personnel_id'])): ?>
-            <span style="margin:0 5px;opacity:.5;">·</span>รหัส <?= htmlspecialchars($user['student_personnel_id']) ?>
-          <?php endif; ?>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <!-- ── Cards (pulls up over header gradient) ─────────────────────────── -->
   <div style="flex:1;padding:0 14px;margin-top:-22px;">
 
