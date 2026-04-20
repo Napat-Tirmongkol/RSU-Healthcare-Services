@@ -67,14 +67,6 @@ try {
     error_log('Hub DB error: ' . $e->getMessage());
 }
 
-$statusMap   = ['student' => 'นักศึกษา', 'faculty' => 'อาจารย์', 'staff' => 'เจ้าหน้าที่', 'other' => 'บุคคลทั่วไป'];
-$statusLabel = $statusMap[$user['status'] ?? ''] ?? ($user['status'] ?? 'ผู้ใช้');
-$displayName = trim(($user['prefix'] ?? '') . ' ' . ($user['full_name'] ?? 'ผู้ใช้'));
-
-$hour     = (int)date('H');
-$greeting = $hour < 12 ? 'อรุณสวัสดิ์' : ($hour < 17 ? 'สวัสดีตอนบ่าย' : 'สวัสดีตอนเย็น');
-
-$linePicture = $_SESSION['line_picture'] ?? $_SESSION['line_picture_url'] ?? '';
 
 require_once __DIR__ . '/../includes/header.php';
 render_header('RSU Medical Hub');
@@ -82,46 +74,9 @@ render_header('RSU Medical Hub');
 
 <div style="display:flex;flex-direction:column;min-height:100%;padding-bottom:80px">
 
-  <!-- ── Hero Header ───────────────────────────────────────────────────────── -->
-  <div style="background:linear-gradient(135deg,#003fa3 0%,#0052CC 50%,#1a6de0 100%);padding:48px 20px 24px;position:relative;overflow:hidden">
-
-    <!-- decorative blobs -->
-    <div style="position:absolute;top:-50px;right:-50px;width:200px;height:200px;border-radius:50%;background:rgba(255,255,255,.06);pointer-events:none"></div>
-    <div style="position:absolute;bottom:-30px;left:-30px;width:140px;height:140px;border-radius:50%;background:rgba(255,255,255,.04);pointer-events:none"></div>
-
-    <!-- brand row -->
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;position:relative">
-      <div style="display:flex;align-items:center;gap:6px">
-        <i class="fa-solid fa-heart-pulse" style="color:rgba(255,255,255,.7);font-size:12px"></i>
-        <span style="color:rgba(255,255,255,.7);font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase">RSU Medical Hub</span>
-      </div>
-      <a href="logout.php" style="width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;text-decoration:none">
-        <i class="fa-solid fa-power-off" style="color:#fff;font-size:12px"></i>
-      </a>
-    </div>
-
-    <!-- profile row -->
-    <div style="display:flex;align-items:center;gap:14px;position:relative">
-      <!-- avatar -->
-      <div style="width:58px;height:58px;border-radius:18px;background:rgba(255,255,255,.15);border:2px solid rgba(255,255,255,.35);overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center">
-        <?php if ($linePicture !== ''): ?>
-          <img src="<?= htmlspecialchars($linePicture) ?>" alt="" style="width:100%;height:100%;object-fit:cover">
-        <?php else: ?>
-          <i class="fa-solid fa-user" style="color:rgba(255,255,255,.7);font-size:22px"></i>
-        <?php endif; ?>
-      </div>
-      <!-- name/status -->
-      <div style="flex:1;min-width:0">
-        <p style="color:rgba(255,255,255,.65);font-size:11px;font-weight:600;margin:0 0 3px"><?= htmlspecialchars($greeting) ?></p>
-        <h1 style="color:#fff;font-size:18px;font-weight:900;margin:0 0 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.2"><?= htmlspecialchars($displayName) ?></h1>
-        <span style="background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.28);color:#fff;font-size:10px;font-weight:700;padding:3px 11px;border-radius:20px;display:inline-block">
-          <?= htmlspecialchars($statusLabel) ?>
-        </span>
-      </div>
-    </div>
-
-    <!-- stats strip -->
-    <div style="background:rgba(255,255,255,.13);border-radius:14px;display:flex;margin-top:20px;position:relative">
+  <!-- ── Stats strip — pulls up under global header ────────────────────────── -->
+  <div style="background:linear-gradient(135deg,#003fa3 0%,#0052CC 50%,#1a6de0 100%);padding:0 16px 20px;margin-top:-2px">
+    <div style="background:rgba(255,255,255,.13);border-radius:14px;display:flex">
       <div style="flex:1;text-align:center;padding:12px 0;border-right:1px solid rgba(255,255,255,.15)">
         <div style="color:#fff;font-size:22px;font-weight:900;line-height:1"><?= count($upcomingBookings) ?></div>
         <div style="color:rgba(255,255,255,.65);font-size:10px;font-weight:600;margin-top:3px">นัดหมายที่รอ</div>
