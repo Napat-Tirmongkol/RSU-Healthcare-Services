@@ -56,6 +56,15 @@ try {
   // กรณี Error ให้ปล่อยผ่านไปกรอกใหม่
 }
 
+// ── Fetch faculty/department list for autocomplete ────────────────────────────
+$_facultyList = [];
+try {
+  $_pdo2 = db();
+  $_facultyList = $_pdo2->query(
+    "SELECT name_th, name_en, type FROM sys_faculties ORDER BY type, name_th"
+  )->fetchAll(PDO::FETCH_ASSOC);
+} catch (PDOException) {}
+
 // ── Auto-split full_name → first_name / last_name สำหรับ user เดิม ─────────
 $_nameNeedsReview = false;
 if ($userData['full_name'] !== '' && $userData['first_name'] === '' && $userData['last_name'] === '') {
@@ -338,6 +347,39 @@ render_header('ข้อมูลส่วนตัว');
             class="w-full p-4 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#0052CC] focus:border-transparent outline-none transition-all placeholder:text-gray-400 font-prompt" />
         </div>
         <div class="space-y-1.5">
+          <label class="text-sm font-semibold text-gray-700 font-prompt" for="department">
+            คณะ / หน่วยงาน
+            <span class="text-gray-400 font-normal text-xs ml-1">(ไม่บังคับ)</span>
+          </label>
+          <div class="relative">
+            <input id="department" name="department" type="text"
+              list="faculty-datalist"
+              autocomplete="off"
+              value="<?= htmlspecialchars((string) ($userData['department'] ?? '')) ?>"
+              placeholder="เช่น คณะแพทยศาสตร์, สำนักทะเบียน"
+              class="w-full p-4 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#0052CC] focus:border-transparent outline-none transition-all placeholder:text-gray-400 font-prompt" />
+            <datalist id="faculty-datalist">
+              <?php foreach ($_facultyList as $_f): ?>
+                <option value="<?= htmlspecialchars($_f['name_th']) ?>">
+                  <?= !empty($_f['name_en']) ? htmlspecialchars($_f['name_en']) : '' ?>
+                </option>
+              <?php endforeach; ?>
+            </datalist>
+          </div>
+          <div id="dept-ai-hint" class="hidden items-center gap-1.5 text-xs text-teal-700 font-prompt mt-1">
+            <i class="fa-solid fa-wand-magic-sparkles text-teal-500 text-[10px]"></i>
+            <span id="dept-ai-hint-text"></span>
+            <button type="button" id="dept-ai-accept"
+              style="margin-left:4px;padding:1px 8px;border-radius:6px;border:1px solid #14b8a6;background:#f0fdfa;color:#0f766e;font-size:11px;cursor:pointer">
+              ใช้ชื่อนี้
+            </button>
+            <button type="button" id="dept-ai-dismiss"
+              style="padding:1px 6px;border-radius:6px;border:1px solid #d1d5db;background:#f9fafb;color:#6b7280;font-size:11px;cursor:pointer">
+              ไม่ใช้
+            </button>
+          </div>
+        </div>
+        <div class="space-y-1.5">
           <label class="text-sm font-semibold text-gray-700 font-prompt" for="email">
             อีเมล
             <span class="text-gray-400 font-normal text-xs ml-1">(ไม่บังคับ)</span>
@@ -502,6 +544,66 @@ render_header('ข้อมูลส่วนตัว');
         }
       }
     });
+
+    // ── Gemini AI department normalization ─────────────────────────────────────
+    const deptInput    = document.getElementById('department');
+    const deptHint     = document.getElementById('dept-ai-hint');
+    const deptHintText = document.getElementById('dept-ai-hint-text');
+    const deptAccept   = document.getElementById('dept-ai-accept');
+    const deptDismiss  = document.getElementById('dept-ai-dismiss');
+    let _deptSuggested = null;
+
+    const _validNames = <?= json_encode(array_column($_facultyList, 'name_th')) ?>;
+
+    function isExactMatch(val) {
+      return _validNames.some(n => n.trim().toLowerCase() === val.trim().toLowerCase());
+    }
+
+    function hideDeptHint() {
+      deptHint.classList.add('hidden');
+      deptHint.classList.remove('flex');
+      _deptSuggested = null;
+    }
+
+    function showDeptSuggestion(matched) {
+      _deptSuggested = matched;
+      deptHintText.textContent = 'AI แนะนำ: ' + matched;
+      deptHint.classList.remove('hidden');
+      deptHint.classList.add('flex');
+    }
+
+    async function normalizeDept(val) {
+      if (!val || isExactMatch(val)) { hideDeptHint(); return; }
+      try {
+        const fd = new FormData();
+        fd.append('input', val);
+        const res = await fetch('api_faculty_suggest.php', { method: 'POST', body: fd });
+        const json = await res.json();
+        if (json.status === 'ok' && json.matched && json.matched !== val) {
+          showDeptSuggestion(json.matched);
+        } else {
+          hideDeptHint();
+        }
+      } catch (e) { hideDeptHint(); }
+    }
+
+    // Show suggestion on blur
+    deptInput.addEventListener('blur', function () {
+      normalizeDept(this.value.trim());
+    });
+
+    deptInput.addEventListener('input', function () {
+      hideDeptHint();
+    });
+
+    deptAccept.addEventListener('click', function () {
+      if (_deptSuggested) {
+        deptInput.value = _deptSuggested;
+      }
+      hideDeptHint();
+    });
+
+    deptDismiss.addEventListener('click', hideDeptHint);
   });
 </script>
 
