@@ -1805,12 +1805,10 @@ try {
                                 <div>
                                     <label style="display:block;font-size:12px;font-weight:800;color:#475569;margin-bottom:6px">โลโก้เว็บไซต์ (Site Logo)</label>
                                     <?php if (defined('SITE_LOGO') && SITE_LOGO !== ''): ?>
-                                        <div style="margin-bottom:10px;padding:10px;border:1px solid #e2e8f0;border-radius:8px;display:inline-block;background:#f8fafc;">
+                                        <div style="padding:10px;border:1px solid #e2e8f0;border-radius:8px;display:inline-block;background:#f8fafc;">
                                             <img src="../<?= htmlspecialchars(SITE_LOGO) ?>" style="max-height:60px;" alt="Current Site Logo">
                                         </div>
                                     <?php endif; ?>
-                                    <input type="file" name="site_logo" accept="image/png, image/jpeg, image/svg+xml" class="premium-input" style="width:100%;max-width:400px;font-size:12px;">
-                                    <div style="font-size:10px;color:#94a3b8;margin-top:4px;">* รองรับ PNG, JPG, SVG ขนาดไม่เกิน 2MB. หากไม่เลือกจะใช้ภาพเดิม.</div>
                                 </div>
                                 <div>
                                     <button type="submit" style="padding:12px 24px;border-radius:12px;border:none;background:#2563eb;color:#fff;font-size:13px;font-weight:800;cursor:pointer;display:inline-flex;align-items:center;gap:8px;">
