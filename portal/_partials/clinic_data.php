@@ -293,10 +293,9 @@ foreach ($_cd_rows as $r) {
             </button>
         </div>
 
-        <div class="mt-4">
+        <div id="cd-import-btn-wrap" class="mt-4 hidden">
             <button id="cd-import-btn" onclick="cdImport()" type="button"
-                class="w-full bg-violet-600 hover:bg-violet-700 text-white font-bold py-3 px-5 rounded-xl transition-all text-sm flex items-center justify-center gap-2"
-                style="opacity: 0.5; cursor: not-allowed; pointer-events: none;">
+                class="w-full bg-violet-600 hover:bg-violet-700 text-white font-bold py-3 px-5 rounded-xl transition-all text-sm flex items-center justify-center gap-2">
                 <i class="fa-solid fa-file-import"></i> นำเข้าข้อมูลจากไฟล์
             </button>
         </div>
@@ -470,6 +469,8 @@ foreach ($_cd_rows as $r) {
     });
     fileIn.addEventListener('change', () => { if (fileIn.files[0]) applyFile(fileIn.files[0]); });
 
+    const impBtnWrap = document.getElementById('cd-import-btn-wrap');
+
     function applyFile(f) {
         const ext = f.name.split('.').pop().toLowerCase();
         if (!['xlsx', 'csv'].includes(ext)) {
@@ -479,26 +480,22 @@ foreach ($_cd_rows as $r) {
         fileNm.textContent = f.name;
         fileSz.textContent = (f.size / 1024).toFixed(1) + ' KB';
         fileInfo.classList.remove('hidden');
-        impBtn.style.opacity = '1';
-        impBtn.style.cursor = 'pointer';
-        impBtn.style.pointerEvents = 'auto';
+        impBtnWrap.classList.remove('hidden');
         impRes.classList.add('hidden');
-        // Scroll button into view
+        impBtn.innerHTML = '<i class="fa-solid fa-file-import"></i> นำเข้าข้อมูลจากไฟล์';
+        impBtn.disabled = false;
         impBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
     window.cdClearFile = function () {
         fileIn.value = '';
         fileInfo.classList.add('hidden');
-        impBtn.style.opacity = '0.5';
-        impBtn.style.cursor = 'not-allowed';
-        impBtn.style.pointerEvents = 'none';
+        impBtnWrap.classList.add('hidden');
         impRes.classList.add('hidden');
     };
     window.cdImport = async function () {
         if (!fileIn.files[0]) return;
         const importType = document.querySelector('input[name="cd-import-type"]:checked')?.value || 'faculty';
-        impBtn.style.opacity = '0.5';
-        impBtn.style.pointerEvents = 'none';
+        impBtn.disabled = true;
         impBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังประมวลผล...';
         const fd = new FormData();
         fd.append('action', 'import');
@@ -513,8 +510,7 @@ foreach ($_cd_rows as $r) {
                 setTimeout(() => location.reload(), 1000);
             } else {
                 cdShowImportResult('error', data.message);
-                impBtn.style.opacity = '1';
-                impBtn.style.pointerEvents = 'auto';
+                impBtn.disabled = false;
                 impBtn.innerHTML = '<i class="fa-solid fa-file-import"></i> นำเข้าข้อมูลจากไฟล์';
             }
         } catch (e) {
