@@ -277,8 +277,9 @@ foreach ($_cd_rows as $r) {
         </div>
 
         <div class="mt-4">
-            <button id="cd-import-btn" onclick="cdImport()" disabled
-                class="w-full bg-violet-600 hover:bg-violet-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold py-3 px-5 rounded-xl transition-all text-sm flex items-center justify-center gap-2">
+            <button id="cd-import-btn" onclick="cdImport()" type="button"
+                class="w-full bg-violet-600 hover:bg-violet-700 text-white font-bold py-3 px-5 rounded-xl transition-all text-sm flex items-center justify-center gap-2"
+                style="opacity: 0.5; cursor: not-allowed; pointer-events: none;">
                 <i class="fa-solid fa-file-import"></i> นำเข้าข้อมูลจากไฟล์
             </button>
         </div>
@@ -461,18 +462,23 @@ foreach ($_cd_rows as $r) {
         fileNm.textContent = f.name;
         fileSz.textContent = (f.size / 1024).toFixed(1) + ' KB';
         fileInfo.classList.remove('hidden');
-        impBtn.disabled = false;
+        impBtn.style.opacity = '1';
+        impBtn.style.cursor = 'pointer';
+        impBtn.style.pointerEvents = 'auto';
         impRes.classList.add('hidden');
     }
     window.cdClearFile = function () {
         fileIn.value = '';
         fileInfo.classList.add('hidden');
-        impBtn.disabled = true;
+        impBtn.style.opacity = '0.5';
+        impBtn.style.cursor = 'not-allowed';
+        impBtn.style.pointerEvents = 'none';
         impRes.classList.add('hidden');
     };
     window.cdImport = async function () {
         if (!fileIn.files[0]) return;
-        impBtn.disabled = true;
+        impBtn.style.opacity = '0.5';
+        impBtn.style.pointerEvents = 'none';
         impBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังประมวลผล...';
         const fd = new FormData();
         fd.append('action', 'import');
@@ -486,12 +492,14 @@ foreach ($_cd_rows as $r) {
                 setTimeout(() => location.reload(), 1000);
             } else {
                 cdShowImportResult('error', data.message);
-                impBtn.disabled = false;
+                impBtn.style.opacity = '1';
+                impBtn.style.pointerEvents = 'auto';
                 impBtn.innerHTML = '<i class="fa-solid fa-file-import"></i> นำเข้าข้อมูลจากไฟล์';
             }
         } catch (e) {
             cdShowImportResult('error', 'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้');
-            impBtn.disabled = false;
+            impBtn.style.opacity = '1';
+            impBtn.style.pointerEvents = 'auto';
             impBtn.innerHTML = '<i class="fa-solid fa-file-import"></i> นำเข้าข้อมูลจากไฟล์';
         }
     };
