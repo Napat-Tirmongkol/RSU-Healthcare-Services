@@ -483,6 +483,8 @@ foreach ($_cd_rows as $r) {
         impBtn.style.cursor = 'pointer';
         impBtn.style.pointerEvents = 'auto';
         impRes.classList.add('hidden');
+        // Scroll button into view
+        impBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
     window.cdClearFile = function () {
         fileIn.value = '';
