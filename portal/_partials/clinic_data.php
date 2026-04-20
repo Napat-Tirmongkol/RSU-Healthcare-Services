@@ -19,8 +19,11 @@ try {
     try { $pdo->exec("ALTER TABLE sys_faculties ADD COLUMN type ENUM('faculty','department') NOT NULL DEFAULT 'faculty'"); } catch (PDOException) {}
 } catch (PDOException) {}
 
-// Filter
+// Filter + Pagination
 $_cd_search = trim($_GET['cd_search'] ?? '');
+$_cd_page   = max(1, (int)($_GET['cd_page'] ?? 1));
+$_cd_limit  = 20;
+$_cd_offset = ($_cd_page - 1) * $_cd_limit;
 $_cd_where  = 'WHERE 1=1';
 $_cd_params = [];
 if ($_cd_search !== '') {
@@ -35,16 +38,18 @@ $_cd_total = 0;
 $_cd_totalAll = 0;
 $_cd_faculties = 0;
 $_cd_departments = 0;
+$_cd_totalPages = 0;
 try {
-    $_cd_totalAll = (int)$pdo->query("SELECT COUNT(*) FROM sys_faculties")->fetchColumn();
-    $_cd_faculties = (int)$pdo->query("SELECT COUNT(*) FROM sys_faculties WHERE type='faculty'")->fetchColumn();
+    $_cd_totalAll    = (int)$pdo->query("SELECT COUNT(*) FROM sys_faculties")->fetchColumn();
+    $_cd_faculties   = (int)$pdo->query("SELECT COUNT(*) FROM sys_faculties WHERE type='faculty'")->fetchColumn();
     $_cd_departments = (int)$pdo->query("SELECT COUNT(*) FROM sys_faculties WHERE type='department'")->fetchColumn();
 
     $sc = $pdo->prepare("SELECT COUNT(*) FROM sys_faculties $_cd_where");
     $sc->execute($_cd_params);
-    $_cd_total = (int)$sc->fetchColumn();
+    $_cd_total      = (int)$sc->fetchColumn();
+    $_cd_totalPages = (int)ceil($_cd_total / $_cd_limit);
 
-    $sr = $pdo->prepare("SELECT id, code, name_th, name_en, type, created_at FROM sys_faculties $_cd_where ORDER BY type ASC, name_th ASC");
+    $sr = $pdo->prepare("SELECT id, code, name_th, name_en, type FROM sys_faculties $_cd_where ORDER BY type ASC, name_th ASC LIMIT $_cd_limit OFFSET $_cd_offset");
     $sr->execute($_cd_params);
     $_cd_rows = $sr->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
@@ -57,6 +62,9 @@ foreach ($_cd_rows as $r) {
     if (!empty($r['code']))    $_cd_withCode++;
     if (!empty($r['name_en'])) $_cd_withEn++;
 }
+
+// Build base querystring for pagination links
+$_cd_qs = http_build_query(array_filter(['section' => 'clinic_data', 'cd_search' => $_cd_search]));
 ?>
 
 <div class="p-6">
@@ -241,6 +249,57 @@ foreach ($_cd_rows as $r) {
                 </tbody>
             </table>
         </div>
+
+        <?php if ($_cd_totalPages > 1): ?>
+        <!-- Pagination -->
+        <div class="px-6 py-4 border-t border-gray-100 flex items-center justify-between gap-4 flex-wrap">
+            <p class="text-xs text-gray-500 font-semibold">
+                หน้า <span class="text-gray-800"><?= $_cd_page ?></span> / <?= $_cd_totalPages ?>
+                &nbsp;·&nbsp; รวม <?= number_format($_cd_total) ?> รายการ
+            </p>
+            <div class="flex items-center gap-1">
+                <?php
+                // Prev
+                $prevPage = $_cd_page - 1;
+                $nextPage = $_cd_page + 1;
+                $makeUrl  = fn(int $p) => '?' . $_cd_qs . '&cd_page=' . $p;
+                ?>
+                <a href="<?= $makeUrl(1) ?>"
+                   class="w-8 h-8 flex items-center justify-center rounded-lg text-xs font-bold <?= $_cd_page <= 1 ? 'text-gray-300 pointer-events-none' : 'text-gray-600 hover:bg-gray-100' ?>">
+                    <i class="fa-solid fa-angles-left"></i>
+                </a>
+                <a href="<?= $makeUrl($prevPage) ?>"
+                   class="w-8 h-8 flex items-center justify-center rounded-lg text-xs font-bold <?= $_cd_page <= 1 ? 'text-gray-300 pointer-events-none' : 'text-gray-600 hover:bg-gray-100' ?>">
+                    <i class="fa-solid fa-angle-left"></i>
+                </a>
+
+                <?php
+                $start = max(1, $_cd_page - 2);
+                $end   = min($_cd_totalPages, $_cd_page + 2);
+                if ($start > 1) echo '<span class="w-8 h-8 flex items-center justify-center text-gray-400 text-xs">…</span>';
+                for ($p = $start; $p <= $end; $p++):
+                    $isActive = $p === $_cd_page;
+                ?>
+                <a href="<?= $makeUrl($p) ?>"
+                   class="w-8 h-8 flex items-center justify-center rounded-lg text-xs font-bold transition-colors <?= $isActive ? 'bg-teal-600 text-white' : 'text-gray-600 hover:bg-gray-100' ?>">
+                    <?= $p ?>
+                </a>
+                <?php endfor;
+                if ($end < $_cd_totalPages) echo '<span class="w-8 h-8 flex items-center justify-center text-gray-400 text-xs">…</span>';
+                ?>
+
+                <a href="<?= $makeUrl($nextPage) ?>"
+                   class="w-8 h-8 flex items-center justify-center rounded-lg text-xs font-bold <?= $_cd_page >= $_cd_totalPages ? 'text-gray-300 pointer-events-none' : 'text-gray-600 hover:bg-gray-100' ?>">
+                    <i class="fa-solid fa-angle-right"></i>
+                </a>
+                <a href="<?= $makeUrl($_cd_totalPages) ?>"
+                   class="w-8 h-8 flex items-center justify-center rounded-lg text-xs font-bold <?= $_cd_page >= $_cd_totalPages ? 'text-gray-300 pointer-events-none' : 'text-gray-600 hover:bg-gray-100' ?>">
+                    <i class="fa-solid fa-angles-right"></i>
+                </a>
+            </div>
+        </div>
+        <?php endif; ?>
+
         <?php endif; ?>
     </div>
 
