@@ -1625,7 +1625,15 @@ try {
                                         style="display:flex;align-items:center;gap:10px;padding:12px 16px;border-radius:12px;border:1.5px solid #e2e8f0;background:#f8fafc;color:#374151;font-size:13px;font-weight:700;text-decoration:none;transition:all .2s">
                                         <i class="fa-solid fa-bug" style="color:#94a3b8"></i> Error Logs
                                     </a>
-                                    <a href="../admin/sentry_test.php"
+                                    <a href="javascript:switchSection('email_logs')"
+                                        style="display:flex;align-items:center;gap:10px;padding:12px 16px;border-radius:12px;border:1.5px solid #e2e8f0;background:#f8fafc;color:#374151;font-size:13px;font-weight:700;text-decoration:none;transition:all .2s">
+                                        <i class="fa-solid fa-envelope-open-text" style="color:#94a3b8"></i> Email Logs
+                                    </a>
+                                    <a href="javascript:switchSection('faculty_import')"
+                                        style="display:flex;align-items:center;gap:10px;padding:12px 16px;border-radius:12px;border:1.5px solid #ede9fe;background:#faf5ff;color:#7c3aed;font-size:13px;font-weight:700;text-decoration:none;transition:all .2s">
+                                        <i class="fa-solid fa-building-columns" style="color:#a78bfa"></i> นำเข้าคณะ / หน่วยงาน
+                                    </a>
+                                    <a href="javascript:switchSection('sentry_test')"
                                         style="display:flex;align-items:center;gap:10px;padding:12px 16px;border-radius:12px;border:1.5px solid #e2e8f0;background:#f8fafc;color:#374151;font-size:13px;font-weight:700;text-decoration:none;transition:all .2s">
                                         <i class="fa-brands fa-sentry" style="color:#94a3b8"></i> Sentry Monitoring
                                     </a>
@@ -1716,6 +1724,12 @@ try {
 
                 </div>
             </div><!-- /section-settings -->
+
+            <!-- ════════════ SECTION: FACULTY IMPORT ════════════ -->
+            <div id="section-faculty_import" class="portal-section"
+                style="<?= $activeSection==='faculty_import'?'':'display:none;' ?> background:#f8fafc; overflow-y:auto;">
+                <?php include __DIR__ . '/_partials/faculty_import.php'; ?>
+            </div>
 
             <!-- ════════════ SECTION: ACTIVITY LOGS ════════════ -->
             <div id="section-activity_logs" class="portal-section"
