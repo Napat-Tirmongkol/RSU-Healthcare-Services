@@ -1833,21 +1833,21 @@ try {
 
                         <!-- 3. Integrations & Diagnostic Logs -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <!-- Diagnostic Links -->
-                            <div class="bg-slate-800 rounded-3xl p-6 text-white shadow-lg">
+                            <!-- Diagnostic Links (Fixed for Light Mode) -->
+                            <div class="bg-white rounded-3xl border border-gray-200 p-6 shadow-sm">
                                 <h4 class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-6">Diagnostic Logs</h4>
                                 <div class="grid grid-cols-1 gap-3">
-                                    <a href="javascript:switchSection('error_logs')" class="flex items-center gap-4 p-4 bg-white/5 border border-white/10 rounded-2xl hover:bg-white/10 transition-all">
-                                        <div class="w-8 h-8 rounded-lg bg-red-500/20 text-red-400 flex items-center justify-center text-xs"><i class="fa-solid fa-bug"></i></div>
-                                        <span class="text-xs font-bold text-slate-200">Error Logs</span>
+                                    <a href="javascript:switchSection('error_logs')" class="flex items-center gap-4 p-4 bg-slate-50 border border-transparent rounded-2xl hover:bg-red-50 hover:border-red-100 transition-all group">
+                                        <div class="w-8 h-8 rounded-lg bg-red-100 text-red-600 flex items-center justify-center text-xs"><i class="fa-solid fa-bug"></i></div>
+                                        <span class="text-xs font-bold text-slate-700">Error Logs</span>
                                     </a>
-                                    <a href="javascript:switchSection('activity_logs')" class="flex items-center gap-4 p-4 bg-white/5 border border-white/10 rounded-2xl hover:bg-white/10 transition-all">
-                                        <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xs"><i class="fa-solid fa-bolt"></i></div>
-                                        <span class="text-xs font-bold text-slate-200">Activity Logs</span>
+                                    <a href="javascript:switchSection('activity_logs')" class="flex items-center gap-4 p-4 bg-slate-50 border border-transparent rounded-2xl hover:bg-emerald-50 hover:border-emerald-100 transition-all group">
+                                        <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center text-xs"><i class="fa-solid fa-bolt"></i></div>
+                                        <span class="text-xs font-bold text-slate-700">Activity Logs</span>
                                     </a>
-                                    <a href="javascript:switchSection('email_logs')" class="flex items-center gap-4 p-4 bg-white/5 border border-white/10 rounded-2xl hover:bg-white/10 transition-all">
-                                        <div class="w-8 h-8 rounded-lg bg-blue-500/20 text-blue-400 flex items-center justify-center text-xs"><i class="fa-solid fa-envelope"></i></div>
-                                        <span class="text-xs font-bold text-slate-200">Email Logs</span>
+                                    <a href="javascript:switchSection('email_logs')" class="flex items-center gap-4 p-4 bg-slate-50 border border-transparent rounded-2xl hover:bg-blue-50 hover:border-blue-100 transition-all group">
+                                        <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center text-xs"><i class="fa-solid fa-envelope"></i></div>
+                                        <span class="text-xs font-bold text-slate-700">Email Logs</span>
                                     </a>
                                 </div>
                             </div>
