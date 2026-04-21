@@ -314,3 +314,43 @@ function notify_booking_status(string $to, string $type, array $data): bool {
     $body = get_email_template($emailTitle, $message, $details, $tplType);
     return send_campaign_email($to, $subject, $body, $type);
 }
+
+/**
+ * ส่งข้อความแจ้งเตือนผ่าน LINE Messaging API แบบง่าย
+ */
+function send_line_notification_simple(string $lineUserId, array $data): bool {
+    $path = __DIR__ . '/../config/secrets.php';
+    $secrets = file_exists($path) ? require $path : [];
+    
+    $token = $secrets['LINE_MESSAGING_CHANNEL_ACCESS_TOKEN'] ?? '';
+    if (!$token || !$lineUserId) return false;
+
+    $messageText = "ขออภัยค่ะ มีการยกเลิกนัดหมายกิจกรรม\n"
+                 . "📌 {$data['campaign_title']}\n"
+                 . "🗓 วันที่: {$data['date']}\n"
+                 . "⏰ เวลา: {$data['time']}\n"
+                 . "กรุณาเข้าสู่ระบบเพื่อจองรอบเวลาใหม่ค่ะ";
+
+    $message = [
+        'type' => 'text',
+        'text' => $messageText
+    ];
+
+    $ch = curl_init('https://api.line.me/v2/bot/message/push');
+    curl_setopt_array($ch, [
+        CURLOPT_POST           => true,
+        CURLOPT_POSTFIELDS     => json_encode(['to' => $lineUserId, 'messages' => [$message]]),
+        CURLOPT_HTTPHEADER     => [
+            'Content-Type: application/json',
+            'Authorization: Bearer ' . $token,
+        ],
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_TIMEOUT        => 10,
+    ]);
+    
+    $result = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    return ($httpCode === 200);
+}

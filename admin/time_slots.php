@@ -127,15 +127,71 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($action === 'delete_slot') {
         $id = (int)$_POST['slot_id'];
-        // เช็คว่ามีคนจองรอบนี้หรือยัง
-        $check = $pdo->prepare("SELECT COUNT(*) FROM camp_bookings WHERE slot_id = ? AND status != 'cancelled'");
-        $check->execute([$id]);
-        if ($check->fetchColumn() > 0) {
-            echo json_encode(['status' => 'error', 'message' => 'ไม่สามารถลบได้ เนื่องจากมีคนลงทะเบียนในรอบนี้แล้ว']);
-        } else {
-            $pdo->prepare("DELETE FROM camp_slots WHERE id = ?")->execute([$id]);
-            echo json_encode(['status' => 'success']);
+        
+        // 1. ดึงข้อมูลผู้จองทั้งหมดที่ยังไม่ถูกยกเลิก
+        $stmt = $pdo->prepare("
+            SELECT b.id, u.email, u.full_name, u.line_user_id,
+                   c.title as campaign_title, s.slot_date, s.start_time, s.end_time
+            FROM camp_bookings b
+            JOIN sys_users u ON b.student_id = u.id
+            JOIN camp_slots s ON b.slot_id = s.id
+            JOIN camp_list c ON s.campaign_id = c.id
+            WHERE b.slot_id = ? AND b.status IN ('booked', 'confirmed')
+        ");
+        $stmt->execute([$id]);
+        $rows = $stmt->fetchAll();
+
+        if (count($rows) > 0) {
+            require_once __DIR__ . '/../includes/mail_helper.php';
+            
+            $failedList = [];
+            $successCount = 0;
+
+            foreach ($rows as $row) {
+                $emailData = [
+                    'campaign_title' => $row['campaign_title'],
+                    'date'           => date('j M Y', strtotime($row['slot_date'])),
+                    'time'           => substr($row['start_time'], 0, 5) . '-' . substr($row['end_time'], 0, 5),
+                    'full_name'      => $row['full_name']
+                ];
+
+                $emailOk = true;
+                if (!empty($row['email'])) {
+                    // ส่งอีเมลและเช็คผล
+                    $emailOk = notify_booking_status($row['email'], 'cancelled_by_admin', $emailData);
+                }
+
+                // ส่ง LINE (ถ้ามี) - ไม่บล็อก flow ถ้าส่ง LINE ไม่ผ่าน แต่จะ log ไว้
+                if (!empty($row['line_user_id'])) {
+                    try {
+                        // ใช้ฟังก์ชันช่วยเหลือด้านล่าง (จะเพิ่มที่ท้ายไฟล์หรือเรียกจากที่อื่น)
+                        send_line_notification_simple($row['line_user_id'], $emailData);
+                    } catch (Exception $e) {
+                        error_log("LINE notification failed for {$row['full_name']}: " . $e->getMessage());
+                    }
+                }
+
+                if ($emailOk) {
+                    // อัปเดตสถานะเป็นยกเลิกโดยแอดมิน
+                    $pdo->prepare("UPDATE camp_bookings SET status = 'cancelled_by_admin' WHERE id = ?")->execute([$row['id']]);
+                    $successCount++;
+                } else {
+                    $failedList[] = $row['full_name'] . " ({$row['email']})";
+                }
+            }
+
+            if (count($failedList) > 0) {
+                echo json_encode([
+                    'status' => 'error', 
+                    'message' => 'ไม่สามารถลบรอบได้ เนื่องจากส่งอีเมลแจ้งเตือนล้มเหลวสำหรับ: ' . implode(', ', $failedList) . ' (กรุณาตรวจสอบการตั้งค่า SMTP หรืออีเมลของผู้ใช้)'
+                ]);
+                exit;
+            }
         }
+
+        // ลบ Slot (หลังจากเคลียร์คนออกหมดแล้ว หรือไม่มีคนจอง)
+        $pdo->prepare("DELETE FROM camp_slots WHERE id = ?")->execute([$id]);
+        echo json_encode(['status' => 'success', 'message' => 'ระบบได้ส่งอีเมลแจ้งเตือนผู้จองและลบรอบเวลาเรียบร้อยแล้ว']);
         exit;
     }
 
@@ -146,31 +202,53 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit;
         }
 
+        require_once __DIR__ . '/../includes/mail_helper.php';
         $deletedCount = 0;
-        $failedCount = 0;
+        $failedSlots = [];
+        $totalFailedEmails = [];
 
         foreach ($ids as $id) {
             $id = (int)$id;
             if ($id <= 0) continue;
             
-            $check = $pdo->prepare("SELECT COUNT(*) FROM camp_bookings WHERE slot_id = ? AND status != 'cancelled'");
-            $check->execute([$id]);
-            if ($check->fetchColumn() > 0) {
-                $failedCount++;
-            } else {
+            // ดึงผู้จองของ Slot นี้
+            $stmt = $pdo->prepare("SELECT b.id, u.email, u.full_name, u.line_user_id, c.title as campaign_title, s.slot_date, s.start_time, s.end_time FROM camp_bookings b JOIN sys_users u ON b.student_id = u.id JOIN camp_slots s ON b.slot_id = s.id JOIN camp_list c ON s.campaign_id = c.id WHERE b.slot_id = ? AND b.status IN ('booked', 'confirmed')");
+            $stmt->execute([$id]);
+            $bookings = $stmt->fetchAll();
+
+            $slotEmailFail = false;
+            foreach ($bookings as $b) {
+                $emailData = ['campaign_title' => $b['campaign_title'], 'date' => date('j M Y', strtotime($b['slot_date'])), 'time' => substr($b['start_time'], 0, 5) . '-' . substr($b['end_time'], 0, 5), 'full_name' => $b['full_name']];
+                
+                $ok = true;
+                if (!empty($b['email'])) {
+                    $ok = notify_booking_status($b['email'], 'cancelled_by_admin', $emailData);
+                }
+                
+                if ($ok) {
+                    $pdo->prepare("UPDATE camp_bookings SET status = 'cancelled_by_admin' WHERE id = ?")->execute([$b['id']]);
+                } else {
+                    $slotEmailFail = true;
+                    $totalFailedEmails[] = $b['full_name'];
+                }
+            }
+
+            if (!$slotEmailFail) {
                 $pdo->prepare("DELETE FROM camp_slots WHERE id = ?")->execute([$id]);
                 $deletedCount++;
+            } else {
+                $failedSlots[] = $id;
             }
         }
 
         if ($deletedCount > 0) {
-            $msg = "ลบสำเร็จ {$deletedCount} รายการ";
-            if ($failedCount > 0) {
-                $msg .= "\n(ข้าม {$failedCount} รายการที่มีผู้ลงทะเบียนแล้ว)";
+            $msg = "ลบสำเร็จ {$deletedCount} รอบเวลา";
+            if (!empty($totalFailedEmails)) {
+                $msg .= "\n(มีบางรอบลบไม่ได้เนื่องจากส่งเมลหา " . implode(', ', array_unique($totalFailedEmails)) . " ล้มเหลว)";
             }
             echo json_encode(['status' => 'success', 'message' => $msg]);
         } else {
-            echo json_encode(['status' => 'error', 'message' => "ไม่สามารถลบได้ (มีผู้ลงทะเบียนในรอบที่เลือกหมดแล้ว)"]);
+            echo json_encode(['status' => 'error', 'message' => "ไม่สามารถลบรอบที่เลือกได้ เนื่องจากปัญหาการส่งอีเมลแจ้งเตือน"]);
         }
         exit;
     }

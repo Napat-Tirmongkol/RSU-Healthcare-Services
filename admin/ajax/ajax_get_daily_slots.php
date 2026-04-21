@@ -83,14 +83,55 @@ if ($action === 'delete') {
     $id = (int)($_POST['slot_id'] ?? 0);
     if ($id <= 0) json_err('Invalid slot ID');
 
-    $chk = $pdo->prepare("SELECT COUNT(*) FROM camp_bookings WHERE slot_id = ? AND status != 'cancelled'");
-    $chk->execute([$id]);
-    if ((int) $chk->fetchColumn() > 0) {
-        json_err('ไม่สามารถลบได้ มีผู้ลงทะเบียนในรอบนี้แล้ว');
+    // 1. ดึงข้อมูลผู้จองทั้งหมดที่ยังไม่ถูกยกเลิก
+    $stmt = $pdo->prepare("
+        SELECT b.id, u.email, u.full_name, u.line_user_id,
+               c.title as campaign_title, s.slot_date, s.start_time, s.end_time
+        FROM camp_bookings b
+        JOIN sys_users u ON b.student_id = u.id
+        JOIN camp_slots s ON b.slot_id = s.id
+        JOIN camp_list c ON s.campaign_id = c.id
+        WHERE b.slot_id = ? AND b.status IN ('booked', 'confirmed')
+    ");
+    $stmt->execute([$id]);
+    $rows = $stmt->fetchAll();
+
+    if (count($rows) > 0) {
+        require_once __DIR__ . '/../../includes/mail_helper.php';
+        
+        $failedList = [];
+        foreach ($rows as $row) {
+            $emailData = [
+                'campaign_title' => $row['campaign_title'],
+                'date'           => date('j M Y', strtotime($row['slot_date'])),
+                'time'           => substr($row['start_time'], 0, 5) . '-' . substr($row['end_time'], 0, 5),
+                'full_name'      => $row['full_name']
+            ];
+
+            $emailOk = true;
+            if (!empty($row['email'])) {
+                $emailOk = notify_booking_status($row['email'], 'cancelled_by_admin', $emailData);
+            }
+
+            // LINE notification
+            if (!empty($row['line_user_id'])) {
+                send_line_notification_simple($row['line_user_id'], $emailData);
+            }
+
+            if ($emailOk) {
+                $pdo->prepare("UPDATE camp_bookings SET status = 'cancelled_by_admin' WHERE id = ?")->execute([$row['id']]);
+            } else {
+                $failedList[] = $row['full_name'];
+            }
+        }
+
+        if (count($failedList) > 0) {
+            json_err('ส่งอีเมลแจ้งเตือนล้มเหลวสำหรับ: ' . implode(', ', $failedList));
+        }
     }
 
     $pdo->prepare("DELETE FROM camp_slots WHERE id = ?")->execute([$id]);
-    echo json_encode(['status' => 'success', 'message' => 'ลบรอบเวลาสำเร็จ']);
+    echo json_encode(['status' => 'success', 'message' => 'ลบรอบเวลาและแจ้งเตือนผู้จองเรียบร้อยแล้ว']);
     exit;
 }
 
