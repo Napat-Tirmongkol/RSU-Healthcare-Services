@@ -502,6 +502,12 @@ renderPageHeader("Campaign Time Slots", "กำหนดช่วงเวลา
                                     class="slot-act-btn" style="background:#fef3c7;color:#d97706" title="แก้ไข">
                                     <i class="fa-solid fa-pen"></i>
                                 </button>
+                                <?php if ($booked > 0): ?>
+                                <button onclick="bulkCancelSlot(<?= $s['id'] ?>,'<?= htmlspecialchars($campaign['title']) ?>','<?= $s['slot_date'] ?>','<?= substr($s['start_time'],0,5) ?>-<?= substr($s['end_time'],0,5) ?>',<?= $booked ?>)"
+                                    class="slot-act-btn" style="background:#dbeafe;color:#0284c7" title="ยกเลิกการจองทั้งหมด">
+                                    <i class="fa-solid fa-ban"></i>
+                                </button>
+                                <?php endif; ?>
                                 <button onclick="deleteSlot(<?= $s['id'] ?>)"
                                     class="slot-act-btn" style="background:#fee2e2;color:#dc2626" title="ลบ">
                                     <i class="fa-solid fa-times"></i>
@@ -1029,6 +1035,65 @@ document.getElementById('editSlotForm').addEventListener('submit', function(e) {
         }
     }).catch(err => Swal.fire('Error', 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้', 'error'));
 });
+
+function bulkCancelSlot(slotId, campaign, date, time, count) {
+    Swal.fire({
+        icon: 'warning',
+        title: 'ยกเลิกการจองทั้งหมด?',
+        html: `<p class="font-prompt text-sm text-gray-700">${campaign}</p>
+               <p class="font-prompt text-sm text-gray-600">${date} เวลา ${time}</p>
+               <p class="font-prompt text-base font-bold text-red-600 mt-2">จะยกเลิก ${count} รายการ</p>
+               <p class="font-prompt text-xs text-gray-500 mt-2">ผู้ใช้ทั้งหมดจะได้รับอีเมลแจ้งเตือน</p>`,
+        confirmButtonColor: '#0284c7',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: 'ยกเลิกเลย',
+        cancelButtonText: 'ยกเลิก',
+        customClass: { title:'font-prompt', htmlContainer:'font-prompt', confirmButton:'font-prompt', cancelButton:'font-prompt' }
+    }).then(r => {
+        if (!r.isConfirmed) return;
+
+        Swal.showLoading();
+
+        const fd = new FormData();
+        fd.append('slot_id', slotId);
+        fd.append('campaign', campaign);
+        fd.append('csrf_token', '<?= get_csrf_token() ?>');
+
+        fetch('ajax/ajax_bulk_cancel_bookings.php', { method:'POST', body:fd })
+        .then(r => r.json())
+        .then(data => {
+            if (data.ok) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'ยกเลิกเรียบร้อย',
+                    html: `<p class="font-prompt">${data.message}</p>
+                           ${data.failed_count > 0 ? '<p class="font-prompt text-sm text-orange-600 mt-2">⚠️ ' + data.failed_count + ' รายการล้มเหลว</p>' : ''}`,
+                    confirmButtonColor: '#0284c7',
+                    customClass: { title:'font-prompt', htmlContainer:'font-prompt', confirmButton:'font-prompt' }
+                }).then(() => {
+                    location.reload();
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'ยกเลิกไม่ได้',
+                    text: data.error,
+                    confirmButtonColor: '#ef4444',
+                    customClass: { title:'font-prompt', htmlContainer:'font-prompt', confirmButton:'font-prompt' }
+                });
+            }
+        })
+        .catch(err => {
+            Swal.fire({
+                icon: 'error',
+                title: 'เกิดข้อผิดพลาด',
+                text: 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์',
+                confirmButtonColor: '#ef4444',
+                customClass: { title:'font-prompt', htmlContainer:'font-prompt', confirmButton:'font-prompt' }
+            });
+        });
+    });
+}
 
 function deleteSlot(id) {
     Swal.fire({
