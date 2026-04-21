@@ -4,9 +4,7 @@ require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/includes/auth.php';
 
 // Quick check: API key configured?
-$secretsPath = __DIR__ . '/../config/secrets.php';
-$secrets     = file_exists($secretsPath) ? require $secretsPath : [];
-$apiKeySet   = !empty($secrets['GEMINI_API_KEY']);
+$apiKeySet = defined('GEMINI_API_KEY') && !empty(GEMINI_API_KEY);
 
 require_once __DIR__ . '/includes/header.php';
 renderPageHeader(
@@ -210,9 +208,7 @@ renderPageHeader(
     <i class="fa-solid fa-triangle-exclamation text-amber-500 text-xl flex-shrink-0 mt-0.5"></i>
     <div>
         <div class="font-bold mb-1">ยังไม่ได้ตั้งค่า Gemini API Key</div>
-        <div>เพิ่ม <code class="bg-amber-100 px-1.5 py-0.5 rounded font-mono text-xs">GEMINI_API_KEY</code>
-        ใน <code class="bg-amber-100 px-1.5 py-0.5 rounded font-mono text-xs">config/secrets.php</code>
-        แล้วรีเฟรชหน้า<br>
+        <div>กรุณาไปที่เมนู <a href="../portal/index.php?section=settings" class="font-bold underline">Settings</a> ในหน้า Portal เพื่อกรอก API Key ของ Gemini ก่อนใช้งานระบบผู้ช่วย AI ครับ<br>
         รับ API Key ฟรีได้ที่ <a href="https://aistudio.google.com/app/apikey" target="_blank" class="underline font-semibold">Google AI Studio</a>
         </div>
     </div>

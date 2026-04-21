@@ -25,12 +25,10 @@ if (mb_strlen($query) > 2000) {
 }
 
 // ── Load API Key ──────────────────────────────────────────────────────────────
-$secretsPath = __DIR__ . '/../config/secrets.php';
-$secrets = file_exists($secretsPath) ? require $secretsPath : [];
-$apiKey  = $secrets['GEMINI_API_KEY'] ?? '';
+$apiKey = defined('GEMINI_API_KEY') ? GEMINI_API_KEY : '';
 
 if (!$apiKey) {
-    echo json_encode(['ok' => false, 'error' => 'ยังไม่ได้ตั้งค่า GEMINI_API_KEY ใน config/secrets.php']);
+    echo json_encode(['ok' => false, 'error' => 'ยังไม่ได้ตั้งค่า GEMINI_API_KEY กรุณาตั้งค่าในหน้า Settings']);
     exit;
 }
 
