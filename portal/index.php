@@ -585,7 +585,7 @@ try {
 
     <!-- ══════════════════ APP SHELL (Header + Main) ══════════════════ -->
     <div id="app-shell"
-        style="display:flex;flex:1;flex-direction:column;min-width:0;overflow:hidden;background:#f4f7f5;">
+        style="display: flex !important; flex: 1 !important; flex-direction: column !important; min-width: 0 !important; overflow: hidden !important; background: #f4f7f5;">
 
         <!-- ══════════════════ HEADER ══════════════════ -->
         <header class="portal-header au" style="background: #ffffff !important; border-bottom: 1.5px solid #e2e8f0 !important; box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important; width: 100% !important; display: block !important; position: relative !important; z-index: 50 !important;">
