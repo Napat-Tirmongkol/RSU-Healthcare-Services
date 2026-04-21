@@ -60,5 +60,5 @@ echo json_encode([
     'uploaded_at' => date('Y-m-d H:i:s'),
     'total_logs' => count($logs),
     'analysis' => $analysis,
-    'message'  => "File uploaded successfully. Detected $total_logs errors."
+    'message'  => "File uploaded successfully. Detected " . count($logs) . " errors."
 ]);
