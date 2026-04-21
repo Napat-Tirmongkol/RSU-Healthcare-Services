@@ -552,6 +552,39 @@ try {
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
     </style>
+    <script>
+        /* ── Critical Navigation Functions (Defined in Head for early availability) ── */
+        window.toggleSidebar = function () {
+            var sidebar = document.getElementById('portal-sidebar');
+            var icon = document.getElementById('sidebar-toggle-icon');
+            var expanded = document.getElementById('psb-user-expanded');
+            var collapsed = document.getElementById('psb-user-collapsed');
+            if (!sidebar) return;
+            sidebar.classList.toggle('collapsed');
+            var isCollapsed = sidebar.classList.contains('collapsed');
+            if (icon) icon.style.transform = isCollapsed ? 'rotate(180deg)' : '';
+            if (expanded) expanded.style.display = isCollapsed ? 'none' : 'flex';
+            if (collapsed) collapsed.style.display = isCollapsed ? 'flex' : 'none';
+        };
+
+        window.switchSection = function (sectionId, btn) {
+            document.querySelectorAll('.portal-section').forEach(function (s) { s.style.display = 'none'; });
+            var target = document.getElementById('section-' + sectionId);
+            if (target) target.style.display = '';
+            document.querySelectorAll('.psb-item').forEach(function (b) { b.classList.remove('psb-active'); });
+            
+            // If btn not provided, try to find it in sidebar
+            if (!btn) {
+                btn = document.querySelector('.psb-item[data-section="' + sectionId + '"]');
+            }
+            if (btn) btn.classList.add('psb-active');
+            
+            var url = new URL(window.location.href);
+            url.searchParams.set('section', sectionId);
+            ['page','el_search','el_level','el_date','el_source','al_q','eml_q','eml_type','eml_status','cd_search'].forEach(function(k){ url.searchParams.delete(k); });
+            history.pushState({section: sectionId}, '', url.toString());
+        };
+    </script>
 </head>
 
 <body class="font-sans text-gray-800 bg-[#f4f7f5]" style="height:100vh;overflow:hidden;display:flex;flex-direction:row">
@@ -585,6 +618,10 @@ try {
             <button class="psb-item psb-active" data-section="dashboard" onclick="switchSection('dashboard',this)">
                 <div class="psb-icon"><i class="fa-solid fa-chart-pie"></i></div>
                 <span class="psb-label">Dashboard</span>
+            </button>
+            <button class="psb-item" data-section="ai_assistant" onclick="switchSection('ai_assistant',this)">
+                <div class="psb-icon"><i class="fa-solid fa-wand-magic-sparkles" style="color:#8b5cf6"></i></div>
+                <span class="psb-label" style="color:#7c3aed;font-weight:900">AI Assistant</span>
             </button>
             <button class="psb-item" data-section="identity" onclick="switchSection('identity',this)">
                 <div class="psb-icon"><i class="fa-solid fa-id-card-clip"></i></div>
@@ -1913,6 +1950,12 @@ try {
                 </div>
             </div><!-- /section-settings -->
 
+            <!-- ════════════ SECTION: AI ASSISTANT ════════════ -->
+            <div id="section-ai_assistant" class="portal-section"
+                style="<?= $activeSection==='ai_assistant'?'':'display:none;' ?> background:#fff; overflow:hidden;">
+                <?php include __DIR__ . '/_partials/ai_assistant.php'; ?>
+            </div>
+
             <!-- ════════════ SECTION: CLINIC DATA ════════════ -->
             <div id="section-clinic_data" class="portal-section"
                 style="<?= $activeSection==='clinic_data'?'':'display:none;' ?> background:#f8fafc; overflow-y:auto;">
@@ -2531,30 +2574,6 @@ try {
                 });
             }
         });
-        /* ── Sidebar Controls ────────────────────────────────────────────────────── */
-        window.toggleSidebar = function () {
-            var sidebar = document.getElementById('portal-sidebar');
-            var icon = document.getElementById('sidebar-toggle-icon');
-            var expanded = document.getElementById('psb-user-expanded');
-            var collapsed = document.getElementById('psb-user-collapsed');
-            sidebar.classList.toggle('collapsed');
-            var isCollapsed = sidebar.classList.contains('collapsed');
-            icon.style.transform = isCollapsed ? 'rotate(180deg)' : '';
-            if (expanded) expanded.style.display = isCollapsed ? 'none' : 'flex';
-            if (collapsed) collapsed.style.display = isCollapsed ? 'flex' : 'none';
-        };
-
-        window.switchSection = function (sectionId, btn) {
-            document.querySelectorAll('.portal-section').forEach(function (s) { s.style.display = 'none'; });
-            var target = document.getElementById('section-' + sectionId);
-            if (target) target.style.display = '';
-            document.querySelectorAll('.psb-item').forEach(function (b) { b.classList.remove('psb-active'); });
-            if (btn) btn.classList.add('psb-active');
-            var url = new URL(window.location.href);
-            url.searchParams.set('section', sectionId);
-            ['page','el_search','el_level','el_date','el_source','al_q','eml_q','eml_type','eml_status','cd_search'].forEach(function(k){ url.searchParams.delete(k); });
-            history.pushState({section: sectionId}, '', url.toString());
-        };
 
         // Auto-switch section from URL ?section=...
         (function () {

@@ -134,6 +134,10 @@ $_el_filterQs = http_build_query(array_filter([
                class="px-3 py-2 bg-blue-50 text-blue-700 border border-blue-200 text-xs font-bold rounded-xl hover:bg-blue-100 flex items-center gap-1.5">
                 <i class="fa-solid fa-cloud-arrow-up"></i> Upload
             </button>
+            <a href="../admin/ai_assistant.php"
+               class="px-3 py-2 bg-purple-50 text-purple-700 border border-purple-200 text-xs font-bold rounded-xl hover:bg-purple-100 flex items-center gap-1.5">
+                <i class="fa-solid fa-robot"></i> AI Analyze
+            </a>
             <a href="?section=error_logs&export=csv<?= $_el_filterQs ? '&'.$_el_filterQs : '' ?>"
                class="px-3 py-2 bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-bold rounded-xl hover:bg-emerald-100 flex items-center gap-1.5">
                 <i class="fa-solid fa-file-csv"></i> CSV

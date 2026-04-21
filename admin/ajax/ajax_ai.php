@@ -266,6 +266,16 @@ function fetchToolData(PDO $pdo, string $name, array $args): array {
             if (empty($rows)) return ['info' => "ไม่พบข้อมูล appointment_date สำหรับ campaign_id {$campId}"];
             return $rows;
 
+        case 'get_recent_errors':
+            // ดึง Error Logs ล่าสุด N รายการ
+            $limit = (int) min(max((int)($args['limit'] ?? 10), 1), 100);
+            return $pdo->query("
+                SELECT level, source, message, created_at, ip_address 
+                FROM sys_error_logs 
+                ORDER BY created_at DESC 
+                LIMIT {$limit}
+            ")->fetchAll(PDO::FETCH_ASSOC);
+
         default:
             return ['error' => "ไม่รู้จักฟังก์ชัน: {$name}"];
     }
@@ -329,6 +339,19 @@ $toolDeclarations = [[
                     ],
                 ],
                 'required' => ['campaign_id'],
+            ],
+        ],
+        [
+            'name'        => 'get_recent_errors',
+            'description' => 'ดึงรายการข้อผิดพลาดล่าสุด (Error Logs) จากระบบ เพื่อใช้ในการวิเคราะห์สาเหตุของปัญหา',
+            'parameters'  => [
+                'type'       => 'object',
+                'properties' => [
+                    'limit' => [
+                        'type'        => 'integer',
+                        'description' => 'จำนวนรายการที่ต้องการดึง (สูงสุด 100)',
+                    ],
+                ],
             ],
         ],
     ],

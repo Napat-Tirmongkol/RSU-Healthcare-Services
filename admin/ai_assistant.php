@@ -6,11 +6,15 @@ require_once __DIR__ . '/includes/auth.php';
 // Quick check: API key configured?
 $apiKeySet = defined('GEMINI_API_KEY') && !empty(GEMINI_API_KEY);
 
-require_once __DIR__ . '/includes/header.php';
-renderPageHeader(
-    '<i class="fa-solid fa-robot" style="color:#8b5cf6"></i> AI Campaign Analyst',
-    'วิเคราะห์ข้อมูลแคมเปญด้วย Gemini AI · ถามอะไรก็ได้เกี่ยวกับข้อมูลในระบบ'
-);
+$isEmbed = isset($_GET['embed']) && $_GET['embed'] == 1;
+
+if (!$isEmbed) {
+    require_once __DIR__ . '/includes/header.php';
+    renderPageHeader(
+        '<i class="fa-solid fa-robot" style="color:#8b5cf6"></i> AI Campaign Analyst',
+        'วิเคราะห์ข้อมูลแคมเปญด้วย Gemini AI · ถามอะไรก็ได้เกี่ยวกับข้อมูลในระบบ'
+    );
+}
 ?>
 
 <style>
@@ -363,6 +367,7 @@ const DEFAULT_CHIPS = [
     {icon:'fa-lightbulb',   q:'แคมเปญไหนที่โควต้าใกล้เต็มหรือเต็มแล้ว แนะนำว่าควรโปรโมตแคมเปญไหน'},
     {icon:'fa-arrow-trend-up', q:'วิเคราะห์แนวโน้มการจอง 7 วันล่าสุด มีทิศทางอย่างไร'},
     {icon:'fa-ban',          q:'อัตราการยกเลิก (cancellation rate) โดยรวมเป็นเท่าไร มีข้อเสนอแนะอะไรไหม'},
+    {icon:'fa-bug',          q:'วิเคราะห์ Error Logs ล่าสุดให้หน่อย ว่ามีปัญหาอะไรที่ต้องรีบแก้ไหม'},
 ];
 
 function renderChips(items, isAI = false) {
@@ -585,4 +590,4 @@ function getCsrf() {
 echo '<script>document.head.insertAdjacentHTML("beforeend",\'<meta name="csrf-token" content="' . htmlspecialchars(get_csrf_token()) . '">\');</script>';
 ?>
 
-<?php require_once __DIR__ . '/includes/footer.php'; ?>
+<?php if (!$isEmbed) require_once __DIR__ . '/includes/footer.php'; ?>
