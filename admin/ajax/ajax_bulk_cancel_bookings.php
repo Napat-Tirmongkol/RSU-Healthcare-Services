@@ -14,26 +14,27 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit(json_encode(['ok' => false, 'error' => 'Method not allowed']));
 }
 
-// ── Auth & CSRF ────────────────────────────────────────────────────────────
-validate_csrf_or_die();
-if (empty($_SESSION['admin_role'])) {
-    http_response_code(403);
-    exit(json_encode(['ok' => false, 'error' => 'Unauthorized']));
-}
-
-$pdo = db();
-
-// ── Parse input ────────────────────────────────────────────────────────────
-$slotId   = (int)($_POST['slot_id'] ?? 0);
-$campaign = (string)($_POST['campaign'] ?? '');
-
-if ($slotId <= 0 || $campaign === '') {
-    echo json_encode(['ok' => false, 'error' => 'Missing required fields']);
-    exit;
-}
-
-// ── Fetch slot details ─────────────────────────────────────────────────────
 try {
+    // ── Auth & CSRF ────────────────────────────────────────────────────────────
+    validate_csrf_or_die();
+    if (empty($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
+        http_response_code(403);
+        echo json_encode(['ok' => false, 'error' => 'เซสชันหมดอายุ กรุณา Login ใหม่']);
+        exit;
+    }
+
+    $pdo = db();
+
+    // ── Parse input ────────────────────────────────────────────────────────────
+    $slotId   = (int)($_POST['slot_id'] ?? 0);
+    $campaign = (string)($_POST['campaign'] ?? '');
+
+    if ($slotId <= 0 || $campaign === '') {
+        echo json_encode(['ok' => false, 'error' => 'ข้อมูลไม่ครบถ้วน (Missing slot_id or campaign)']);
+        exit;
+    }
+
+    // ── Fetch slot details ─────────────────────────────────────────────────────
     $stmt = $pdo->prepare("
         SELECT cs.slot_date, cs.start_time, cs.end_time, cl.title as campaign_title
         FROM camp_slots cs
@@ -45,17 +46,11 @@ try {
     $slot = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$slot) {
-        echo json_encode(['ok' => false, 'error' => 'Slot not found']);
+        echo json_encode(['ok' => false, 'error' => 'ไม่พบข้อมูลรอบเวลาในระบบ']);
         exit;
     }
-} catch (PDOException $e) {
-    error_log('Bulk cancel - slot fetch error: ' . $e->getMessage());
-    echo json_encode(['ok' => false, 'error' => 'Database error']);
-    exit;
-}
 
-// ── Get all active bookings for this slot ──────────────────────────────────
-try {
+    // ── Get all active bookings for this slot ──────────────────────────────────
     $stmt = $pdo->prepare("
         SELECT
             b.id as booking_id,
@@ -70,23 +65,17 @@ try {
     ");
     $stmt->execute([':slot_id' => $slotId]);
     $bookings = $stmt->fetchAll(PDO::FETCH_ASSOC);
-} catch (PDOException $e) {
-    error_log('Bulk cancel - bookings fetch error: ' . $e->getMessage());
-    echo json_encode(['ok' => false, 'error' => 'Database error']);
-    exit;
-}
 
-if (empty($bookings)) {
-    echo json_encode(['ok' => true, 'cancelled_count' => 0, 'message' => 'No active bookings found for this slot']);
-    exit;
-}
+    if (empty($bookings)) {
+        echo json_encode(['ok' => true, 'cancelled_count' => 0, 'message' => 'ไม่พบผู้จองที่ต้องยกเลิกในรอบนี้']);
+        exit;
+    }
 
-// ── Bulk cancellation ──────────────────────────────────────────────────────
-$cancelledCount = 0;
-$failedCount    = 0;
-$errors         = [];
+    // ── Bulk cancellation ──────────────────────────────────────────────────────
+    $cancelledCount = 0;
+    $failedCount    = 0;
+    $errors         = [];
 
-try {
     $pdo->beginTransaction();
 
     foreach ($bookings as $booking) {
@@ -121,34 +110,33 @@ try {
         } catch (Exception $e) {
             $failedCount++;
             $errors[] = "Booking #{$booking['booking_id']}: " . $e->getMessage();
-            error_log('Bulk cancel - individual booking error: ' . $e->getMessage());
         }
     }
 
     $pdo->commit();
 
+    // ── Log activity ───────────────────────────────────────────────────────────
+    if (function_exists('log_activity')) {
+        log_activity('bulk_cancel_bookings', "ยกเลิกการจองทั้งหมด {$cancelledCount} รายการ สำหรับ {$slot['campaign_title']} ({$slot['slot_date']})");
+    }
+
+    echo json_encode([
+        'ok'              => true,
+        'cancelled_count' => $cancelledCount,
+        'failed_count'    => $failedCount,
+        'errors'          => $errors,
+        'message'         => $failedCount === 0
+            ? "ยกเลิกการจองเรียบร้อย {$cancelledCount} รายการ"
+            : "ยกเลิกสำเร็จ {$cancelledCount} รายการ (ล้มเหลว {$failedCount} รายการ)"
+    ]);
+
 } catch (Exception $e) {
-    $pdo->rollBack();
-    error_log('Bulk cancel - transaction error: ' . $e->getMessage());
-    echo json_encode(['ok' => false, 'error' => 'Transaction failed, no bookings cancelled']);
-    exit;
+    if ($pdo->inTransaction()) $pdo->rollBack();
+    echo json_encode(['ok' => false, 'error' => 'Internal Server Error: ' . $e->getMessage()]);
+} catch (Error $e) {
+    if (isset($pdo) && $pdo->inTransaction()) $pdo->rollBack();
+    echo json_encode(['ok' => false, 'error' => 'PHP Fatal Error: ' . $e->getMessage()]);
 }
-
-// ── Log activity ───────────────────────────────────────────────────────────
-if (function_exists('log_activity')) {
-    log_activity('bulk_cancel_bookings', "ยกเลิกการจองทั้งหมด {$cancelledCount} รายการ สำหรับ {$slot['campaign_title']} ({$slot['slot_date']} {$slot['start_time']})");
-}
-
-// ── Response ───────────────────────────────────────────────────────────────
-echo json_encode([
-    'ok'              => true,
-    'cancelled_count' => $cancelledCount,
-    'failed_count'    => $failedCount,
-    'errors'          => $errors,
-    'message'         => $failedCount === 0
-        ? "ยกเลิกการจองเรียบร้อย {$cancelledCount} รายการ"
-        : "ยกเลิก {$cancelledCount} รายการ มี {$failedCount} รายการล้มเหลว"
-]);
 
 // ── Helper: Send LINE cancellation message ─────────────────────────────────
 function send_line_cancellation(string $lineUserId, array $data): void {

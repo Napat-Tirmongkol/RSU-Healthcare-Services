@@ -1176,7 +1176,14 @@ function bulkCancelSlot(slotId, campaign, date, time, count) {
     }).then(r => {
         if (!r.isConfirmed) return;
 
-        Swal.showLoading();
+        Swal.fire({
+            title: 'กำลังดำเนินการ...',
+            text: 'ระบบกำลังส่งอีเมลแจ้งเตือนผู้จองทุกคน กรุณารอสักครู่ (ห้ามปิดหน้านี้)',
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
 
         const fd = new FormData();
         fd.append('slot_id', slotId);
