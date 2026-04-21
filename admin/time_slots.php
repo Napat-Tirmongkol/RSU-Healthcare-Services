@@ -503,7 +503,7 @@ renderPageHeader("Campaign Time Slots", "กำหนดช่วงเวลา
                                     <i class="fa-solid fa-pen"></i>
                                 </button>
                                 <?php if ($booked > 0): ?>
-                                <button onclick="bulkCancelSlot(<?= $s['id'] ?>,'<?= htmlspecialchars($campaign['title']) ?>','<?= $s['slot_date'] ?>','<?= substr($s['start_time'],0,5) ?>-<?= substr($s['end_time'],0,5) ?>',<?= $booked ?>)"
+                                <button onclick="bulkCancelSlot(<?= $s['id'] ?>,'<?= htmlspecialchars($s['campaign_title']) ?>','<?= $s['slot_date'] ?>','<?= substr($s['start_time'],0,5) ?>-<?= substr($s['end_time'],0,5) ?>',<?= $booked ?>)"
                                     class="slot-act-btn" style="background:#dbeafe;color:#0284c7" title="ยกเลิกการจองทั้งหมด">
                                     <i class="fa-solid fa-ban"></i>
                                 </button>
