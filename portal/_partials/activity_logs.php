@@ -72,42 +72,42 @@ try {
             <p class="text-slate-500 text-sm font-medium mt-1">ติดตามทุกการเคลื่อนไหวและการเข้าถึงระบบอย่างละเอียด</p>
         </div>
 
-        <form method="GET" class="w-full lg:w-auto">
+        <form method="GET" class="w-full lg:w-auto max-w-2xl">
             <input type="hidden" name="section" value="activity_logs">
-            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 bg-white p-2 rounded-2xl border border-slate-100 shadow-sm">
+            <div class="flex flex-wrap lg:flex-nowrap items-center gap-2 bg-white p-1.5 rounded-2xl border border-slate-100 shadow-sm">
                 <!-- Role Filter -->
-                <div class="flex items-center gap-2 px-4 py-2.5 bg-slate-50 rounded-xl border border-slate-100 shrink-0">
-                    <i class="fa-solid fa-filter text-slate-400 text-[10px]"></i>
-                    <select name="al_type" onchange="this.form.submit()" class="bg-transparent text-xs font-black text-slate-700 outline-none cursor-pointer min-w-[100px]">
+                <div class="flex items-center gap-2 px-3 py-2 bg-slate-50 rounded-xl border border-slate-100 shrink-0">
+                    <i class="fa-solid fa-filter text-slate-400 text-[9px]"></i>
+                    <select name="al_type" onchange="this.form.submit()" class="bg-transparent text-[11px] font-black text-slate-700 outline-none cursor-pointer">
                         <option value="">ทุกบทบาท</option>
-                        <option value="admin" <?= $_al_type === 'admin' ? 'selected' : '' ?>>Admin Only</option>
-                        <option value="staff" <?= $_al_type === 'staff' ? 'selected' : '' ?>>Staff Only</option>
-                        <option value="user"  <?= $_al_type === 'user'  ? 'selected' : '' ?>>User Only</option>
-                        <option value="system" <?= $_al_type === 'system' ? 'selected' : '' ?>>System Only</option>
+                        <option value="admin" <?= $_al_type === 'admin' ? 'selected' : '' ?>>Admin</option>
+                        <option value="staff" <?= $_al_type === 'staff' ? 'selected' : '' ?>>Staff</option>
+                        <option value="user"  <?= $_al_type === 'user'  ? 'selected' : '' ?>>User</option>
+                        <option value="system" <?= $_al_type === 'system' ? 'selected' : '' ?>>System</option>
                     </select>
                 </div>
 
                 <!-- Search Input -->
-                <div class="relative flex-1 group min-w-[200px]">
-                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-300 text-xs transition-colors group-focus-within:text-blue-500"></i>
+                <div class="relative flex-1 group min-w-[180px]">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-300 text-[10px] transition-colors group-focus-within:text-blue-500"></i>
                     <input type="text" name="al_q" value="<?= htmlspecialchars($_al_search) ?>"
                         placeholder="ค้นหากิจกรรม, ชื่อผู้ใช้..."
-                        class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-100 rounded-xl text-xs font-bold outline-none focus:ring-2 focus:ring-blue-50 transition-all">
+                        class="w-full pl-8 pr-3 py-2 bg-slate-50 border border-slate-100 rounded-xl text-[11px] font-bold outline-none focus:ring-2 focus:ring-blue-50 transition-all">
                 </div>
 
                 <!-- Action Buttons -->
-                <div class="flex items-center gap-2">
+                <div class="flex items-center gap-1.5 shrink-0">
                     <button type="submit" 
-                            style="background-color: #000000 !important; color: #ffffff !important; border: 1px solid #000000 !important;"
-                            class="flex-1 sm:flex-none px-6 py-2.5 rounded-xl text-xs font-black hover:opacity-90 transition-all shadow-md flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-search"></i> ค้นหา
+                            style="background-color: #000 !important; color: #fff !important; border: 1px solid #000 !important;"
+                            class="px-5 py-2 rounded-xl text-[11px] font-black hover:opacity-90 transition-all shadow-sm flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-search text-[10px]"></i> ค้นหา
                     </button>
                     
                     <?php if ($_al_search || $_al_type): ?>
                     <a href="?section=activity_logs" 
-                       class="w-10 h-10 flex items-center justify-center bg-rose-50 text-rose-500 rounded-xl hover:bg-rose-100 transition-all shrink-0" 
+                       class="w-9 h-9 flex items-center justify-center bg-rose-50 text-rose-500 rounded-xl hover:bg-rose-100 transition-all shadow-sm" 
                        title="ล้างตัวกรอง">
-                        <i class="fa-solid fa-xmark"></i>
+                        <i class="fa-solid fa-xmark text-xs"></i>
                     </a>
                     <?php endif; ?>
                 </div>
