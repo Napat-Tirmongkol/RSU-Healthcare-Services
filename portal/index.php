@@ -583,16 +583,17 @@ try {
         </div>
     </nav>
 
-    <!-- ══════════════════ APP SHELL (Header + Main) ══════════════════ -->
-    <div id="app-shell"
-        style="display: flex !important; flex-direction: column !important; flex: 1 !important; min-width: 0 !important; overflow: hidden !important; background: #f4f7f5;">
+    <!-- ══════════════════ APP SHELL ══════════════════ -->
+    <div id="app-shell" style="flex: 1 !important; min-width: 0 !important; background: #f4f7f5; height: 100vh !important; overflow: hidden !important; display: block !important;">
+        <div style="display: flex !important; flex-direction: column !important; height: 100% !important; width: 100% !important;">
 
         <!-- ══════════════════ HEADER ══════════════════ -->
         <header class="portal-header au" style="background: #ffffff !important; border-bottom: 1.5px solid #e2e8f0 !important; box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important; width: 100% !important; display: block !important; position: relative !important; z-index: 50 !important;">
             <div class="w-full px-5 sm:px-8 py-3 flex items-center justify-between gap-4" style="min-height:60px">
 
                 <!-- Left/Center: Global Search -->
-                <div style="flex: 1; display: flex; justify-content: flex-start;">
+                <div style="flex: 1; display: flex; align-items: center; justify-content: flex-start; gap: 15px;">
+                    <span style="font-size: 10px; font-weight: 900; color: #2e9e63; white-space: nowrap; background: #f0faf4; padding: 4px 8px; border-radius: 6px; border: 1px solid #c7e8d5;">UI RECOVERY ACTIVE</span>
                     <div class="relative group w-full max-w-[400px]">
                         <input type="text" placeholder="ค้นหาเมนู หรือแคมเปญ"
                             class="w-full pl-5 pr-10 py-2 bg-slate-50 border border-slate-200 rounded-xl text-[13px] font-bold text-slate-800 outline-none focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all font-prompt">
@@ -1682,7 +1683,7 @@ try {
             </div>
 
         </main><!-- /portal-main -->
-    </div><!-- /app-shell -->
+    </div></div><!-- /app-shell -->
 
     <!-- Theme Handling Script -->
     <script>
