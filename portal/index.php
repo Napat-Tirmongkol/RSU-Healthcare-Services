@@ -595,7 +595,7 @@ try {
                 <div class="flex-1 max-w-[400px]">
                     <div class="relative group">
                         <input type="text" placeholder="ค้นหาเมนู หรือแคมเปญ"
-                            class="w-full pl-5 pr-10 py-2 bg-gray-50/50 border border-gray-200 rounded-xl text-[13px] font-semibold text-gray-700 outline-none focus:bg-white focus:border-[#2e9e63] focus:ring-4 focus:ring-[#2e9e63]/10 transition-all font-prompt">
+                            class="w-full pl-5 pr-10 py-2 bg-white border border-slate-300 rounded-xl text-[13px] font-bold text-slate-800 outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all font-prompt">
                         <button
                             class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-emerald-600 transition-colors flex items-center justify-center">
                             <i class="fa-solid fa-magnifying-glass text-sm"></i>
