@@ -583,12 +583,10 @@ try {
         </div>
     </nav>
 
-    <!-- ══════════════════ APP SHELL ══════════════════ -->
-    <div id="app-shell" style="flex: 1 !important; min-width: 0 !important; background: #f4f7f5; height: 100vh !important; overflow: hidden !important; display: block !important;">
-        <div style="display: flex !important; flex-direction: column !important; height: 100% !important; width: 100% !important;">
+    <div id="app-shell" style="flex:1;min-width:0;background:#f4f7f5;height:100vh;overflow:hidden;display:flex;flex-direction:column;">
 
         <!-- ══════════════════ HEADER ══════════════════ -->
-        <header class="portal-header au" style="background: #ffffff !important; border-bottom: 1.5px solid #e2e8f0 !important; box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important; width: 100% !important; display: block !important; position: relative !important; z-index: 50 !important;">
+        <header class="portal-header au">
             <div class="w-full px-5 sm:px-8 py-3 flex items-center justify-between gap-4" style="min-height:60px">
 
                 <!-- Left/Center: Global Search -->
@@ -635,7 +633,8 @@ try {
                         </a>
                     </div>
                 </div>
-            </header>
+            </div>
+        </header>
 
         <!-- ── Main Content ── -->
         <main id="portal-main" style="flex:1;overflow-y:auto;min-width:0;">
@@ -1622,8 +1621,6 @@ try {
                         </form>
                     </div>
                 </div>
-                </div>
-            </div>
             <?php endif; ?>
 
             <!-- 
@@ -1683,7 +1680,7 @@ try {
             </div>
 
         </main><!-- /portal-main -->
-    </div></div><!-- /app-shell -->
+    </div><!-- /app-shell -->
 
     <!-- Theme Handling Script -->
     <script>
