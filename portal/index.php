@@ -588,14 +588,14 @@ try {
         style="display:flex;flex:1;flex-direction:column;min-width:0;overflow:hidden;background:#f4f7f5;">
 
         <!-- ══════════════════ HEADER ══════════════════ -->
-        <header class="portal-header au">
+        <header class="portal-header au" style="background: #ffffff !important; border-bottom: 1.5px solid #e2e8f0 !important; box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important;">
             <div class="w-full px-5 sm:px-8 py-3 flex items-center justify-between gap-4" style="min-height:60px">
 
-                <!-- Left: Global Search -->
-                <div class="flex-1 max-w-[400px]">
-                    <div class="relative group">
+                <!-- Left/Center: Global Search -->
+                <div class="flex-1 flex justify-start">
+                    <div class="relative group w-full max-w-[400px]">
                         <input type="text" placeholder="ค้นหาเมนู หรือแคมเปญ"
-                            class="w-full pl-5 pr-10 py-2 bg-white border border-slate-300 rounded-xl text-[13px] font-bold text-slate-800 outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all font-prompt">
+                            class="w-full pl-5 pr-10 py-2 bg-slate-50 border border-slate-200 rounded-xl text-[13px] font-bold text-slate-800 outline-none focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all font-prompt">
                         <button
                             class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-emerald-600 transition-colors flex items-center justify-center">
                             <i class="fa-solid fa-magnifying-glass text-sm"></i>
