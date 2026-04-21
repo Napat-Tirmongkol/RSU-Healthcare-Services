@@ -441,7 +441,8 @@ render_header($isEditing ? __('profile.heading_edit') : __('profile.heading'));
             <li><strong><?= __('profile.pdpa_item3_title') ?></strong> <?= __('profile.pdpa_item3_desc') ?></li>
             <li><strong><?= __('profile.pdpa_item4_title') ?></strong> <?= __('profile.pdpa_item4_desc') ?></li>
           </ul>
-          <p><?= __('profile.pdpa_footer') ?></p>
+          <p class="mb-1"><strong><?= __('profile.pdpa_retention_title') ?></strong> <?= __('profile.pdpa_retention_desc') ?></p>
+          <p><strong><?= __('profile.pdpa_rights_title') ?></strong> <?= __('profile.pdpa_rights_desc') ?></p>
         </div>
 
         <label
