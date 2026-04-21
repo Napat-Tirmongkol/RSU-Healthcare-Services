@@ -38,10 +38,11 @@ try {
                COALESCE(a.full_name, s.full_name, u.full_name, 'System Activity') AS actor_name,
                COALESCE(a.username, s.username, u.student_personnel_id, 'system') AS actor_username,
                CASE 
-                   WHEN a.id IS NOT NULL THEN 'admin'
-                   WHEN s.id IS NOT NULL THEN 'staff'
-                   WHEN u.id IS NOT NULL THEN 'user'
-                   ELSE 'system'
+                   WHEN l.user_id IS NULL THEN 'system'
+                   WHEN EXISTS (SELECT 1 FROM sys_admins WHERE id = l.user_id) THEN 'admin'
+                   WHEN EXISTS (SELECT 1 FROM sys_staff  WHERE id = l.user_id) THEN 'staff'
+                   WHEN EXISTS (SELECT 1 FROM sys_users  WHERE id = l.user_id) THEN 'user'
+                   ELSE 'user'
                END AS actor_type
         FROM sys_activity_logs l
         LEFT JOIN sys_admins a ON l.user_id = a.id
@@ -60,7 +61,7 @@ try {
 
 <div class="p-6">
     <!-- Header -->
-    <div class="mb-8 flex flex-wrap items-end justify-between gap-6">
+    <div class="mb-8 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
         <div>
             <h2 class="text-2xl font-black text-gray-900 flex items-center gap-3">
                 <div class="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center shadow-sm">
@@ -71,43 +72,53 @@ try {
             <p class="text-slate-500 text-sm font-medium mt-1">ติดตามทุกการเคลื่อนไหวและการเข้าถึงระบบอย่างละเอียด</p>
         </div>
 
-        <form method="GET" class="flex flex-wrap items-center gap-3 bg-white p-2 rounded-2xl border border-slate-100 shadow-sm">
+        <form method="GET" class="w-full lg:w-auto">
             <input type="hidden" name="section" value="activity_logs">
-            
-            <div class="flex items-center gap-2 px-3 py-2 bg-slate-50 rounded-xl border border-slate-100">
-                <i class="fa-solid fa-filter text-slate-400 text-[10px]"></i>
-                <select name="al_type" onchange="this.form.submit()" class="bg-transparent text-xs font-black text-slate-700 outline-none cursor-pointer">
-                    <option value="">ทั้งหมด (All Roles)</option>
-                    <option value="admin" <?= $_al_type === 'admin' ? 'selected' : '' ?>>เฉพาะ Admin</option>
-                    <option value="staff" <?= $_al_type === 'staff' ? 'selected' : '' ?>>เฉพาะ Staff</option>
-                    <option value="user"  <?= $_al_type === 'user'  ? 'selected' : '' ?>>เฉพาะ User</option>
-                    <option value="system" <?= $_al_type === 'system' ? 'selected' : '' ?>>System Only</option>
-                </select>
-            </div>
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 bg-white p-2 rounded-2xl border border-slate-100 shadow-sm">
+                <!-- Role Filter -->
+                <div class="flex items-center gap-2 px-4 py-2.5 bg-slate-50 rounded-xl border border-slate-100 shrink-0">
+                    <i class="fa-solid fa-filter text-slate-400 text-[10px]"></i>
+                    <select name="al_type" onchange="this.form.submit()" class="bg-transparent text-xs font-black text-slate-700 outline-none cursor-pointer min-w-[100px]">
+                        <option value="">ทุกบทบาท</option>
+                        <option value="admin" <?= $_al_type === 'admin' ? 'selected' : '' ?>>Admin Only</option>
+                        <option value="staff" <?= $_al_type === 'staff' ? 'selected' : '' ?>>Staff Only</option>
+                        <option value="user"  <?= $_al_type === 'user'  ? 'selected' : '' ?>>User Only</option>
+                        <option value="system" <?= $_al_type === 'system' ? 'selected' : '' ?>>System Only</option>
+                    </select>
+                </div>
 
-            <div class="relative group">
-                <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-300 text-xs group-focus-within:text-blue-500 transition-colors"></i>
-                <input type="text" name="al_q" value="<?= htmlspecialchars($_al_search) ?>"
-                    placeholder="ค้นหากิจกรรม, รายละเอียด..."
-                    class="pl-10 pr-4 py-2 bg-slate-50 border border-slate-100 rounded-xl text-xs font-bold outline-none w-56 focus:ring-2 focus:ring-blue-50 focus:border-blue-200 transition-all">
-            </div>
+                <!-- Search Input -->
+                <div class="relative flex-1 group min-w-[200px]">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-300 text-xs transition-colors group-focus-within:text-blue-500"></i>
+                    <input type="text" name="al_q" value="<?= htmlspecialchars($_al_search) ?>"
+                        placeholder="ค้นหากิจกรรม, ชื่อผู้ใช้..."
+                        class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-100 rounded-xl text-xs font-bold outline-none focus:ring-2 focus:ring-blue-50 transition-all">
+                </div>
 
-            <button type="submit" class="bg-slate-900 text-white px-5 py-2 rounded-xl text-xs font-black hover:bg-black transition-all shadow-md shadow-slate-200">
-                ค้นหา
-            </button>
-            
-            <?php if ($_al_search || $_al_type): ?>
-            <a href="?section=activity_logs" class="w-9 h-9 flex items-center justify-center bg-rose-50 text-rose-500 rounded-xl hover:bg-rose-100 transition-all" title="ล้างการค้นหา">
-                <i class="fa-solid fa-xmark"></i>
-            </a>
-            <?php endif; ?>
+                <!-- Action Buttons -->
+                <div class="flex items-center gap-2">
+                    <button type="submit" 
+                            style="background-color: #000000 !important; color: #ffffff !important; border: 1px solid #000000 !important;"
+                            class="flex-1 sm:flex-none px-6 py-2.5 rounded-xl text-xs font-black hover:opacity-90 transition-all shadow-md flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-search"></i> ค้นหา
+                    </button>
+                    
+                    <?php if ($_al_search || $_al_type): ?>
+                    <a href="?section=activity_logs" 
+                       class="w-10 h-10 flex items-center justify-center bg-rose-50 text-rose-500 rounded-xl hover:bg-rose-100 transition-all shrink-0" 
+                       title="ล้างตัวกรอง">
+                        <i class="fa-solid fa-xmark"></i>
+                    </a>
+                    <?php endif; ?>
+                </div>
+            </div>
         </form>
     </div>
 
     <?php if (isset($_al_db_error)): ?>
-    <div class="mb-6 p-4 bg-red-50 border border-red-100 rounded-2xl text-red-600 text-xs font-bold flex items-center gap-3">
+    <div class="mb-6 p-4 bg-rose-50 border border-rose-100 rounded-2xl text-rose-600 text-xs font-bold flex items-center gap-3">
         <i class="fa-solid fa-triangle-exclamation text-base"></i>
-        <span>DB Error: <?= htmlspecialchars($_al_db_error) ?></span>
+        <span>ระบบฐานข้อมูลขัดข้อง: <?= htmlspecialchars($_al_db_error) ?></span>
     </div>
     <?php endif; ?>
 
