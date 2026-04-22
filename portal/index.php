@@ -2581,32 +2581,53 @@ $adminListForSelect = $pdo->query("SELECT id, full_name, username FROM sys_admin
         function toggleMaintenance(input) {
             const project = input.dataset.project;
             const active = input.checked;
+            const actionText = active ? 'เปิดใช้งาน' : 'ปิดปรับปรุง';
+            const confirmText = active ? 'ใช่, เปิดระบบ' : 'ใช่, ปิดปรับปรุงระบบ';
+            const confirmColor = active ? '#10b981' : '#f43f5e';
 
-            // Optimistic UI update
-            updateMaintenanceUI(project, active);
+            // Reset input state immediately (we will set it after confirmation)
+            input.checked = !active;
 
-            const fd = new FormData();
-            fd.append('action', 'set');
-            fd.append('project', project);
-            fd.append('active', active ? '1' : '0');
-            fd.append('csrf_token', portal_CSRF);
+            Swal.fire({
+                title: `ยืนยันการ${actionText}ระบบ?`,
+                text: `คุณกำลังจะทำการ${actionText}โปรเจกต์ ${project} ยืนยันการดำเนินการหรือไม่?`,
+                icon: active ? 'info' : 'warning',
+                showCancelButton: true,
+                confirmButtonColor: confirmColor,
+                cancelButtonColor: '#94a3b8',
+                confirmButtonText: confirmText,
+                cancelButtonText: 'ยกเลิก',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Proceed with update
+                    input.checked = active;
+                    updateMaintenanceUI(project, active);
 
-            fetch('ajax_maintenance.php', { method: 'POST', body: fd })
-                .then(r => r.json())
-                .then(d => {
-                    if (d.ok) {
-                        showPortalToast(active ? `${project} เปิดใช้งานแล้ว` : `${project} ปิดปรับปรุงแล้ว`, active ? 'success' : 'error');
-                    } else {
-                        input.checked = !active;
-                        updateMaintenanceUI(project, !active);
-                        showPortalToast('ผิดพลาด: ' + (d.message || 'Unknown error'), 'error');
-                    }
-                })
-                .catch(() => {
-                    input.checked = !active;
-                    updateMaintenanceUI(project, !active);
-                    showPortalToast('ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้', 'error');
-                });
+                    const fd = new FormData();
+                    fd.append('action', 'set');
+                    fd.append('project', project);
+                    fd.append('active', active ? '1' : '0');
+                    fd.append('csrf_token', portal_CSRF);
+
+                    fetch('ajax_maintenance.php', { method: 'POST', body: fd })
+                        .then(r => r.json())
+                        .then(d => {
+                            if (d.ok) {
+                                showPortalToast(active ? `${project} เปิดใช้งานแล้ว` : `${project} ปิดปรับปรุงแล้ว`, active ? 'success' : 'error');
+                            } else {
+                                input.checked = !active;
+                                updateMaintenanceUI(project, !active);
+                                Swal.fire('ผิดพลาด', d.message || 'Unknown error', 'error');
+                            }
+                        })
+                        .catch(() => {
+                            input.checked = !active;
+                            updateMaintenanceUI(project, !active);
+                            showPortalToast('ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้', 'error');
+                        });
+                }
+            });
         }
 
         // Start polling after page is fully loaded
