@@ -135,6 +135,19 @@ $_el_filterQs = http_build_query(array_filter([
     'el_source' => $_el_source,
 ]));
 ?>
+<style>
+    /* Status Card Peer Checked Animations */
+    .peer:checked + div i { color: inherit !important; }
+    .peer:checked + div span { color: inherit !important; }
+    .peer:checked + div {
+        animation: statusPulse 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    @keyframes statusPulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+    }
+</style>
 
 <div class="p-6">
 
@@ -479,31 +492,43 @@ $_el_filterQs = http_build_query(array_filter([
             
             <div class="mb-5">
                 <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest mb-2 block">เลือกสถานะใหม่</label>
-                <div class="grid grid-cols-3 gap-3">
+                <div class="grid grid-cols-3 gap-4">
                     <!-- New -->
-                    <label class="relative h-24 cursor-pointer group">
+                    <label class="relative h-28 cursor-pointer group">
                         <input type="radio" name="modal_status" value="New" id="status_new" class="peer absolute inset-0 opacity-0 z-10 cursor-pointer">
-                        <div class="absolute inset-0 flex flex-col items-center justify-center rounded-2xl border-2 border-gray-100 bg-white transition-all peer-checked:border-gray-500 peer-checked:bg-gray-50 group-hover:border-gray-200">
-                            <i class="fa-solid fa-sparkles text-lg mb-2 text-gray-300 peer-checked:text-gray-600 transition-colors"></i>
-                            <span class="text-[10px] font-black text-gray-400 peer-checked:text-gray-800 uppercase tracking-wider">NEW</span>
+                        <div class="absolute inset-0 flex flex-col items-center justify-center rounded-2xl border-2 border-gray-100 bg-white shadow-sm transition-all duration-200 
+                            peer-checked:border-slate-500 peer-checked:bg-slate-50 peer-checked:shadow-md peer-checked:ring-4 peer-checked:ring-slate-100
+                            group-hover:border-slate-300 group-hover:scale-[1.02] group-active:scale-95">
+                            <div class="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center mb-2 transition-colors peer-checked:bg-slate-200">
+                                <i class="fa-solid fa-sparkles text-slate-400 peer-checked:text-slate-600 transition-colors"></i>
+                            </div>
+                            <span class="text-[10px] font-black text-slate-400 peer-checked:text-slate-700 uppercase tracking-widest">NEW</span>
                         </div>
                     </label>
                     
                     <!-- Active -->
-                    <label class="relative h-24 cursor-pointer group">
+                    <label class="relative h-28 cursor-pointer group">
                         <input type="radio" name="modal_status" value="Active" id="status_active" class="peer absolute inset-0 opacity-0 z-10 cursor-pointer">
-                        <div class="absolute inset-0 flex flex-col items-center justify-center rounded-2xl border-2 border-gray-100 bg-white transition-all peer-checked:border-blue-500 peer-checked:bg-blue-50 group-hover:border-blue-200">
-                            <i class="fa-solid fa-spinner fa-spin-pulse text-lg mb-2 text-gray-300 peer-checked:text-blue-500 transition-colors"></i>
-                            <span class="text-[10px] font-black text-gray-400 peer-checked:text-blue-800 uppercase tracking-wider">ACTIVE</span>
+                        <div class="absolute inset-0 flex flex-col items-center justify-center rounded-2xl border-2 border-gray-100 bg-white shadow-sm transition-all duration-200 
+                            peer-checked:border-blue-500 peer-checked:bg-blue-50 peer-checked:shadow-md peer-checked:ring-4 peer-checked:ring-blue-100
+                            group-hover:border-blue-300 group-hover:scale-[1.02] group-active:scale-95">
+                            <div class="w-10 h-10 rounded-full bg-blue-50/50 flex items-center justify-center mb-2 transition-colors peer-checked:bg-blue-100">
+                                <i class="fa-solid fa-spinner fa-spin-pulse text-blue-400 peer-checked:text-blue-600 transition-colors"></i>
+                            </div>
+                            <span class="text-[10px] font-black text-blue-400 peer-checked:text-blue-800 uppercase tracking-widest">ACTIVE</span>
                         </div>
                     </label>
                     
                     <!-- Resolved -->
-                    <label class="relative h-24 cursor-pointer group">
+                    <label class="relative h-28 cursor-pointer group">
                         <input type="radio" name="modal_status" value="Resolved" id="status_resolved" class="peer absolute inset-0 opacity-0 z-10 cursor-pointer" onchange="toggleCommentField(this.checked)">
-                        <div class="absolute inset-0 flex flex-col items-center justify-center rounded-2xl border-2 border-gray-100 bg-white transition-all peer-checked:border-green-500 peer-checked:bg-green-50 group-hover:border-green-200">
-                            <i class="fa-solid fa-check-circle text-lg mb-2 text-gray-300 peer-checked:text-green-500 transition-colors"></i>
-                            <span class="text-[10px] font-black text-gray-400 peer-checked:text-green-800 uppercase tracking-wider">RESOLVED</span>
+                        <div class="absolute inset-0 flex flex-col items-center justify-center rounded-2xl border-2 border-gray-100 bg-white shadow-sm transition-all duration-200 
+                            peer-checked:border-green-500 peer-checked:bg-green-50 peer-checked:shadow-md peer-checked:ring-4 peer-checked:ring-green-100
+                            group-hover:border-green-300 group-hover:scale-[1.02] group-active:scale-95">
+                            <div class="w-10 h-10 rounded-full bg-green-50/50 flex items-center justify-center mb-2 transition-colors peer-checked:bg-green-100">
+                                <i class="fa-solid fa-check-circle text-green-400 peer-checked:text-green-600 transition-colors"></i>
+                            </div>
+                            <span class="text-[10px] font-black text-green-400 peer-checked:text-green-800 uppercase tracking-widest">RESOLVED</span>
                         </div>
                     </label>
                 </div>

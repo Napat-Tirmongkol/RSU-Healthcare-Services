@@ -596,13 +596,36 @@ function statusIcon(string $s): string {
 </div>
 
 <style>
-.status-radio:checked + .status-box { border-color: #3b82f6; background: #eff6ff; color: #1d4ed8; }
-.status-radio:checked + .status-box i { opacity: 1 !important; color: #3b82f6; }
-#radio_active:checked + .status-box { border-color: #3b82f6; background: #eff6ff; color: #1d4ed8; }
-#radio_resolved:checked + .status-box { border-color: #10b981; background: #f0fdf4; color: #065f46; }
-#radio_resolved:checked + .status-box i { opacity: 1 !important; color: #10b981; }
-.status-box:hover { border-color: #e2e8f0; background: #f8fafc; }
+.status-box { 
+    padding:16px 5px; text-align:center; border:2px solid #f1f5f9; border-radius:16px; 
+    font-size:10px; font-weight:800; color:#94a3b8; background:#fff; transition:all .2s; 
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+.status-box i { display:block; margin-bottom:8px; font-size:18px; opacity:.4; transition:all .2s; }
+
+/* Hover State */
+.group:hover .status-box { border-color: #cbd5e1; transform: translateY(-2px); }
+
+/* Active/Press State */
 .group:active .status-box { transform: scale(0.95); }
+
+/* Selected States */
+#radio_new:checked + .status-box { border-color: #64748b; background: #f8fafc; color: #334155; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 0 0 4px #f1f5f9; }
+#radio_new:checked + .status-box i { opacity: 1; color: #64748b; transform: scale(1.1); }
+
+#radio_active:checked + .status-box { border-color: #3b82f6; background: #eff6ff; color: #1d4ed8; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 0 0 4px #dbeafe; }
+#radio_active:checked + .status-box i { opacity: 1; color: #3b82f6; transform: scale(1.1); }
+
+#radio_resolved:checked + .status-box { border-color: #10b981; background: #f0fdf4; color: #065f46; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 0 0 4px #d1fae5; }
+#radio_resolved:checked + .status-box i { opacity: 1; color: #10b981; transform: scale(1.1); }
+
+/* Selected Animation */
+@keyframes selectPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.04); }
+    100% { transform: scale(1); }
+}
+.status-radio:checked + .status-box { animation: selectPulse 0.3s ease-out; }
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
