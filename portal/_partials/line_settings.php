@@ -25,7 +25,7 @@ $webhookUrl = "$protocol://$host$uri";
         transition: all .2s;
     }
     .line-input:focus { background:#fff; border-color:#06b6d4; box-shadow:0 0 0 3px rgba(6,182,212,.1); }
-    .line-label { display:block; font-size:.7rem; font-weight:900; color:#9ca3af; text-transform:uppercase; letter-spacing:.1em; margin-bottom:.4rem; }
+    .line-label { display:block; font-size:.75rem; font-weight:800; color:#4b5563; text-transform:uppercase; letter-spacing:.05em; margin-bottom:.5rem; }
     .line-card  { background:#fff; border-radius:1.5rem; border:1.5px solid #e5e7eb; padding:1.75rem; margin-bottom:1.25rem; }
 </style>
 
@@ -89,14 +89,14 @@ $webhookUrl = "$protocol://$host$uri";
                     <?php csrf_field(); ?>
                     <div>
                         <label class="line-label">Channel Access Token</label>
-                        <textarea name="LINE_MESSAGING_CHANNEL_ACCESS_TOKEN" id="line_token_p" class="line-input font-mono text-xs" rows="3"
+                        <textarea name="LINE_MESSAGING_CHANNEL_ACCESS_TOKEN" id="line_token_p" class="line-input font-mono text-xs placeholder:text-slate-400" rows="3"
                                   placeholder="Long-lived access token..."><?= htmlspecialchars($secrets['LINE_MESSAGING_CHANNEL_ACCESS_TOKEN'] ?? '') ?></textarea>
                     </div>
 
                     <div>
                         <label class="line-label">Channel Secret</label>
                         <div class="relative">
-                            <input type="password" name="LINE_MESSAGING_CHANNEL_SECRET" id="line_secret_p" class="line-input pr-10"
+                            <input type="password" name="LINE_MESSAGING_CHANNEL_SECRET" id="line_secret_p" class="line-input pr-10 placeholder:text-slate-400"
                                    value="<?= htmlspecialchars($secrets['LINE_MESSAGING_CHANNEL_SECRET'] ?? '') ?>"
                                    placeholder="Channel Secret">
                             <button type="button" onclick="toggleSecretP()" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
@@ -130,11 +130,11 @@ $webhookUrl = "$protocol://$host$uri";
 
                 <div class="mb-5">
                     <label class="line-label">LINE User ID ผู้รับ</label>
-                    <input type="text" id="toUserIdP" class="line-input font-mono text-sm"
+                    <input type="text" id="toUserIdP" class="line-input font-mono text-sm placeholder:text-slate-400"
                            placeholder="Uxxxxxxxxxxxxxxxx..."
                            value="<?= htmlspecialchars($_SESSION['line_user_id'] ?? '') ?>">
-                    <p class="text-[10px] text-gray-400 mt-2 leading-relaxed">
-                        <i class="fa-solid fa-circle-info"></i> ส่งข้อความ Push หาตัวเองเพื่อทดสอบความถูกต้องของ Token
+                    <p class="text-[11px] text-slate-600 mt-2 font-medium leading-relaxed">
+                        <i class="fa-solid fa-circle-info text-blue-500"></i> ส่งข้อความ Push หาตัวเองเพื่อทดสอบความถูกต้องของ Token
                     </p>
                 </div>
 
