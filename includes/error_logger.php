@@ -16,6 +16,24 @@ function log_error_to_db(
 ): void {
     static $tableReady = false;
     static $logPdo     = null;
+    static $loggedHashes = []; // เก็บ hash ของ error ที่บันทึกไปแล้วใน request นี้
+
+    // 1. ป้องกัน Spam: ถ้าเป็น Error เดิมที่เพิ่งบันทึกไปในรอบนี้ ให้ข้ามเลย
+    $errorHash = md5($level . $source . $message);
+    if (isset($loggedHashes[$errorHash])) return;
+    $loggedHashes[$errorHash] = true;
+
+    // 2. ป้องกัน Spam: ข้ามข้อความขยะที่พบบ่อยและไม่สำคัญ
+    $ignoredMessages = [
+        'session_start(): session_regenerate_id()',
+        'Undefined index: invite_token',
+        'Undefined index: admin_id',
+        'Creation of dynamic property',
+        'Constant _ERROR_LOGGER_HANDLERS_SET already defined'
+    ];
+    foreach ($ignoredMessages as $ignored) {
+        if (str_contains($message, $ignored)) return;
+    }
 
     try {
         // ใช้ db() ถ้ามี ไม่งั้นสร้าง connection ไปยัง main DB เอง
@@ -89,9 +107,15 @@ if (!defined('_ERROR_LOGGER_HANDLERS_SET')) {
             E_RECOVERABLE_ERROR => 'error',
         ];
 
+        $level = $levelMap[$errno] ?? 'warning';
+
+        // กรองเพิ่ม: ถ้าเป็นระดับ 'info' (Notice/Deprecated) จะไม่บันทึกลง DB เพื่อลด Spam
+        // (แต่ยังคงปล่อยให้ PHP จัดการตามปกติ เช่น แสดงผลถ้าเปิด display_errors)
+        if ($level === 'info') return false;
+
         log_error_to_db(
             $errstr,
-            $levelMap[$errno] ?? 'warning',
+            $level,
             basename($errfile) . ':' . $errline,
             $errfile . ':' . $errline
         );

@@ -48,7 +48,7 @@ try {
     $s->execute([':id' => $userId]);
     $upcomingBookings = $s->fetchAll();
 
-    // Active borrows (optional — ถ้าตารางยังไม่มีจะ skip)
+    // Active borrows (optional)
     try {
         $s = $pdo->prepare("
             SELECT br.id, bc.name AS category_name, bi.name AS item_name, br.due_date
@@ -67,7 +67,6 @@ try {
 } catch (PDOException $e) {
     error_log('Hub DB error: ' . $e->getMessage());
 }
-
 
 require_once __DIR__ . '/../includes/header.php';
 render_header('RSU Medical Hub');

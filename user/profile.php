@@ -150,6 +150,8 @@ render_header($isEditing ? __('profile.heading_edit') : __('profile.heading'));
           กรุณาเลือกเพศ
         <?php elseif ($error_param === 'empty_student'): ?>
           กรุณากรอกรหัสนักศึกษา / บุคลากร
+        <?php elseif ($error_param === 'invalid_email'): ?>
+          รูปแบบอีเมลไม่ถูกต้อง กรุณาตรวจสอบอีกครั้ง
         <?php else: ?>
           กรุณากรอกข้อมูลให้ครบถ้วนทุกช่อง
         <?php endif; ?>
@@ -622,6 +624,23 @@ render_header($isEditing ? __('profile.heading_edit') : __('profile.heading'));
     });
 
     deptDismiss.addEventListener('click', hideDeptHint);
+
+    // ── Email format validation ──────────────────────────────────────────────
+    const emailInput = document.getElementById('email');
+    emailInput.addEventListener('input', function() {
+        const val = this.value.trim();
+        if (val === '') {
+            this.classList.remove('border-red-500', 'bg-red-50');
+            return;
+        }
+        const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!regex.test(val)) {
+            this.classList.add('border-red-500', 'bg-red-50');
+        } else {
+            this.classList.remove('border-red-500', 'bg-red-50');
+            this.classList.add('border-green-500', 'bg-green-50');
+        }
+    });
   });
 </script>
 

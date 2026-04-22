@@ -55,6 +55,12 @@ if ($firstName === '' || $lastName === '' || $citizenId === '' || $phoneNumber =
     exit;
 }
 
+// ตรวจสอบความถูกต้องของอีเมล (ถ้ากรอกมา)
+if ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    header('Location: profile.php?error=invalid_email', true, 303);
+    exit;
+}
+
 // ถ้าไม่ใช่ other ต้องมีรหัส
 if ($status !== 'other' && $idNumber === '') {
     header('Location: profile.php?error=empty_student', true, 303);
