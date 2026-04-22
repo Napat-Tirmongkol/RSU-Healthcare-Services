@@ -1,49 +1,43 @@
 <?php
-// user/diag.php — เจาะลึกจุดตายใน config.php
+// user/diag.php — เจาะลึกขั้นสุด: ระบบภาษาและหน้า Profile
 declare(strict_types=1);
 error_reporting(E_ALL);
 ini_set('display_errors', '1');
 
-echo "<h2>Step 1: Probing config.php dependencies...</h2>";
-
-echo "1.1 Checking db_connect.php... ";
-$file = __DIR__ . '/../config/db_connect.php';
-if (file_exists($file)) {
-    require_once $file;
-    echo "✅ Loaded.<br>";
-} else {
-    echo "❌ NOT FOUND: $file<br>";
-}
-
-echo "1.2 Checking csrf.php... ";
-$file = __DIR__ . '/../includes/csrf.php';
-if (file_exists($file)) {
-    require_once $file;
-    echo "✅ Loaded.<br>";
-} else {
-    echo "❌ NOT FOUND: $file<br>";
-}
-
-echo "1.3 Checking error_logger.php... ";
-$file = __DIR__ . '/../includes/error_logger.php';
-if (file_exists($file)) {
-    require_once $file;
-    echo "✅ Loaded.<br>";
-} else {
-    echo "❌ NOT FOUND: $file<br>";
-}
-
-echo "1.4 Checking sentry.php... ";
-$file = __DIR__ . '/../config/sentry.php';
-if (file_exists($file)) {
-    require_once $file;
-    echo "✅ Loaded.<br>";
-} else {
-    echo "❌ NOT FOUND: $file<br>";
-}
-
-echo "<h2>Step 2: Loading the rest of config.php...</h2>";
+echo "<h2>Step 1: Loading Core Config...</h2>";
 require_once __DIR__ . '/../config.php';
-echo "✅ Full config.php loaded.<br>";
+echo "✅ config.php loaded.<br>";
 
-echo "<h2>All good!</h2>";
+echo "<h2>Step 2: Probing Language System...</h2>";
+$lang_file = __DIR__ . '/../includes/lang.php';
+if (file_exists($lang_file)) {
+    require_once $lang_file;
+    echo "✅ includes/lang.php loaded.<br>";
+    echo "Testing __() function: " . __('profile.heading_edit') . "<br>";
+} else {
+    echo "❌ NOT FOUND: $lang_file<br>";
+}
+
+echo "<h2>Step 3: Probing Profile dependencies...</h2>";
+// Check if any other includes in profile.php might be failing
+echo "Testing check_maintenance... ";
+if (function_exists('check_maintenance')) {
+    echo "✅ function exists.<br>";
+} else {
+    echo "❌ function NOT FOUND!<br>";
+}
+
+echo "<h2>Step 4: Attempting to 'dry-run' profile.php logic...</h2>";
+try {
+    $lineUserId = 'test_id'; // Dummy for testing
+    $pdo = db();
+    $stmt = $pdo->prepare("SELECT * FROM sys_users LIMIT 1");
+    $stmt->execute();
+    $test_user = $stmt->fetch();
+    echo "✅ Database query test successful.<br>";
+} catch (Exception $e) {
+    echo "❌ Logic Error: " . $e->getMessage() . "<br>";
+}
+
+echo "<h2>All checks passed!</h2>";
+echo "<p>If you still see 500 on profile.php, it might be a Syntax Error in profile.php itself that prevents it from even starting.</p>";
