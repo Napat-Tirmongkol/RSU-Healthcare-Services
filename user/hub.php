@@ -41,20 +41,20 @@ try {
         SELECT b.*, c.title as camp_name, c.type as camp_type
         FROM camp_bookings b
         JOIN camp_list c ON b.campaign_id = c.id
-        WHERE b.student_id = :id
+        WHERE b.student_personnel_id = :sid
         ORDER BY b.booking_date DESC, b.booking_time DESC
         LIMIT 5
     ");
-    $stmt->execute([':id' => $userId]);
+    $stmt->execute([':sid' => $user['student_personnel_id']]);
     $booking_list = $stmt->fetchAll();
     
-    foreach($booking_list as $b) {
-        if (in_array($b['status'], ['booked', 'confirmed'])) $upcoming_count++;
-    }
+    $stmt = $pdo->prepare("SELECT COUNT(*) FROM camp_bookings WHERE student_personnel_id = :sid AND booking_date >= :today AND status != 'cancelled'");
+    $stmt->execute([':sid' => $user['student_personnel_id'], ':today' => $today]);
+    $upcoming_count = (int)$stmt->fetchColumn();
 
     try {
-        $stmt = $pdo->prepare("SELECT COUNT(*) FROM borrow_records WHERE borrower_student_id = :id AND status IN ('borrowed','approved')");
-        $stmt->execute([':id' => $userId]);
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM borrow_records WHERE borrower_student_id = :sid AND status IN ('borrowed','approved')");
+        $stmt->execute([':sid' => $user['student_personnel_id']]);
         $borrow_count = (int)$stmt->fetchColumn();
     } catch (Exception $e) { $borrow_count = 0; }
 
