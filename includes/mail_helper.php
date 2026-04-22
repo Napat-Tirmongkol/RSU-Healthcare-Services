@@ -359,9 +359,14 @@ function send_line_notification_simple(string $lineUserId, array $data): bool {
         CURLOPT_TIMEOUT        => 10,
     ]);
     
-    $result = curl_exec($ch);
+    $result   = curl_exec($ch);
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
+
+    if ($httpCode !== 200) {
+        $hint = $httpCode === 400 ? ' (ผู้รับยังไม่เพิ่ม LINE OA เป็นเพื่อน หรือบล็อกแล้ว)' : '';
+        error_log("LINE push failed ($httpCode)$hint to $lineUserId: " . ($result ?: 'no response'));
+    }
 
     return ($httpCode === 200);
 }

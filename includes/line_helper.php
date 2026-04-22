@@ -59,12 +59,21 @@ function _send_line_curl(string $url, array $data, string $accessToken): bool {
     curl_close($ch);
     
     if ($httpCode !== 200) {
-        $errorMsg = "LINE API Error ($httpCode): " . ($response ?: 'No response');
+        $body = $response ?: 'No response';
+        $hint = '';
+        if ($httpCode === 400) {
+            $hint = ' (ผู้รับอาจยังไม่ได้เพิ่ม LINE OA เป็นเพื่อน หรือบล็อก OA แล้ว)';
+        } elseif ($httpCode === 401) {
+            $hint = ' (Channel Access Token ไม่ถูกต้องหรือหมดอายุ)';
+        } elseif ($httpCode === 403) {
+            $hint = ' (ไม่มีสิทธิ์ส่งข้อความ — ตรวจสอบสิทธิ์ของ Messaging API Channel)';
+        }
+        $errorMsg = "LINE API Error ($httpCode)$hint: " . $body;
         error_log($errorMsg);
         if (function_exists('log_error_to_db')) {
             log_error_to_db($errorMsg, 'error', 'line_helper.php', json_encode($data));
         }
-        $GLOBALS['LAST_LINE_ERROR'] = $response;
+        $GLOBALS['LAST_LINE_ERROR'] = $body;
     }
     
     return $httpCode === 200;
