@@ -15,9 +15,21 @@ try {
         user_id INT UNSIGNED NULL,
         created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
         notified_at DATETIME NULL DEFAULT NULL,
+        status ENUM('New', 'Active', 'Resolved') NOT NULL DEFAULT 'New',
+        resolve_comment TEXT NULL,
         INDEX idx_level (level),
-        INDEX idx_created_at (created_at)
+        INDEX idx_created_at (created_at),
+        INDEX idx_status (status)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+    // Ensure existing table has new columns
+    try {
+        $cols = $pdo->query("SHOW COLUMNS FROM sys_error_logs LIKE 'status'")->fetch();
+        if (!$cols) {
+            $pdo->exec("ALTER TABLE sys_error_logs ADD COLUMN status ENUM('New', 'Active', 'Resolved') NOT NULL DEFAULT 'New' AFTER notified_at");
+            $pdo->exec("ALTER TABLE sys_error_logs ADD COLUMN resolve_comment TEXT NULL AFTER status");
+            $pdo->exec("CREATE INDEX idx_status ON sys_error_logs(status)");
+        }
+    } catch (PDOException $e) {}
     $pdo->exec("CREATE TABLE IF NOT EXISTS sys_settings (
         `key` VARCHAR(100) NOT NULL PRIMARY KEY,
         `value` TEXT NOT NULL DEFAULT '',
@@ -39,6 +51,7 @@ $_el_limit  = 50;
 $_el_offset = ($_el_page - 1) * $_el_limit;
 $_el_search  = trim($_GET['el_search'] ?? '');
 $_el_level   = $_GET['el_level']  ?? '';
+$_el_status  = $_GET['el_status'] ?? '';
 $_el_date    = $_GET['el_date']   ?? '';
 $_el_source  = $_GET['el_source'] ?? '';
 
@@ -52,6 +65,10 @@ if ($_el_search !== '') {
 if (in_array($_el_level, ['error', 'warning', 'info'], true)) {
     $_el_where   .= ' AND level = ?';
     $_el_params[] = $_el_level;
+}
+if (in_array($_el_status, ['New', 'Active', 'Resolved'], true)) {
+    $_el_where   .= ' AND status = ?';
+    $_el_params[] = $_el_status;
 }
 if ($_el_date !== '') {
     $_el_where   .= ' AND DATE(created_at) = ?';
@@ -97,11 +114,23 @@ function _el_icon(string $l): string {
 function _el_iconColor(string $l): string {
     return match($l) { 'error' => '#e11d48', 'warning' => '#d97706', default => '#3b82f6' };
 }
+function _el_statusBadge(string $s): string {
+    return match($s) {
+        'New'      => 'background:#f8fafc;border:1px solid #e2e8f0;color:#64748b',
+        'Active'   => 'background:#eff6ff;border:1px solid #bfdbfe;color:#1d4ed8',
+        'Resolved' => 'background:#f0fdf4;border:1px solid #bbf7d0;color:#15803d',
+        default    => 'background:#f8fafc;border:1px solid #e2e8f0;color:#64748b',
+    };
+}
+function _el_statusIcon(string $s): string {
+    return match($s) { 'New' => 'fa-sparkles', 'Active' => 'fa-spinner fa-spin', 'Resolved' => 'fa-check-circle', default => 'fa-circle' };
+}
 
 // Build filter querystring for export links
 $_el_filterQs = http_build_query(array_filter([
     'el_search' => $_el_search,
     'el_level'  => $_el_level,
+    'el_status' => $_el_status,
     'el_date'   => $_el_date,
     'el_source' => $_el_source,
 ]));
@@ -118,6 +147,11 @@ $_el_filterQs = http_build_query(array_filter([
     <?php if (isset($_GET['cleared'])): ?>
     <div class="mb-4 p-4 bg-green-50 border border-green-200 rounded-2xl text-green-700 text-sm flex items-center gap-2">
         <i class="fa-solid fa-check-circle"></i> ลบ Log เรียบร้อยแล้ว
+    </div>
+    <?php endif; ?>
+    <?php if (isset($_GET['updated'])): ?>
+    <div class="mb-4 p-4 bg-green-50 border border-green-200 rounded-2xl text-green-700 text-sm flex items-center gap-2">
+        <i class="fa-solid fa-check-circle"></i> อัปเดตสถานะเรียบร้อยแล้ว
     </div>
     <?php endif; ?>
 
@@ -267,6 +301,15 @@ $_el_filterQs = http_build_query(array_filter([
                     class="py-2.5 px-3 border border-gray-200 rounded-xl text-sm outline-none bg-gray-50">
             </div>
             <div>
+                <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 block">สถานะ</label>
+                <select name="el_status" class="py-2.5 px-3 border border-gray-200 rounded-xl text-sm outline-none bg-gray-50">
+                    <option value="">ทั้งหมด</option>
+                    <option value="New"      <?= $_el_status==='New'      ? 'selected':'' ?>>New</option>
+                    <option value="Active"   <?= $_el_status==='Active'   ? 'selected':'' ?>>Active</option>
+                    <option value="Resolved" <?= $_el_status==='Resolved' ? 'selected':'' ?>>Resolved</option>
+                </select>
+            </div>
+            <div>
                 <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 block">แหล่งที่มา</label>
                 <select name="el_source" class="py-2.5 px-3 border border-gray-200 rounded-xl text-sm outline-none bg-gray-50">
                     <option value="">ทั้งหมด</option>
@@ -277,7 +320,7 @@ $_el_filterQs = http_build_query(array_filter([
             <button type="submit" class="px-5 py-2.5 bg-[#0052CC] text-white text-sm font-bold rounded-xl hover:bg-blue-700 transition-colors shadow-sm">
                 <i class="fa-solid fa-filter mr-1"></i> กรอง
             </button>
-            <?php if ($_el_search || $_el_level || $_el_date || $_el_source): ?>
+            <?php if ($_el_search || $_el_level || $_el_status || $_el_date || $_el_source): ?>
             <a href="?section=error_logs" class="px-4 py-2.5 bg-gray-100 text-gray-600 text-sm font-medium rounded-xl hover:bg-gray-200 flex items-center gap-1">
                 <i class="fa-solid fa-xmark text-xs"></i> ล้าง
             </a>
@@ -322,6 +365,7 @@ $_el_filterQs = http_build_query(array_filter([
                 <thead>
                     <tr class="bg-gray-50 border-b border-gray-100">
                         <th class="px-5 py-3 text-[10px] font-extrabold text-gray-400 uppercase tracking-widest w-32">Level</th>
+                        <th class="px-5 py-3 text-[10px] font-extrabold text-gray-400 uppercase tracking-widest w-32">Status</th>
                         <th class="px-5 py-3 text-[10px] font-extrabold text-gray-400 uppercase tracking-widest w-44">เวลา</th>
                         <th class="px-5 py-3 text-[10px] font-extrabold text-gray-400 uppercase tracking-widest w-40">Source</th>
                         <th class="px-5 py-3 text-[10px] font-extrabold text-gray-400 uppercase tracking-widest">Message</th>
@@ -338,6 +382,13 @@ $_el_filterQs = http_build_query(array_filter([
                                 <?= $log['level'] ?>
                             </span>
                         </td>
+                        <td class="px-5 py-3.5">
+                            <button onclick="openStatusModal(<?= $log['id'] ?>, '<?= $log['status'] ?>', <?= htmlspecialchars(json_encode($log['resolve_comment'] ?: '')) ?>)" 
+                                class="inline-flex items-center gap-1.5 px-2 py-1 rounded-lg text-[10px] font-bold uppercase transition-all hover:ring-2 hover:ring-offset-1 ring-blue-100" style="<?= _el_statusBadge($log['status']) ?>">
+                                <i class="fa-solid <?= _el_statusIcon($log['status']) ?> text-[9px]"></i>
+                                <?= $log['status'] ?>
+                            </button>
+                        </td>
                         <td class="px-5 py-3.5 text-xs text-gray-500 whitespace-nowrap">
                             <?= date('d/m/y H:i:s', strtotime($log['created_at'])) ?>
                         </td>
@@ -346,6 +397,12 @@ $_el_filterQs = http_build_query(array_filter([
                         </td>
                         <td class="px-5 py-3.5">
                             <p class="text-sm text-gray-700 line-clamp-2 max-w-xl"><?= htmlspecialchars($log['message']) ?></p>
+                            <?php if ($log['resolve_comment']): ?>
+                            <div class="mt-1.5 flex items-start gap-2 bg-green-50/50 border border-green-100 p-2 rounded-lg max-w-xl">
+                                <i class="fa-solid fa-comment-dots text-[10px] text-green-500 mt-1"></i>
+                                <p class="text-[11px] text-green-700 font-medium italic"><?= htmlspecialchars($log['resolve_comment']) ?></p>
+                            </div>
+                            <?php endif; ?>
                             <?php if (!empty($log['context'])): ?>
                             <button onclick="this.nextElementSibling.classList.toggle('hidden')" class="mt-1 text-[10px] text-blue-500 hover:underline font-semibold">
                                 <i class="fa-solid fa-code text-[9px]"></i> ดู context
@@ -401,7 +458,94 @@ $_el_filterQs = http_build_query(array_filter([
 
 </div>
 
+<!-- Status & Comment Modal -->
+<div id="statusModal" class="hidden fixed inset-0 bg-gray-900/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in duration-200">
+        <div class="px-6 py-5 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
+            <h3 class="text-lg font-black text-gray-900 flex items-center gap-2">
+                <i class="fa-solid fa-pen-to-square text-blue-500"></i> อัปเดตสถานะ Log
+            </h3>
+            <button onclick="closeStatusModal()" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-200 text-gray-400 transition-colors">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        <form method="POST" action="index.php?section=error_logs" class="p-6">
+            <input type="hidden" name="action" value="update_status">
+            <input type="hidden" name="log_id" id="modal_log_id">
+            
+            <div class="mb-5">
+                <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest mb-2 block">สถานะปัจจุบัน</label>
+                <div class="grid grid-cols-3 gap-3">
+                    <label class="relative cursor-pointer">
+                        <input type="radio" name="status" value="New" class="peer sr-only" id="status_new">
+                        <div class="px-3 py-2.5 rounded-xl border-2 border-gray-100 text-center peer-checked:border-gray-400 peer-checked:bg-gray-50 transition-all">
+                            <i class="fa-solid fa-sparkles block mb-1 text-gray-400 peer-checked:text-gray-600"></i>
+                            <span class="text-xs font-bold text-gray-500 peer-checked:text-gray-700">New</span>
+                        </div>
+                    </label>
+                    <label class="relative cursor-pointer">
+                        <input type="radio" name="status" value="Active" class="peer sr-only" id="status_active">
+                        <div class="px-3 py-2.5 rounded-xl border-2 border-gray-100 text-center peer-checked:border-blue-400 peer-checked:bg-blue-50 transition-all">
+                            <i class="fa-solid fa-spinner block mb-1 text-gray-400 peer-checked:text-blue-500"></i>
+                            <span class="text-xs font-bold text-gray-500 peer-checked:text-blue-700">Active</span>
+                        </div>
+                    </label>
+                    <label class="relative cursor-pointer">
+                        <input type="radio" name="status" value="Resolved" class="peer sr-only" id="status_resolved" onchange="toggleCommentField(this.checked)">
+                        <div class="px-3 py-2.5 rounded-xl border-2 border-gray-100 text-center peer-checked:border-green-400 peer-checked:bg-green-50 transition-all">
+                            <i class="fa-solid fa-check-circle block mb-1 text-gray-400 peer-checked:text-green-500"></i>
+                            <span class="text-xs font-bold text-gray-500 peer-checked:text-green-700">Resolved</span>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <div id="comment_field" class="mb-6 hidden">
+                <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest mb-2 block">บันทึกการแก้ไข (Comment)</label>
+                <textarea name="resolve_comment" id="modal_comment" placeholder="ระบุรายละเอียดการแก้ไขปัญหา..."
+                    class="w-full px-4 py-3 border border-gray-200 rounded-2xl text-sm outline-none focus:ring-4 focus:ring-green-50 focus:border-green-400 transition-all h-28 resize-none"></textarea>
+            </div>
+
+            <div class="flex gap-3">
+                <button type="button" onclick="closeStatusModal()" class="flex-1 px-5 py-3 border border-gray-200 text-gray-500 text-sm font-bold rounded-2xl hover:bg-gray-50 transition-colors">
+                    ยกเลิก
+                </button>
+                <button type="submit" class="flex-1 px-5 py-3 bg-gray-900 text-white text-sm font-bold rounded-2xl hover:bg-black transition-all shadow-lg shadow-gray-200">
+                    บันทึกการเปลี่ยนแปลง
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <script>
+function openStatusModal(id, status, comment) {
+    document.getElementById('modal_log_id').value = id;
+    document.getElementById('modal_comment').value = comment || '';
+    
+    const radios = document.getElementsByName('status');
+    radios.forEach(r => {
+        if (r.value === status) r.checked = true;
+    });
+    
+    toggleCommentField(status === 'Resolved');
+    document.getElementById('statusModal').classList.remove('hidden');
+}
+
+function closeStatusModal() {
+    document.getElementById('statusModal').classList.add('hidden');
+}
+
+function toggleCommentField(show) {
+    const field = document.getElementById('comment_field');
+    if (show) {
+        field.classList.remove('hidden');
+        document.getElementById('modal_comment').focus();
+    } else {
+        field.classList.add('hidden');
+    }
+}
+// Existing uploadErrorLog function follows...
 async function uploadErrorLog(input) {
     const file = input.files[0];
     if (!file) return;

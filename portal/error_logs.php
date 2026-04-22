@@ -11,7 +11,6 @@ $pdo = db();
 
 // ─── Auto-create tables ───────────────────────────────────────────────────────
 try {
-    $pdo->exec("CREATE TABLE IF NOT EXISTS sys_error_logs (
         id         INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
         level      ENUM('error','warning','info') NOT NULL DEFAULT 'error',
         source     VARCHAR(300)  NOT NULL DEFAULT '',
@@ -21,9 +20,21 @@ try {
         user_id    INT UNSIGNED  NULL,
         created_at TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
         notified_at DATETIME     NULL DEFAULT NULL,
+        status     ENUM('New', 'Active', 'Resolved') NOT NULL DEFAULT 'New',
+        resolve_comment TEXT NULL,
         INDEX idx_level      (level),
-        INDEX idx_created_at (created_at)
+        INDEX idx_created_at (created_at),
+        INDEX idx_status     (status)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+    // Ensure existing table has new columns
+    try {
+        $cols = $pdo->query("SHOW COLUMNS FROM sys_error_logs LIKE 'status'")->fetch();
+        if (!$cols) {
+            $pdo->exec("ALTER TABLE sys_error_logs ADD COLUMN status ENUM('New', 'Active', 'Resolved') NOT NULL DEFAULT 'New' AFTER notified_at");
+            $pdo->exec("ALTER TABLE sys_error_logs ADD COLUMN resolve_comment TEXT NULL AFTER status");
+            $pdo->exec("CREATE INDEX idx_status ON sys_error_logs(status)");
+        }
+    } catch (PDOException $e) {}
     $pdo->exec("CREATE TABLE IF NOT EXISTS sys_settings (
         `key`       VARCHAR(100) NOT NULL PRIMARY KEY,
         `value`     TEXT         NOT NULL DEFAULT '',
@@ -63,10 +74,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'clear
             $stmt = $pdo->prepare("DELETE FROM sys_error_logs WHERE level = ?");
             $stmt->execute([$clearLevel]);
         }
-        header('Location: error_logs.php?cleared=1');
+        header('Location: error_logs.php?cleared=1' . (isset($_GET['embed']) ? '&embed=1' : ''));
         exit;
     } catch (PDOException $e) {
         $clear_error = $e->getMessage();
+    }
+}
+
+// ─── Update status action ─────────────────────────────────────────────────────
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'update_status') {
+    $lid = (int)($_POST['log_id'] ?? 0);
+    $status = $_POST['status'] ?? 'New';
+    $comment = $_POST['resolve_comment'] ?? '';
+    if ($lid > 0 && in_array($status, ['New', 'Active', 'Resolved'], true)) {
+        $pdo->prepare("UPDATE sys_error_logs SET status=?, resolve_comment=? WHERE id=?")->execute([$status, $comment, $lid]);
+        header('Location: error_logs.php?updated=1' . (isset($_POST['embed']) ? '&embed=1' : ''));
+        exit;
     }
 }
 
@@ -136,6 +159,7 @@ $limit       = 50;
 $offset      = ($page - 1) * $limit;
 $search      = trim($_GET['search']  ?? '');
 $filterLevel = $_GET['level']   ?? '';
+$filterStatus = $_GET['status'] ?? '';
 $filterDate  = $_GET['date']    ?? '';
 $filterSource = $_GET['source'] ?? '';
 
@@ -154,6 +178,10 @@ if (in_array($filterLevel, ['error','warning','info'], true)) {
 if ($filterDate !== '') {
     $where   .= " AND DATE(created_at) = ?";
     $params[] = $filterDate;
+}
+if (in_array($filterStatus, ['New', 'Active', 'Resolved'], true)) {
+    $where   .= " AND status = ?";
+    $params[] = $filterStatus;
 }
 if ($filterSource === 'js') {
     $where   .= " AND source LIKE '[JS]%'";
@@ -204,6 +232,17 @@ function levelIconColor(string $level): string {
         'warning' => '#d97706',
         default   => '#3b82f6',
     };
+}
+function statusBadge(string $s): string {
+    return match($s) {
+        'New'      => 'background:#f8fafc;border:1px solid #e2e8f0;color:#64748b',
+        'Active'   => 'background:#eff6ff;border:1px solid #bfdbfe;color:#1d4ed8',
+        'Resolved' => 'background:#f0fdf4;border:1px solid #bbf7d0;color:#15803d',
+        default    => 'background:#f8fafc;border:1px solid #e2e8f0;color:#64748b',
+    };
+}
+function statusIcon(string $s): string {
+    return match($s) { 'New' => 'fa-sparkles', 'Active' => 'fa-spinner fa-spin', 'Resolved' => 'fa-check-circle', default => 'fa-circle' };
 }
 ?>
 <!DOCTYPE html>
@@ -260,6 +299,11 @@ function levelIconColor(string $level): string {
     <?php if (isset($_GET['saved'])): ?>
     <div style="margin-bottom:16px;padding:12px 18px;background:#f0fdf4;border:1.5px solid #c7e8d5;border-radius:12px;color:#166534;font-size:13px;font-weight:700;display:flex;align-items:center;gap:8px">
         <i class="fa-solid fa-check-circle" style="color:#2e9e63"></i> บันทึกการตั้งค่าเรียบร้อยแล้ว
+    </div>
+    <?php endif; ?>
+    <?php if (isset($_GET['updated'])): ?>
+    <div style="margin-bottom:16px;padding:12px 18px;background:#f0fdf4;border:1.5px solid #c7e8d5;border-radius:12px;color:#166534;font-size:13px;font-weight:700;display:flex;align-items:center;gap:8px">
+        <i class="fa-solid fa-check-circle" style="color:#2e9e63"></i> อัปเดตสถานะเรียบร้อยแล้ว
     </div>
     <?php endif; ?>
 
@@ -357,8 +401,17 @@ function levelIconColor(string $level): string {
                 <label style="display:block;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.14em;color:#94a3b8;margin-bottom:5px">วันที่</label>
                 <input type="date" name="date" value="<?= htmlspecialchars($filterDate) ?>" style="padding:8px 12px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13px;font-weight:600;font-family:'Prompt',sans-serif;outline:none;background:#f8fafc;color:#374151">
             </div>
+            <div>
+                <label style="display:block;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.14em;color:#94a3b8;margin-bottom:5px">สถานะ</label>
+                <select name="status" style="padding:8px 12px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13px;font-weight:600;font-family:'Prompt',sans-serif;outline:none;background:#f8fafc;color:#374151">
+                    <option value="">ทั้งหมด</option>
+                    <option value="New"      <?= $filterStatus === 'New' ? 'selected' : '' ?>>New</option>
+                    <option value="Active"   <?= $filterStatus === 'Active' ? 'selected' : '' ?>>Active</option>
+                    <option value="Resolved" <?= $filterStatus === 'Resolved' ? 'selected' : '' ?>>Resolved</option>
+                </select>
+            </div>
             <button type="submit" style="background:#2e9e63;color:#fff;border:none;padding:8px 18px;border-radius:9px;font-size:12px;font-weight:700;font-family:'Prompt',sans-serif;cursor:pointer;letter-spacing:.03em;align-self:flex-end">กรอง</button>
-            <?php if ($search || $filterLevel || $filterDate || $filterSource): ?>
+            <?php if ($search || $filterLevel || $filterStatus || $filterDate || $filterSource): ?>
                 <a href="error_logs.php<?= isset($_GET['embed']) ? '?embed=1' : '' ?>" style="background:#f1f5f9;color:#64748b;padding:8px 14px;border-radius:9px;font-size:12px;font-weight:700;text-decoration:none;display:flex;align-items:center;align-self:flex-end">ล้างค่า</a>
             <?php endif; ?>
         </form>
@@ -371,6 +424,7 @@ function levelIconColor(string $level): string {
                 <thead>
                     <tr style="background:#f8fafc;border-bottom:1px solid #f1f5f9">
                         <th style="padding:13px 20px;font-size:10px;font-weight:800;color:#94a3b8;text-transform:uppercase;letter-spacing:.14em;white-space:nowrap;width:130px">ระดับ</th>
+                        <th style="padding:13px 20px;font-size:10px;font-weight:800;color:#94a3b8;text-transform:uppercase;letter-spacing:.14em;white-space:nowrap;width:120px">สถานะ</th>
                         <th style="padding:13px 20px;font-size:10px;font-weight:800;color:#94a3b8;text-transform:uppercase;letter-spacing:.14em;white-space:nowrap;width:140px">วัน-เวลา</th>
                         <th style="padding:13px 20px;font-size:10px;font-weight:800;color:#94a3b8;text-transform:uppercase;letter-spacing:.14em">ข้อความและรายละเอียด</th>
                     </tr>
@@ -396,12 +450,24 @@ function levelIconColor(string $level): string {
                                         <i class="fa-solid fa-code-branch" style="font-size:9px;opacity:.5;margin-right:3px"></i><?= htmlspecialchars($log['source'] ?: 'system') ?>
                                     </div>
                                 </td>
+                                <td style="padding:13px 20px">
+                                    <button onclick="openStatusModal(<?= $log['id'] ?>, '<?= $log['status'] ?>', <?= htmlspecialchars(json_encode($log['resolve_comment'] ?: '')) ?>)" 
+                                        style="display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:7px;<?= statusBadge($log['status']) ?>;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;cursor:pointer;transition:all .15s">
+                                        <i class="fa-solid <?= statusIcon($log['status']) ?>" style="font-size:9px"></i> <?= $log['status'] ?>
+                                    </button>
+                                </td>
                                 <td style="padding:13px 20px;font-size:11px;color:#64748b;font-weight:600;white-space:nowrap">
                                     <?= date('d/m/Y H:i:s', strtotime($log['created_at'])) ?>
                                     <div style="font-size:10px;margin-top:3px;color:#94a3b8;font-family:monospace"><?= htmlspecialchars($log['ip_address'] ?? '') ?></div>
                                 </td>
                                 <td style="padding:13px 20px">
                                     <div style="font-size:13px;color:#0f172a;font-weight:600;line-height:1.55;word-break:break-word;margin-bottom:6px"><?= htmlspecialchars($log['message']) ?></div>
+                                    <?php if ($log['resolve_comment']): ?>
+                                        <div style="display:flex;align-items:flex-start;gap:8px;padding:8px 12px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;margin-bottom:8px">
+                                            <i class="fa-solid fa-comment-dots" style="color:#15803d;font-size:12px;margin-top:2px"></i>
+                                            <div style="font-size:11px;color:#15803d;font-weight:600;font-style:italic"><?= htmlspecialchars($log['resolve_comment']) ?></div>
+                                        </div>
+                                    <?php endif; ?>
                                     <?php if ($log['context']): ?>
                                         <pre style="font-size:10px;color:#64748b;background:#f8fafc;border:1px solid #e2e8f0;padding:10px 12px;border-radius:8px;overflow-x:auto;font-family:monospace;white-space:pre-wrap;line-height:1.55;margin:0"><code><?= htmlspecialchars($log['context']) ?></code></pre>
                                     <?php endif; ?>
@@ -469,6 +535,84 @@ function levelIconColor(string $level): string {
         </form>
     </div>
 </div>
+
+<!-- Status Modal -->
+<div id="statusModal" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.35);z-index:50;align-items:center;justify-content:center;padding:16px">
+    <div style="background:#fff;border-radius:18px;border:1.5px solid #e2e8f0;width:100%;max-width:380px;overflow:hidden;box-shadow:0 20px 25px -5px rgba(0,0,0,0.1)">
+        <div style="padding:16px 20px;border-bottom:1px solid #f1f5f9;display:flex;justify-content:space-between;align-items:center;background:#f8fafc">
+            <div style="display:flex;align-items:center;gap:8px;font-size:15px;font-weight:800;color:#0f172a">
+                <i class="fa-solid fa-pen-to-square" style="color:#3b82f6"></i> อัปเดตสถานะ Error
+            </div>
+            <button onclick="closeStatusModal()" style="width:28px;height:28px;display:flex;align-items:center;justify-content:center;border:none;background:transparent;cursor:pointer;color:#94a3b8;font-size:14px"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <form method="POST" style="padding:20px">
+            <input type="hidden" name="action" value="update_status">
+            <input type="hidden" name="log_id" id="modal_log_id">
+            <?php if (isset($_GET['embed'])): ?><input type="hidden" name="embed" value="1"><?php endif; ?>
+
+            <div style="margin-bottom:16px">
+                <label style="display:block;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.14em;color:#94a3b8;margin-bottom:8px">เลือกสถานะ</label>
+                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+                    <label style="cursor:pointer">
+                        <input type="radio" name="status" value="New" style="display:none" class="status-radio" id="radio_new">
+                        <div class="status-box" style="padding:10px 5px;text-align:center;border:2px solid #f1f5f9;border-radius:10px;font-size:11px;font-weight:700;color:#64748b;transition:all .15s">
+                            <i class="fa-solid fa-sparkles" style="display:block;margin-bottom:4px;font-size:14px;opacity:.5"></i> New
+                        </div>
+                    </label>
+                    <label style="cursor:pointer">
+                        <input type="radio" name="status" value="Active" style="display:none" class="status-radio" id="radio_active">
+                        <div class="status-box" style="padding:10px 5px;text-align:center;border:2px solid #f1f5f9;border-radius:10px;font-size:11px;font-weight:700;color:#64748b;transition:all .15s">
+                            <i class="fa-solid fa-spinner fa-spin" style="display:block;margin-bottom:4px;font-size:14px;opacity:.5"></i> Active
+                        </div>
+                    </label>
+                    <label style="cursor:pointer">
+                        <input type="radio" name="status" value="Resolved" style="display:none" class="status-radio" id="radio_resolved" onchange="toggleComment(this.checked)">
+                        <div class="status-box" style="padding:10px 5px;text-align:center;border:2px solid #f1f5f9;border-radius:10px;font-size:11px;font-weight:700;color:#64748b;transition:all .15s">
+                            <i class="fa-solid fa-check-circle" style="display:block;margin-bottom:4px;font-size:14px;opacity:.5"></i> Resolved
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <div id="comment_field" style="display:none;margin-bottom:20px">
+                <label style="display:block;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.14em;color:#94a3b8;margin-bottom:5px">บันทึกการแก้ไข (Comment)</label>
+                <textarea name="resolve_comment" id="modal_comment" placeholder="ระบุรายละเอียดการแก้ไขปัญหา..." style="width:100%;padding:10px 12px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:13px;font-family:'Prompt',sans-serif;outline:none;background:#f8fafc;color:#0f172a;height:80px;resize:none;box-sizing:border-box"></textarea>
+            </div>
+
+            <div style="display:flex;gap:8px">
+                <button type="button" onclick="closeStatusModal()" style="flex:1;padding:10px;border-radius:10px;border:1.5px solid #e2e8f0;background:#fff;color:#475569;font-size:13px;font-weight:700;font-family:'Prompt',sans-serif;cursor:pointer">ยกเลิก</button>
+                <button type="submit" style="flex:1;padding:10px;border-radius:10px;border:none;background:#0f172a;color:#fff;font-size:13px;font-weight:700;font-family:'Prompt',sans-serif;cursor:pointer">บันทึก</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+.status-radio:checked + .status-box { border-color: #3b82f6; background: #eff6ff; color: #1d4ed8; }
+.status-radio:checked + .status-box i { opacity: 1; color: #3b82f6; }
+#radio_resolved:checked + .status-box { border-color: #10b981; background: #f0fdf4; color: #065f46; }
+#radio_resolved:checked + .status-box i { color: #10b981; }
+</style>
+
+<script>
+function openStatusModal(id, status, comment) {
+    document.getElementById('modal_log_id').value = id;
+    document.getElementById('modal_comment').value = comment || '';
+    
+    if(status === 'New') document.getElementById('radio_new').checked = true;
+    if(status === 'Active') document.getElementById('radio_active').checked = true;
+    if(status === 'Resolved') document.getElementById('radio_resolved').checked = true;
+    
+    toggleComment(status === 'Resolved');
+    document.getElementById('statusModal').style.display = 'flex';
+}
+function closeStatusModal() {
+    document.getElementById('statusModal').style.display = 'none';
+}
+function toggleComment(show) {
+    document.getElementById('comment_field').style.display = show ? 'block' : 'none';
+}
+</script>
 
 </body>
 </html>

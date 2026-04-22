@@ -15,10 +15,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $sectionAction = $_POST['action'] ?? '';
 
     // Error Logs actions
-    if (in_array($sectionAction, ['save_alert_email', 'clear', 'delete_one'], true)) {
+    if (in_array($sectionAction, ['save_alert_email', 'clear', 'delete_one', 'update_status'], true)) {
         try {
             $pdo->exec("CREATE TABLE IF NOT EXISTS sys_settings (`key` VARCHAR(100) NOT NULL PRIMARY KEY, `value` TEXT NOT NULL DEFAULT '', updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
             
+            // Ensure sys_error_logs has status and resolve_comment
+            try {
+                $cols = $pdo->query("SHOW COLUMNS FROM sys_error_logs LIKE 'status'")->fetch();
+                if (!$cols) {
+                    $pdo->exec("ALTER TABLE sys_error_logs ADD COLUMN status ENUM('New', 'Active', 'Resolved') NOT NULL DEFAULT 'New' AFTER notified_at");
+                    $pdo->exec("ALTER TABLE sys_error_logs ADD COLUMN resolve_comment TEXT NULL AFTER status");
+                    $pdo->exec("CREATE INDEX idx_status ON sys_error_logs(status)");
+                }
+            } catch (PDOException $e) {}
+
             if ($sectionAction === 'save_alert_email') {
                 $emailVal = trim($_POST['alert_email'] ?? '');
                 $isValid = true;
@@ -48,6 +58,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $lid = (int)($_POST['log_id'] ?? 0);
                 if ($lid > 0) $pdo->prepare("DELETE FROM sys_error_logs WHERE id=?")->execute([$lid]);
                 header('Location: index.php?section=error_logs'); 
+                exit;
+            } elseif ($sectionAction === 'update_status') {
+                $lid = (int)($_POST['log_id'] ?? 0);
+                $status = $_POST['status'] ?? 'New';
+                $comment = $_POST['resolve_comment'] ?? '';
+                if ($lid > 0 && in_array($status, ['New', 'Active', 'Resolved'], true)) {
+                    $pdo->prepare("UPDATE sys_error_logs SET status=?, resolve_comment=? WHERE id=?")->execute([$status, $comment, $lid]);
+                }
+                header('Location: index.php?section=error_logs&updated=1');
                 exit;
             }
         } catch (PDOException $e) {
