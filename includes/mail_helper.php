@@ -350,7 +350,18 @@ function send_line_notification_simple(string $lineUserId, array $data): bool {
     
     $result = curl_exec($ch);
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $curlErr = curl_error($ch);
     curl_close($ch);
+
+    if ($httpCode !== 200) {
+        $hint = match($httpCode) {
+            400 => 'ผู้รับอาจยังไม่ได้เพิ่ม LINE OA เป็นเพื่อน หรือบล็อก OA แล้ว',
+            401 => 'Channel Access Token ไม่ถูกต้องหรือหมดอายุ',
+            403 => 'ไม่มีสิทธิ์ส่งข้อความ',
+            default => "HTTP {$httpCode}"
+        };
+        error_log("LINE push failed for {$lineUserId}: {$hint}");
+    }
 
     return ($httpCode === 200);
 }

@@ -28,6 +28,8 @@ try {
     exit("ไม่สามารถเชื่อมต่อฐานข้อมูลได้ กรุณาลองใหม่ภายหลัง");
 }
 
-define('FINE_RATE_PER_DAY', 10.00);
+defined('FINE_RATE_PER_DAY') || define('FINE_RATE_PER_DAY', 10.00);
+
+function db(): PDO { global $pdo; return $pdo; }
 
 require_once __DIR__ . '/../../includes/error_logger.php';
