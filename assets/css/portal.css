@@ -415,6 +415,12 @@ body[data-theme='dark'] .kpi-stat-label {
     color: #94a3b8 !important;
 }
 
+/* Force critical text visibility for buttons */
+.text-white { color: #ffffff !important; }
+.text-slate-100 { color: #f1f5f9 !important; }
+.text-slate-200 { color: #e2e8f0 !important; }
+.text-slate-300 { color: #cbd5e1 !important; }
+
 /* Inputs and Forms */
 body[data-theme='dark'] input[type="text"],
 body[data-theme='dark'] select,
