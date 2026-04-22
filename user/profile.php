@@ -126,11 +126,16 @@ if ($isEditing) {
                         <!-- Prefix -->
                         <div>
                             <label class="label-premium">คำนำหน้าชื่อ</label>
-                            <select name="name_title" class="w-full px-5 py-4 bg-white border border-slate-100 rounded-2xl focus:ring-4 focus:ring-blue-50 focus:border-blue-400 outline-none transition-all font-bold text-slate-700 shadow-sm appearance-none">
-                                <option value="นาย" <?= $userData['prefix'] === 'นาย' ? 'selected' : '' ?>>นาย</option>
-                                <option value="นาง" <?= $userData['prefix'] === 'นาง' ? 'selected' : '' ?>>นาง</option>
-                                <option value="นางสาว" <?= $userData['prefix'] === 'นางสาว' ? 'selected' : '' ?>>นางสาว</option>
-                            </select>
+                            <div class="relative">
+                                <select name="name_title" class="input-premium appearance-none pr-10">
+                                    <option value="นาย" <?= $userData['prefix'] === 'นาย' ? 'selected' : '' ?>>นาย</option>
+                                    <option value="นาง" <?= $userData['prefix'] === 'นาง' ? 'selected' : '' ?>>นาง</option>
+                                    <option value="นางสาว" <?= $userData['prefix'] === 'นางสาว' ? 'selected' : '' ?>>นางสาว</option>
+                                </select>
+                                <div class="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-300">
+                                    <i class="fa-solid fa-chevron-down text-xs"></i>
+                                </div>
+                            </div>
                         </div>
 
                         <div class="grid grid-cols-2 gap-4">
@@ -150,7 +155,7 @@ if ($isEditing) {
                                 <?php foreach(['male' => 'ชาย', 'female' => 'หญิง', 'other' => 'อื่นๆ'] as $val => $lbl): ?>
                                 <label class="cursor-pointer group">
                                     <input type="radio" name="gender" value="<?= $val ?>" class="hidden peer" <?= $userData['gender'] === $val ? 'checked' : '' ?>>
-                                    <div class="py-4 text-center rounded-2xl border border-slate-100 bg-white font-bold text-sm text-slate-400 peer-checked:bg-blue-600 peer-checked:text-white peer-checked:border-blue-600 peer-checked:shadow-lg peer-checked:shadow-blue-100 transition-all active:scale-95">
+                                    <div class="py-4 text-center rounded-2xl border border-slate-200 bg-white font-bold text-sm text-slate-500 peer-checked:bg-blue-600 peer-checked:text-white peer-checked:border-blue-600 peer-checked:shadow-lg peer-checked:shadow-blue-100 transition-all active:scale-95">
                                         <?= $lbl ?>
                                     </div>
                                 </label>
@@ -173,7 +178,7 @@ if ($isEditing) {
                                 <?php foreach(['student' => 'นักศึกษา', 'staff' => 'บุคลากร', 'other' => 'บุคคลทั่วไป'] as $val => $lbl): ?>
                                 <label class="cursor-pointer group">
                                     <input type="radio" name="status" value="<?= $val ?>" class="hidden peer" <?= $userData['status'] === $val ? 'checked' : '' ?>>
-                                    <div class="py-4 text-center rounded-2xl border border-slate-100 bg-white font-bold text-[11px] text-slate-400 peer-checked:bg-emerald-500 peer-checked:text-white peer-checked:border-emerald-500 peer-checked:shadow-lg peer-checked:shadow-emerald-100 transition-all active:scale-95">
+                                    <div class="py-4 text-center rounded-2xl border border-slate-200 bg-white font-bold text-[11px] text-slate-500 peer-checked:bg-emerald-500 peer-checked:text-white peer-checked:border-emerald-500 peer-checked:shadow-lg peer-checked:shadow-emerald-100 transition-all active:scale-95">
                                         <?= $lbl ?>
                                     </div>
                                 </label>
