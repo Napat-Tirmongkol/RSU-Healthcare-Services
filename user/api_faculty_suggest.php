@@ -1,10 +1,16 @@
 <?php
 // user/api_faculty_suggest.php — Faculty/department autocomplete & Gemini normalization
 declare(strict_types=1);
+if (session_status() === PHP_SESSION_NONE) session_start();
 require_once __DIR__ . '/../config.php';
 
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store');
+
+if (empty($_SESSION['evax_student_id']) && empty($_SESSION['line_user_id'])) {
+    http_response_code(401);
+    exit(json_encode(['status' => 'error', 'message' => 'Unauthorized']));
+}
 
 $pdo = db();
 
