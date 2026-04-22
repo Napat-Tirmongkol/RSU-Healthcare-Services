@@ -310,7 +310,7 @@ $adminListForSelect = $pdo->query("SELECT id, full_name, username FROM sys_admin
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= htmlspecialchars(SITE_NAME) ?> - Central Intelligence HUB</title>
-    <link rel="icon" href="../favicon.ico">
+    <link rel="icon" href="<?= !empty(SITE_LOGO) ? '../' . SITE_LOGO : '../favicon.ico' ?>">
 
     <!-- UI Framework & Fonts -->
     <link
