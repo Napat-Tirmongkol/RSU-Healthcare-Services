@@ -208,10 +208,17 @@
                                         <p class="text-xs text-slate-400 font-medium">แสดงแถบแจ้งเตือนแผนการปิดระบบให้ผู้ใช้งานทราบล่วงหน้า</p>
                                     </div>
                                 </div>
-                                <label class="relative inline-flex items-center cursor-pointer">
-                                    <input type="checkbox" id="announcement-toggle" class="sr-only peer" <?= $announcementActive ? 'checked' : '' ?>>
-                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-amber-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:width-5 after:transition-all peer-checked:bg-amber-500"></div>
-                                </label>
+                                <div class="flex p-1 bg-slate-50 rounded-2xl border border-slate-100 w-fit min-w-[200px]">
+                                    <button type="button" onclick="setAnnStatus(0)" id="btn-ann-off"
+                                            class="ann-status-btn flex-1 px-6 py-2 rounded-xl text-xs font-black transition-all <?= !$announcementActive ? 'bg-white shadow-sm text-slate-600 border border-slate-200' : 'text-slate-400 hover:text-slate-600' ?>">
+                                        ปิดประกาศ
+                                    </button>
+                                    <button type="button" onclick="setAnnStatus(1)" id="btn-ann-on"
+                                            class="ann-status-btn flex-1 px-6 py-2 rounded-xl text-xs font-black transition-all <?= $announcementActive ? 'bg-white shadow-sm text-amber-600 border border-amber-100' : 'text-slate-400 hover:text-slate-600' ?>">
+                                        เปิดประกาศ
+                                    </button>
+                                    <input type="hidden" id="announcement-toggle-val" value="<?= $announcementActive ? '1' : '0' ?>">
+                                </div>
                             </div>
                             
                             <div class="space-y-4">
@@ -263,9 +270,28 @@
                 </div>
 
                 <script>
+                window.setAnnStatus = function(val) {
+                    document.getElementById('announcement-toggle-val').value = val;
+                    const btnOff = document.getElementById('btn-ann-off');
+                    const btnOn  = document.getElementById('btn-ann-on');
+                    
+                    [btnOff, btnOn].forEach(btn => {
+                        btn.classList.remove('bg-white', 'shadow-sm', 'text-amber-600', 'border-amber-100', 'text-slate-600', 'border-slate-200');
+                        btn.classList.add('text-slate-400', 'hover:text-slate-600');
+                    });
+                    
+                    if (val === 1) {
+                        btnOn.classList.add('bg-white', 'shadow-sm', 'text-amber-600', 'border', 'border-amber-100');
+                        btnOn.classList.remove('text-slate-400', 'hover:text-slate-600');
+                    } else {
+                        btnOff.classList.add('bg-white', 'shadow-sm', 'text-slate-600', 'border', 'border-slate-200');
+                        btnOff.classList.remove('text-slate-400', 'hover:text-slate-600');
+                    }
+                };
+
                 async function saveAnnouncement() {
                     const message = document.getElementById('announcement-message').value;
-                    const active = document.getElementById('announcement-toggle').checked;
+                    const active = document.getElementById('announcement-toggle-val').value === '1';
                     
                     const fd = new FormData();
                     fd.append('action', 'set_announcement');
