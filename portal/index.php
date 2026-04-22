@@ -227,6 +227,20 @@ $projects = [
         ]
     ],
     [
+        'id' => 'line_messaging',
+        'title' => 'LINE Messaging API',
+        'description' => 'จัดการการแจ้งเตือนผ่าน LINE — ตั้งค่า Webhook URL, Channel Token และทดสอบการส่งข้อความ Push รายบุคคล',
+        'icon' => 'fa-brands fa-line',
+        'bg_color' => 'bg-green-50',
+        'icon_color' => 'text-green-500',
+        'border_color' => 'border-green-100',
+        'allowed_roles' => ['superadmin'],
+        'badges' => ['Notifications', 'Webhooks'],
+        'actions' => [
+            ['label' => 'Open Settings & Test', 'url' => 'javascript:switchSection(\'line_settings\', document.querySelector(\'[data-section=line_settings]\'))', 'primary' => true],
+        ]
+    ],
+    [
         'id' => 'future_app',
         'title' => 'Upcoming Project...',
         'description' => 'ระบบใหม่ที่กำลังอยู่ในระหว่างการพัฒนา เพื่อเสริมสร้างศักยภาพการจัดการข้อมูลในอนาคต',
@@ -1792,6 +1806,12 @@ $adminListForSelect = $pdo->query("SELECT id, full_name, username FROM sys_admin
             <div id="section-sentry_test" class="portal-section"
                 style="<?= $activeSection==='sentry_test'?'':'display:none;' ?> background:#f8fafc; overflow-y:auto;">
                 <?php include __DIR__ . '/_partials/sentry_test.php'; ?>
+            </div>
+
+            <!-- ════════════ SECTION: LINE MESSAGING API ════════════ -->
+            <div id="section-line_settings" class="portal-section"
+                style="<?= $activeSection==='line_settings'?'':'display:none;' ?> background:#f8fafc; overflow-y:auto;">
+                <?php include __DIR__ . '/_partials/line_settings.php'; ?>
             </div>
 
             <!-- ════════════ SECTION: PRIVILEGE INVENTORY (ISO 27001) ════════════ -->
