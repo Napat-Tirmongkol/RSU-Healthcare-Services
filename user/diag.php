@@ -1,37 +1,49 @@
 <?php
-// user/diag.php — ค้นหาจุดตายของหน้า Profile
+// user/diag.php — เจาะลึกจุดตายใน config.php
 declare(strict_types=1);
 error_reporting(E_ALL);
 ini_set('display_errors', '1');
 
-echo "<h2>Step 1: Loading config.php...</h2>";
+echo "<h2>Step 1: Probing config.php dependencies...</h2>";
+
+echo "1.1 Checking db_connect.php... ";
+$file = __DIR__ . '/../config/db_connect.php';
+if (file_exists($file)) {
+    require_once $file;
+    echo "✅ Loaded.<br>";
+} else {
+    echo "❌ NOT FOUND: $file<br>";
+}
+
+echo "1.2 Checking csrf.php... ";
+$file = __DIR__ . '/../includes/csrf.php';
+if (file_exists($file)) {
+    require_once $file;
+    echo "✅ Loaded.<br>";
+} else {
+    echo "❌ NOT FOUND: $file<br>";
+}
+
+echo "1.3 Checking error_logger.php... ";
+$file = __DIR__ . '/../includes/error_logger.php';
+if (file_exists($file)) {
+    require_once $file;
+    echo "✅ Loaded.<br>";
+} else {
+    echo "❌ NOT FOUND: $file<br>";
+}
+
+echo "1.4 Checking sentry.php... ";
+$file = __DIR__ . '/../config/sentry.php';
+if (file_exists($file)) {
+    require_once $file;
+    echo "✅ Loaded.<br>";
+} else {
+    echo "❌ NOT FOUND: $file<br>";
+}
+
+echo "<h2>Step 2: Loading the rest of config.php...</h2>";
 require_once __DIR__ . '/../config.php';
-echo "✅ config.php loaded.<br>";
+echo "✅ Full config.php loaded.<br>";
 
-echo "<h2>Step 2: Loading includes/lang.php...</h2>";
-require_once __DIR__ . '/../includes/lang.php';
-echo "✅ includes/lang.php loaded.<br>";
-
-echo "<h2>Step 3: Checking functions...</h2>";
-if (function_exists('__')) {
-    echo "✅ function __() exists.<br>";
-    echo "Test translation: " . __('profile.heading_edit') . "<br>";
-} else {
-    echo "❌ function __() NOT FOUND!<br>";
-}
-
-if (function_exists('db')) {
-    echo "✅ function db() exists.<br>";
-} else {
-    echo "❌ function db() NOT FOUND!<br>";
-}
-
-echo "<h2>Step 4: Database Connection...</h2>";
-try {
-    $pdo = db();
-    echo "✅ Database connected successfully.<br>";
-} catch (Exception $e) {
-    echo "❌ Database Error: " . $e->getMessage() . "<br>";
-}
-
-echo "<h2>Step 5: Done!</h2>";
+echo "<h2>All good!</h2>";
