@@ -3,6 +3,7 @@
 declare(strict_types=1);
 session_start();
 require_once __DIR__ . '/../config.php';
+require_once __DIR__ . '/../includes/language.php';
 check_maintenance('e_campaign');
 
 $lineUserId = $_SESSION['line_user_id'] ?? '';
