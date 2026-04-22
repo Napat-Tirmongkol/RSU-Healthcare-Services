@@ -42,7 +42,9 @@
                                             <?= $allOnline ? 'ผู้ใช้ทุกคนสามารถเข้าใช้งานได้ตามปกติ' : 'คุณสามารถเปิดระบบที่ปิดอยู่ได้จากรายการด้านล่าง' ?>
                                         </p>
                                     </div>
-                                    <button onclick="triggerGitPull()" class="px-4 py-2 bg-slate-800 text-white rounded-xl text-xs font-bold hover:bg-black transition-all flex items-center gap-2 whitespace-nowrap">
+                                    <button onclick="triggerGitPull()" 
+                                            style="background-color: #1e293b !important; color: #ffffff !important;"
+                                            class="px-4 py-2 rounded-xl text-xs font-black hover:opacity-90 transition-all flex items-center gap-2 whitespace-nowrap shadow-sm">
                                         <i class="fa-solid fa-rotate"></i> Git Pull Update
                                     </button>
                                 </div>

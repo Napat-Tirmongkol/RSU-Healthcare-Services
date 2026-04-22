@@ -421,6 +421,16 @@ body[data-theme='dark'] .kpi-stat-label {
 .text-slate-200 { color: #e2e8f0 !important; }
 .text-slate-300 { color: #cbd5e1 !important; }
 
+/* Force background visibility for badges and colored elements */
+.bg-blue-500    { background-color: #3b82f6 !important; }
+.bg-emerald-500 { background-color: #10b981 !important; }
+.bg-rose-500    { background-color: #f43f5e !important; }
+.bg-amber-500   { background-color: #f59e0b !important; }
+.bg-purple-600  { background-color: #9333ea !important; }
+.bg-slate-800   { background-color: #1e293b !important; }
+.bg-gray-900    { background-color: #111827 !important; }
+.bg-\[\#06C755\] { background-color: #06C755 !important; }
+
 /* Inputs and Forms */
 body[data-theme='dark'] input[type="text"],
 body[data-theme='dark'] select,
