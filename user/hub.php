@@ -140,7 +140,7 @@ $thaiDate = $days[date('w')] . ", " . date('j') . " " . $months[date('n')-1] . "
             </div>
             <div class="flex items-center gap-3">
                 <button onclick="showQR()" class="w-10 h-10 flex items-center justify-center text-slate-600 hover:text-blue-600 transition-colors">
-                    <i class="fa-solid fa-table-cells text-lg"></i>
+                    <i class="fa-solid fa-qrcode text-lg"></i>
                 </button>
                 <button onclick="showNotifications()" class="w-10 h-10 flex items-center justify-center text-slate-400 hover:text-slate-600 transition-colors relative">
                     <i class="fa-solid fa-bell text-lg"></i>
