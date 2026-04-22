@@ -38,12 +38,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'set') {
 
     $data = loadMaintenance($FILE);
     $data[$project] = $active;   // true = เปิดใช้งาน, false = ปรับปรุง
-    file_put_contents($FILE, json_encode($data, JSON_PRETTY_PRINT));
+    file_put_contents($FILE, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
 
     $label = $active ? 'เปิดใช้งาน' : 'ปิดปรับปรุง';
     log_activity('Maintenance Toggle', "$project → $label");
 
     echo json_encode(['ok' => true, 'project' => $project, 'active' => $active]);
+    exit;
+}
+
+// POST: อัปเดตข้อความประกาศ
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'set_announcement') {
+    validate_csrf_or_die();
+
+    $message = trim($_POST['message'] ?? '');
+    $active  = (bool)($_POST['active'] ?? false);
+
+    $data = loadMaintenance($FILE);
+    $data['announcement_message'] = $message;
+    $data['announcement_active']  = $active;
+    file_put_contents($FILE, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+
+    log_activity('Maintenance Announcement', ($active ? "เปิดประกาศ: $message" : "ปิดประกาศ"));
+
+    echo json_encode(['ok' => true, 'message' => 'บันทึกประกาศเรียบร้อย']);
     exit;
 }
 

@@ -1,4 +1,10 @@
             <!-- ════════════ SECTION: SETTINGS (CONTENT ONLY) ════════════ -->
+            <?php
+            $_mFile = __DIR__ . '/../../config/maintenance.json';
+            $_mData = file_exists($_mFile) ? json_decode(file_get_contents($_mFile), true) : [];
+            $announcementActive = (bool)($_mData['announcement_active'] ?? false);
+            $announcementMsg = $_mData['announcement_message'] ?? '';
+            ?>
             <div class="max-w-[1000px] mx-auto px-4 py-8">
                     
                     <!-- Header -->
@@ -190,6 +196,37 @@
                             </div>
                         </div>
 
+                        <!-- 3.5. Maintenance Announcement -->
+                        <div class="bg-white rounded-3xl border border-gray-200 p-6 shadow-sm mb-8">
+                            <div class="flex items-center justify-between mb-6">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 bg-amber-50 rounded-xl flex items-center justify-center text-amber-600">
+                                        <i class="fa-solid fa-bullhorn"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-base font-black text-slate-800">ประกาศปิดปรับปรุงระบบ</h4>
+                                        <p class="text-xs text-slate-400 font-medium">แสดงแถบแจ้งเตือนแผนการปิดระบบให้ผู้ใช้งานทราบล่วงหน้า</p>
+                                    </div>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" id="announcement-toggle" class="sr-only peer" <?= $announcementActive ? 'checked' : '' ?>>
+                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-amber-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:width-5 after:transition-all peer-checked:bg-amber-500"></div>
+                                </label>
+                            </div>
+                            
+                            <div class="space-y-4">
+                                <textarea id="announcement-message" rows="2" 
+                                          placeholder="เช่น: ขออภัยในความไม่สะดวก จะทำการปิดปรับปรุงระบบในวันที่ 24 เม.ย. เวลา 23:00 - 05:00 น."
+                                          class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-xs font-bold text-slate-800 outline-none focus:ring-2 focus:ring-amber-100 focus:border-amber-400 transition-all"><?= htmlspecialchars($announcementMsg) ?></textarea>
+                                
+                                <div class="flex justify-end">
+                                    <button onclick="saveAnnouncement()" class="px-6 py-2.5 bg-slate-800 text-white rounded-xl text-xs font-black hover:bg-black transition-all flex items-center gap-2 shadow-lg">
+                                        <i class="fa-solid fa-save text-amber-400"></i> บันทึกประกาศ
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- 4. Git History -->
                         <div class="bg-white rounded-3xl border border-gray-200 shadow-sm overflow-hidden mb-12">
                             <div class="px-6 py-4 bg-slate-50 border-b border-gray-100 flex justify-between items-center">
@@ -224,3 +261,28 @@
 
                     </div>
                 </div>
+
+                <script>
+                async function saveAnnouncement() {
+                    const message = document.getElementById('announcement-message').value;
+                    const active = document.getElementById('announcement-toggle').checked;
+                    
+                    const fd = new FormData();
+                    fd.append('action', 'set_announcement');
+                    fd.append('message', message);
+                    fd.append('active', active ? '1' : '0');
+                    fd.append('csrf_token', portal_CSRF);
+                    
+                    try {
+                        const res = await fetch('ajax_maintenance.php', { method: 'POST', body: fd });
+                        const data = await res.json();
+                        if (data.ok) {
+                            showPortalToast(data.message, 'success');
+                        } else {
+                            Swal.fire('Error', data.message || 'บันทึกไม่สำเร็จ', 'error');
+                        }
+                    } catch (e) {
+                        Swal.fire('Error', 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้', 'error');
+                    }
+                }
+                </script>
