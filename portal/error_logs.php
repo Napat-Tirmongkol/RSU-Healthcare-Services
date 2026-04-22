@@ -596,9 +596,9 @@ function statusIcon(string $s): string {
 }
 
 /* Selected States */
-#radio_new:checked + .status-box { border-color: #64748b; background: #f1f5f9; color: #334155; }
+#radio_new:checked + .status-box { border-color: #3b82f6; background: #eff6ff; color: #1d4ed8; }
 #radio_active:checked + .status-box { border-color: #3b82f6; background: #eff6ff; color: #1d4ed8; }
-#radio_resolved:checked + .status-box { border-color: #10b981; background: #f0fdf4; color: #15803d; }
+#radio_resolved:checked + .status-box { border-color: #3b82f6; background: #eff6ff; color: #1d4ed8; }
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

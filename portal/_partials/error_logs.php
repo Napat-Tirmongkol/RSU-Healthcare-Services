@@ -486,8 +486,8 @@ $_el_filterQs = http_build_query(array_filter([
                     <!-- New -->
                     <label class="relative cursor-pointer">
                         <input type="radio" name="modal_status" value="New" id="status_new" class="peer sr-only">
-                        <div class="px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-center transition-all peer-checked:border-gray-500 peer-checked:bg-gray-100">
-                            <span class="text-xs font-bold text-gray-400 peer-checked:text-gray-700">NEW</span>
+                        <div class="px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-center transition-all peer-checked:border-blue-500 peer-checked:bg-blue-50">
+                            <span class="text-xs font-bold text-gray-400 peer-checked:text-blue-600">NEW</span>
                         </div>
                     </label>
                     
@@ -502,8 +502,8 @@ $_el_filterQs = http_build_query(array_filter([
                     <!-- Resolved -->
                     <label class="relative cursor-pointer">
                         <input type="radio" name="modal_status" value="Resolved" id="status_resolved" class="peer sr-only" onchange="toggleCommentField(this.checked)">
-                        <div class="px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-center transition-all peer-checked:border-green-500 peer-checked:bg-green-50">
-                            <span class="text-xs font-bold text-gray-400 peer-checked:text-green-600">RESOLVED</span>
+                        <div class="px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-center transition-all peer-checked:border-blue-500 peer-checked:bg-blue-50">
+                            <span class="text-xs font-bold text-gray-400 peer-checked:text-blue-600">RESOLVED</span>
                         </div>
                     </label>
                 </div>
