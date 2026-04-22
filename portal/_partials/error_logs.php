@@ -383,9 +383,17 @@ $_el_filterQs = http_build_query(array_filter([
                             </span>
                         </td>
                         <td class="px-5 py-3.5">
+                            <?php 
+                                $statusClass = match($log['status']) {
+                                    'New' => 'status-new',
+                                    'Active' => 'status-active',
+                                    'Resolved' => 'status-resolved',
+                                    default => 'status-new'
+                                };
+                            ?>
                             <button onclick="openStatusModal(<?= $log['id'] ?>, '<?= $log['status'] ?>', <?= htmlspecialchars(json_encode($log['resolve_comment'] ?: '')) ?>)" 
                                 id="status-btn-<?= $log['id'] ?>"
-                                class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-[10px] font-bold uppercase transition-all hover:scale-105 active:scale-95 hover:shadow-md ring-blue-100/50 cursor-pointer" style="<?= _el_statusBadge($log['status']) ?>">
+                                class="btn-status <?= $statusClass ?>">
                                 <i class="fa-solid <?= _el_statusIcon($log['status']) ?> text-[9px]"></i>
                                 <span class="status-label"><?= $log['status'] ?></span>
                             </button>
@@ -600,21 +608,24 @@ function updateStatusUI(id, status, comment) {
     const label = btn.querySelector('.status-label');
     const icon = btn.querySelector('i');
     
-    // Update badge styles
-    let styles = '';
+    // Reset and Update Classes
+    btn.classList.remove('status-new', 'status-active', 'status-resolved');
+    
     let iconClass = '';
     if (status === 'New') {
-        styles = 'background:#f8fafc;border:1px solid #e2e8f0;color:#64748b';
+        btn.classList.add('status-new');
         iconClass = 'fa-solid fa-sparkles';
     } else if (status === 'Active') {
-        styles = 'background:#eff6ff;border:1px solid #bfdbfe;color:#1d4ed8';
+        btn.classList.add('status-active');
         iconClass = 'fa-solid fa-spinner fa-spin';
     } else {
-        styles = 'background:#f0fdf4;border:1px solid #bbf7d0;color:#15803d';
+        btn.classList.add('status-resolved');
         iconClass = 'fa-solid fa-check-circle';
     }
     
-    btn.style.cssText = styles + '; transition: all .15s';
+    // Reset style attribute if any from old versions
+    btn.removeAttribute('style');
+    
     label.textContent = status;
     icon.className = iconClass + ' text-[9px]';
     
