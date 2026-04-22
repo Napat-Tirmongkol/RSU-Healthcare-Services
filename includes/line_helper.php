@@ -59,8 +59,20 @@ function _send_line_curl(string $url, array $data, string $accessToken): bool {
     curl_close($ch);
     
     if ($httpCode !== 200) {
-        error_log("LINE API Error ($httpCode): " . ($response ?: 'No response'));
+        $errorMsg = "LINE API Error ($httpCode): " . ($response ?: 'No response');
+        error_log($errorMsg);
+        if (function_exists('log_error_to_db')) {
+            log_error_to_db($errorMsg, 'error', 'line_helper.php', json_encode($data));
+        }
+        $GLOBALS['LAST_LINE_ERROR'] = $response;
     }
     
     return $httpCode === 200;
+}
+
+/**
+ * ดึงข้อความตอบกลับล่าสุดจาก LINE API กรณีเกิดข้อผิดพลาด
+ */
+function get_last_line_error(): string {
+    return (string)($GLOBALS['LAST_LINE_ERROR'] ?? '');
 }

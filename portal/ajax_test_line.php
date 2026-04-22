@@ -83,7 +83,12 @@ if ($action === 'test') {
     if (send_line_push($toUserId, $messages, $token)) {
         echo json_encode(['ok' => true, 'message' => 'ส่งข้อความทดสอบสำเร็จ! กรุณาเช็คใน LINE ของคุณ']);
     } else {
-        echo json_encode(['ok' => false, 'error' => 'ส่งไม่สำเร็จ — ตรวจสอบ Token และ User ID (หรือดู error_log สำหรับรายละเอียด)']);
+        $lastError = get_last_line_error();
+        $errorMsg = 'ส่งไม่สำเร็จ — ตรวจสอบ Token และ User ID';
+        if ($lastError) {
+            $errorMsg .= "\nรายละเอียดจาก LINE: " . $lastError;
+        }
+        echo json_encode(['ok' => false, 'error' => $errorMsg]);
     }
     exit;
 }
