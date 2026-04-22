@@ -29,11 +29,10 @@ try {
     }
     
     $studentId = (int)$user['id'];
-    $sid = $user['student_personnel_id'];
-
-    // Check existing booking
-    $stmtCheck = $pdo->prepare("SELECT COUNT(*) FROM camp_bookings WHERE student_personnel_id = :sid AND campaign_id = :cid AND status IN ('confirmed', 'booked')");
-    $stmtCheck->execute([':sid' => $sid, ':cid' => $campaignId]);
+    
+    // Check existing booking (Fix: Use student_id instead of student_personnel_id)
+    $stmtCheck = $pdo->prepare("SELECT COUNT(*) FROM camp_bookings WHERE student_id = :sid AND campaign_id = :cid AND status IN ('confirmed', 'booked')");
+    $stmtCheck->execute([':sid' => $studentId, ':cid' => $campaignId]);
     if ((int)$stmtCheck->fetchColumn() > 0) {
         header('Location: my_bookings.php?error=already_booked');
         exit;

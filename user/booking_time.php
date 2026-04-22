@@ -1,14 +1,18 @@
-<?php
-// user/booking_time.php
-declare(strict_types=1);
-
-require_once __DIR__ . '/../config.php';
-require_once __DIR__ . '/../includes/header.php';
-require_once __DIR__ . '/../includes/footer.php';
-
 session_start();
-check_user_profile((int)($_SESSION['evax_student_id'] ?? 0));
-$studentId = (int)$_SESSION['evax_student_id'];
+$lineUserId = $_SESSION['line_user_id'] ?? '';
+if ($lineUserId === '') {
+    header('Location: index.php');
+    exit;
+}
+
+try {
+    $pdo = db();
+    $stmtU = $pdo->prepare("SELECT id FROM sys_users WHERE line_user_id = :line_id LIMIT 1");
+    $stmtU->execute([':line_id' => $lineUserId]);
+    $user = $stmtU->fetch();
+    if (!$user) { header('Location: profile.php'); exit; }
+    $studentId = (int)$user['id'];
+} catch (Exception $e) { die("Database Error"); }
 
 $year       = (int)($_GET['year']        ?? 0);
 $month      = (int)($_GET['month']       ?? 0);
@@ -61,7 +65,33 @@ try {
     $timeSlots = [];
 }
 
-render_header(__('time.page_title'));
+?>
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>เลือกเวลา - RSU Medical</title>
+    <link rel="icon" type="image/x-icon" href="../favicon.ico">
+    <script src="https://cdn.tailwindcss.com/3.4.1"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @font-face { font-family: 'RSU'; src: url('../assets/fonts/RSU_Regular.ttf') format('truetype'); font-weight: normal; }
+        @font-face { font-family: 'RSU'; src: url('../assets/fonts/RSU_BOLD.ttf') format('truetype'); font-weight: bold; }
+        body { font-family: 'RSU', sans-serif; background-color: #F8FAFF; -webkit-tap-highlight-color: transparent; }
+        .glass-header { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
+    </style>
+</head>
+<body class="text-slate-900 pb-32">
+    <div class="max-w-md mx-auto relative min-h-screen">
+        <!-- ── Clean White Header ── -->
+        <header class="glass-header sticky top-0 z-[60] px-6 py-5 flex items-center justify-between border-b border-slate-100 shadow-sm shadow-slate-50">
+            <button onclick="window.history.back()" class="w-11 h-11 flex items-center justify-center bg-slate-50 rounded-2xl text-slate-400 active:scale-90 transition-all">
+                <i class="fa-solid fa-chevron-left"></i>
+            </button>
+            <h1 class="text-lg font-black text-slate-900 tracking-tight">เลือกช่วงเวลา</h1>
+            <div class="w-11 h-11"></div>
+        </header>
 
 // Pass translated strings to JavaScript
 $jsT = [
@@ -235,4 +265,30 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 </script>
 
-<?php render_footer(); ?>
+    <!-- ── Premium Bottom Navigation ── -->
+    <nav class="fixed bottom-0 left-0 right-0 z-[70] bg-white/90 backdrop-blur-2xl border-t border-slate-50 px-8 py-4 pb-10 flex justify-between items-center max-w-md mx-auto shadow-[0_-20px_40px_rgba(0,0,0,0.04)]">
+        <button onclick="window.location.href='hub.php'" class="flex flex-col items-center gap-1.5 text-slate-300 transition-all hover:text-slate-500">
+            <i class="fa-solid fa-house-chimney text-xl"></i>
+            <span class="text-[8px] font-black uppercase tracking-[0.1em]">Home</span>
+        </button>
+        <button onclick="location.reload()" class="flex flex-col items-center gap-1.5 text-blue-600 transition-all scale-110">
+            <i class="fa-solid fa-calendar-day text-xl"></i>
+            <span class="text-[8px] font-black uppercase tracking-[0.1em]">Booking</span>
+        </button>
+        <div class="relative -mt-14">
+            <button onclick="window.location.href='hub.php#camps'" class="w-16 h-16 bg-blue-600 rounded-[1.8rem] rotate-45 flex items-center justify-center text-white shadow-[0_15px_30px_rgba(0,82,204,0.4)] border-[6px] border-[#F8FAFF] active:scale-90 transition-all group">
+                <i class="fa-solid fa-plus text-2xl -rotate-45 group-hover:scale-125 transition-transform"></i>
+            </button>
+        </div>
+        <button onclick="window.location.href='hub.php#health'" class="flex flex-col items-center gap-1.5 text-slate-300 transition-all hover:text-slate-500">
+            <i class="fa-solid fa-heart-pulse text-xl"></i>
+            <span class="text-[8px] font-black uppercase tracking-[0.1em]">Health</span>
+        </button>
+        <button onclick="window.location.href='profile.php'" class="flex flex-col items-center gap-1.5 text-slate-300 transition-all hover:text-slate-500">
+            <i class="fa-solid fa-user-ninja text-xl"></i>
+            <span class="text-[8px] font-black uppercase tracking-[0.1em]">Account</span>
+        </button>
+    </nav>
+
+</body>
+</html>
