@@ -558,23 +558,17 @@ function statusIcon(string $s): string {
             <div style="margin-bottom:16px">
                 <label style="display:block;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.14em;color:#94a3b8;margin-bottom:8px">เลือกสถานะ</label>
                 <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
-                    <label style="cursor:pointer" class="group">
+                    <label style="cursor:pointer">
                         <input type="radio" name="modal_status" value="New" style="display:none" class="status-radio" id="radio_new">
-                        <div class="status-box" style="padding:12px 5px;text-align:center;border:2px solid #f1f5f9;border-radius:12px;font-size:10px;font-weight:800;color:#64748b;transition:all .15s">
-                            <i class="fa-solid fa-sparkles" style="display:block;margin-bottom:4px;font-size:14px;opacity:.5"></i> NEW
-                        </div>
+                        <div class="status-box">NEW</div>
                     </label>
-                    <label style="cursor:pointer" class="group">
+                    <label style="cursor:pointer">
                         <input type="radio" name="modal_status" value="Active" style="display:none" class="status-radio" id="radio_active">
-                        <div class="status-box" style="padding:12px 5px;text-align:center;border:2px solid #f1f5f9;border-radius:12px;font-size:10px;font-weight:800;color:#64748b;transition:all .15s">
-                            <i class="fa-solid fa-spinner fa-spin-pulse" style="display:block;margin-bottom:4px;font-size:14px;opacity:.5"></i> ACTIVE
-                        </div>
+                        <div class="status-box">ACTIVE</div>
                     </label>
-                    <label style="cursor:pointer" class="group">
+                    <label style="cursor:pointer">
                         <input type="radio" name="modal_status" value="Resolved" style="display:none" class="status-radio" id="radio_resolved" onchange="toggleComment(this.checked)">
-                        <div class="status-box" style="padding:12px 5px;text-align:center;border:2px solid #f1f5f9;border-radius:12px;font-size:10px;font-weight:800;color:#64748b;transition:all .15s">
-                            <i class="fa-solid fa-check-circle" style="display:block;margin-bottom:4px;font-size:14px;opacity:.5"></i> RESOLVED
-                        </div>
+                        <div class="status-box">RESOLVED</div>
                     </label>
                 </div>
             </div>
@@ -597,35 +591,14 @@ function statusIcon(string $s): string {
 
 <style>
 .status-box { 
-    padding:16px 5px; text-align:center; border:2px solid #f1f5f9; border-radius:16px; 
-    font-size:10px; font-weight:800; color:#94a3b8; background:#fff; transition:all .2s; 
-    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    padding:12px 5px; text-align:center; border:1px solid #e2e8f0; border-radius:12px; 
+    font-size:11px; font-weight:700; color:#94a3b8; background:#f8fafc; transition:all .1s; 
 }
-.status-box i { display:block; margin-bottom:8px; font-size:18px; opacity:.4; transition:all .2s; }
-
-/* Hover State */
-.group:hover .status-box { border-color: #cbd5e1; transform: translateY(-2px); }
-
-/* Active/Press State */
-.group:active .status-box { transform: scale(0.95); }
 
 /* Selected States */
-#radio_new:checked + .status-box { border-color: #64748b; background: #f8fafc; color: #334155; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 0 0 4px #f1f5f9; }
-#radio_new:checked + .status-box i { opacity: 1; color: #64748b; transform: scale(1.1); }
-
-#radio_active:checked + .status-box { border-color: #3b82f6; background: #eff6ff; color: #1d4ed8; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 0 0 4px #dbeafe; }
-#radio_active:checked + .status-box i { opacity: 1; color: #3b82f6; transform: scale(1.1); }
-
-#radio_resolved:checked + .status-box { border-color: #10b981; background: #f0fdf4; color: #065f46; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 0 0 4px #d1fae5; }
-#radio_resolved:checked + .status-box i { opacity: 1; color: #10b981; transform: scale(1.1); }
-
-/* Selected Animation */
-@keyframes selectPulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.04); }
-    100% { transform: scale(1); }
-}
-.status-radio:checked + .status-box { animation: selectPulse 0.3s ease-out; }
+#radio_new:checked + .status-box { border-color: #64748b; background: #f1f5f9; color: #334155; }
+#radio_active:checked + .status-box { border-color: #3b82f6; background: #eff6ff; color: #1d4ed8; }
+#radio_resolved:checked + .status-box { border-color: #10b981; background: #f0fdf4; color: #15803d; }
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
