@@ -452,8 +452,13 @@ function statusIcon(string $s): string {
                                 </td>
                                 <td style="padding:13px 20px">
                                     <button onclick="openStatusModal(<?= $log['id'] ?>, '<?= $log['status'] ?>', <?= htmlspecialchars(json_encode($log['resolve_comment'] ?: '')) ?>)" 
-                                        style="display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:7px;<?= statusBadge($log['status']) ?>;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;cursor:pointer;transition:all .15s">
-                                        <i class="fa-solid <?= statusIcon($log['status']) ?>" style="font-size:9px"></i> <?= $log['status'] ?>
+                                        id="status-btn-<?= $log['id'] ?>"
+                                        style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:10px;<?= statusBadge($log['status']) ?>;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;cursor:pointer;transition:all .15s"
+                                        onmouseover="this.style.transform='scale(1.05)';this.style.boxShadow='0 4px 6px -1px rgba(0,0,0,0.1)'"
+                                        onmouseout="this.style.transform='scale(1)';this.style.boxShadow='none'"
+                                        onmousedown="this.style.transform='scale(0.95)'"
+                                        onmouseup="this.style.transform='scale(1.05)'">
+                                        <i class="fa-solid <?= statusIcon($log['status']) ?>" style="font-size:9px"></i> <span class="status-label"><?= $log['status'] ?></span>
                                     </button>
                                 </td>
                                 <td style="padding:13px 20px;font-size:11px;color:#64748b;font-weight:600;white-space:nowrap">
@@ -461,13 +466,13 @@ function statusIcon(string $s): string {
                                     <div style="font-size:10px;margin-top:3px;color:#94a3b8;font-family:monospace"><?= htmlspecialchars($log['ip_address'] ?? '') ?></div>
                                 </td>
                                 <td style="padding:13px 20px">
-                                    <div style="font-size:13px;color:#0f172a;font-weight:600;line-height:1.55;word-break:break-word;margin-bottom:6px"><?= htmlspecialchars($log['message']) ?></div>
-                                    <?php if ($log['resolve_comment']): ?>
-                                        <div style="display:flex;align-items:flex-start;gap:8px;padding:8px 12px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;margin-bottom:8px">
+                                    <div id="message-container-<?= $log['id'] ?>">
+                                        <div style="font-size:13px;color:#0f172a;font-weight:600;line-height:1.55;word-break:break-word;margin-bottom:6px"><?= htmlspecialchars($log['message']) ?></div>
+                                        <div class="resolve-comment-area" style="display: <?= $log['resolve_comment'] ? 'flex' : 'none' ?>; align-items:flex-start;gap:8px;padding:8px 12px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;margin-bottom:8px">
                                             <i class="fa-solid fa-comment-dots" style="color:#15803d;font-size:12px;margin-top:2px"></i>
-                                            <div style="font-size:11px;color:#15803d;font-weight:600;font-style:italic"><?= htmlspecialchars($log['resolve_comment']) ?></div>
+                                            <div class="comment-text" style="font-size:11px;color:#15803d;font-weight:600;font-style:italic"><?= htmlspecialchars($log['resolve_comment'] ?: '') ?></div>
                                         </div>
-                                    <?php endif; ?>
+                                    </div>
                                     <?php if ($log['context']): ?>
                                         <pre style="font-size:10px;color:#64748b;background:#f8fafc;border:1px solid #e2e8f0;padding:10px 12px;border-radius:8px;overflow-x:auto;font-family:monospace;white-space:pre-wrap;line-height:1.55;margin:0"><code><?= htmlspecialchars($log['context']) ?></code></pre>
                                     <?php endif; ?>
@@ -545,7 +550,7 @@ function statusIcon(string $s): string {
             </div>
             <button onclick="closeStatusModal()" style="width:28px;height:28px;display:flex;align-items:center;justify-content:center;border:none;background:transparent;cursor:pointer;color:#94a3b8;font-size:14px"><i class="fa-solid fa-xmark"></i></button>
         </div>
-        <form method="POST" style="padding:20px">
+        <form id="statusUpdateForm" onsubmit="handleStatusUpdate(event)" style="padding:20px">
             <input type="hidden" name="action" value="update_status">
             <input type="hidden" name="log_id" id="modal_log_id">
             <?php if (isset($_GET['embed'])): ?><input type="hidden" name="embed" value="1"><?php endif; ?>
@@ -553,22 +558,22 @@ function statusIcon(string $s): string {
             <div style="margin-bottom:16px">
                 <label style="display:block;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.14em;color:#94a3b8;margin-bottom:8px">เลือกสถานะ</label>
                 <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
-                    <label style="cursor:pointer">
+                    <label style="cursor:pointer" class="group">
                         <input type="radio" name="status" value="New" style="display:none" class="status-radio" id="radio_new">
-                        <div class="status-box" style="padding:10px 5px;text-align:center;border:2px solid #f1f5f9;border-radius:10px;font-size:11px;font-weight:700;color:#64748b;transition:all .15s">
-                            <i class="fa-solid fa-sparkles" style="display:block;margin-bottom:4px;font-size:14px;opacity:.5"></i> New
+                        <div class="status-box" style="padding:12px 5px;text-align:center;border:2px solid #f1f5f9;border-radius:12px;font-size:10px;font-weight:800;color:#64748b;transition:all .15s">
+                            <i class="fa-solid fa-sparkles" style="display:block;margin-bottom:4px;font-size:14px;opacity:.5"></i> NEW
                         </div>
                     </label>
-                    <label style="cursor:pointer">
+                    <label style="cursor:pointer" class="group">
                         <input type="radio" name="status" value="Active" style="display:none" class="status-radio" id="radio_active">
-                        <div class="status-box" style="padding:10px 5px;text-align:center;border:2px solid #f1f5f9;border-radius:10px;font-size:11px;font-weight:700;color:#64748b;transition:all .15s">
-                            <i class="fa-solid fa-spinner fa-spin" style="display:block;margin-bottom:4px;font-size:14px;opacity:.5"></i> Active
+                        <div class="status-box" style="padding:12px 5px;text-align:center;border:2px solid #f1f5f9;border-radius:12px;font-size:10px;font-weight:800;color:#64748b;transition:all .15s">
+                            <i class="fa-solid fa-spinner fa-spin-pulse" style="display:block;margin-bottom:4px;font-size:14px;opacity:.5"></i> ACTIVE
                         </div>
                     </label>
-                    <label style="cursor:pointer">
+                    <label style="cursor:pointer" class="group">
                         <input type="radio" name="status" value="Resolved" style="display:none" class="status-radio" id="radio_resolved" onchange="toggleComment(this.checked)">
-                        <div class="status-box" style="padding:10px 5px;text-align:center;border:2px solid #f1f5f9;border-radius:10px;font-size:11px;font-weight:700;color:#64748b;transition:all .15s">
-                            <i class="fa-solid fa-check-circle" style="display:block;margin-bottom:4px;font-size:14px;opacity:.5"></i> Resolved
+                        <div class="status-box" style="padding:12px 5px;text-align:center;border:2px solid #f1f5f9;border-radius:12px;font-size:10px;font-weight:800;color:#64748b;transition:all .15s">
+                            <i class="fa-solid fa-check-circle" style="display:block;margin-bottom:4px;font-size:14px;opacity:.5"></i> RESOLVED
                         </div>
                     </label>
                 </div>
@@ -576,12 +581,15 @@ function statusIcon(string $s): string {
 
             <div id="comment_field" style="display:none;margin-bottom:20px">
                 <label style="display:block;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.14em;color:#94a3b8;margin-bottom:5px">บันทึกการแก้ไข (Comment)</label>
-                <textarea name="resolve_comment" id="modal_comment" placeholder="ระบุรายละเอียดการแก้ไขปัญหา..." style="width:100%;padding:10px 12px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:13px;font-family:'Prompt',sans-serif;outline:none;background:#f8fafc;color:#0f172a;height:80px;resize:none;box-sizing:border-box"></textarea>
+                <textarea name="resolve_comment" id="modal_comment" placeholder="ระบุรายละเอียดการแก้ไขปัญหา..." style="width:100%;padding:12px 14px;border:1.5px solid #e2e8f0;border-radius:12px;font-size:13px;font-family:'Prompt',sans-serif;outline:none;background:#f8fafc;color:#0f172a;height:90px;resize:none;box-sizing:border-box;font-weight:500"></textarea>
             </div>
 
             <div style="display:flex;gap:8px">
-                <button type="button" onclick="closeStatusModal()" style="flex:1;padding:10px;border-radius:10px;border:1.5px solid #e2e8f0;background:#fff;color:#475569;font-size:13px;font-weight:700;font-family:'Prompt',sans-serif;cursor:pointer">ยกเลิก</button>
-                <button type="submit" style="flex:1;padding:10px;border-radius:10px;border:none;background:#0f172a;color:#fff;font-size:13px;font-weight:700;font-family:'Prompt',sans-serif;cursor:pointer">บันทึก</button>
+                <button type="button" onclick="closeStatusModal()" style="flex:1;padding:12px;border-radius:12px;border:1.5px solid #e2e8f0;background:#fff;color:#475569;font-size:12px;font-weight:800;text-transform:uppercase;font-family:'Prompt',sans-serif;cursor:pointer">ยกเลิก</button>
+                <button type="submit" id="statusSubmitBtn" style="flex:1;padding:12px;border-radius:12px;border:none;background:#0f172a;color:#fff;font-size:12px;font-weight:800;text-transform:uppercase;font-family:'Prompt',sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px shadow-lg shadow-gray-100">
+                    <span id="submitBtnText">บันทึก</span>
+                    <i id="submitBtnIcon" class="fa-solid fa-check"></i>
+                </button>
             </div>
         </form>
     </div>
@@ -589,12 +597,115 @@ function statusIcon(string $s): string {
 
 <style>
 .status-radio:checked + .status-box { border-color: #3b82f6; background: #eff6ff; color: #1d4ed8; }
-.status-radio:checked + .status-box i { opacity: 1; color: #3b82f6; }
+.status-radio:checked + .status-box i { opacity: 1 !important; color: #3b82f6; }
+#radio_active:checked + .status-box { border-color: #3b82f6; background: #eff6ff; color: #1d4ed8; }
 #radio_resolved:checked + .status-box { border-color: #10b981; background: #f0fdf4; color: #065f46; }
-#radio_resolved:checked + .status-box i { color: #10b981; }
+#radio_resolved:checked + .status-box i { opacity: 1 !important; color: #10b981; }
+.status-box:hover { border-color: #e2e8f0; background: #f8fafc; }
+.group:active .status-box { transform: scale(0.95); }
 </style>
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
+async function handleStatusUpdate(e) {
+    e.preventDefault();
+    const form = e.target;
+    const logId = document.getElementById('modal_log_id').value;
+    const statusInput = form.querySelector('input[name="status"]:checked');
+    if (!statusInput) return;
+    const status = statusInput.value;
+    const comment = document.getElementById('modal_comment').value;
+    
+    const submitBtn = document.getElementById('statusSubmitBtn');
+    const btnText = document.getElementById('submitBtnText');
+    const btnIcon = document.getElementById('submitBtnIcon');
+
+    // Show loading
+    submitBtn.disabled = true;
+    submitBtn.style.opacity = '0.7';
+    btnText.textContent = 'กำลังบันทึก...';
+    btnIcon.className = 'fa-solid fa-spinner fa-spin';
+
+    try {
+        const fd = new FormData();
+        fd.append('action', 'update_status');
+        fd.append('log_id', logId);
+        fd.append('status', status);
+        fd.append('resolve_comment', comment);
+
+        const res = await fetch('ajax_error_logs.php', {
+            method: 'POST',
+            body: fd
+        });
+        const data = await res.json();
+
+        if (data.ok) {
+            updateStatusUI(logId, status, comment);
+            
+            Swal.fire({
+                icon: 'success',
+                title: 'สำเร็จ',
+                text: 'อัปเดตสถานะเรียบร้อยแล้ว',
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000
+            });
+            
+            closeStatusModal();
+        } else {
+            throw new Error(data.error || 'Update failed');
+        }
+    } catch (err) {
+        Swal.fire({
+            icon: 'error',
+            title: 'ผิดพลาด',
+            text: err.message
+        });
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.style.opacity = '1';
+        btnText.textContent = 'บันทึก';
+        btnIcon.className = 'fa-solid fa-check';
+    }
+}
+
+function updateStatusUI(id, status, comment) {
+    const btn = document.getElementById('status-btn-' + id);
+    const label = btn.querySelector('.status-label');
+    const icon = btn.querySelector('i');
+    
+    let styles = '';
+    let iconClass = '';
+    if (status === 'New') {
+        styles = 'background:#f8fafc;border:1px solid #e2e8f0;color:#64748b';
+        iconClass = 'fa-solid fa-sparkles';
+    } else if (status === 'Active') {
+        styles = 'background:#eff6ff;border:1px solid #bfdbfe;color:#1d4ed8';
+        iconClass = 'fa-solid fa-spinner fa-spin';
+    } else {
+        styles = 'background:#f0fdf4;border:1px solid #bbf7d0;color:#15803d';
+        iconClass = 'fa-solid fa-check-circle';
+    }
+    
+    btn.style.cssText = 'display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:10px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;cursor:pointer;transition:all .15s;' + styles;
+    label.textContent = status;
+    icon.className = iconClass;
+    
+    const container = document.getElementById('message-container-' + id);
+    const commentArea = container.querySelector('.resolve-comment-area');
+    const commentText = container.querySelector('.comment-text');
+    
+    if (status === 'Resolved' && comment) {
+        commentArea.style.display = 'flex';
+        commentText.textContent = comment;
+    } else {
+        commentArea.style.display = 'none';
+    }
+    
+    btn.setAttribute('onclick', `openStatusModal(${id}, '${status}', ${JSON.stringify(comment || '')})`);
+}
+
 function openStatusModal(id, status, comment) {
     document.getElementById('modal_log_id').value = id;
     document.getElementById('modal_comment').value = comment || '';

@@ -211,7 +211,7 @@
                                                 </div>
                                             </div>
                                             <?php if ($log['detail']): ?>
-                                                <button onclick="Swal.fire({title:'Update Detail', html:'<pre style=\'text-align:left;font-size:11px;background:#f8fafc;padding:15px;border-radius:10px;font-family:monospace;overflow:auto;max-height:400px\'>' + <?= json_encode(htmlspecialchars($log['detail'])) ?> + '</pre>'})" 
+                                                <button onclick="Swal.fire({title:'Update Detail', html:<?= htmlspecialchars(json_encode('<pre style="text-align:left;font-size:11px;background:#f8fafc;padding:15px;border-radius:10px;font-family:monospace;overflow:auto;max-height:400px">' . htmlspecialchars($log['detail']) . '</pre>')) ?>})" 
                                                         class="text-[9px] font-black text-blue-500 uppercase tracking-widest hover:underline">Details</button>
                                             <?php endif; ?>
                                         </div>

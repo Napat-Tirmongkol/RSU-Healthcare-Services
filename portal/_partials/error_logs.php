@@ -384,9 +384,10 @@ $_el_filterQs = http_build_query(array_filter([
                         </td>
                         <td class="px-5 py-3.5">
                             <button onclick="openStatusModal(<?= $log['id'] ?>, '<?= $log['status'] ?>', <?= htmlspecialchars(json_encode($log['resolve_comment'] ?: '')) ?>)" 
-                                class="inline-flex items-center gap-1.5 px-2 py-1 rounded-lg text-[10px] font-bold uppercase transition-all hover:ring-2 hover:ring-offset-1 ring-blue-100" style="<?= _el_statusBadge($log['status']) ?>">
+                                id="status-btn-<?= $log['id'] ?>"
+                                class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-[10px] font-bold uppercase transition-all hover:scale-105 active:scale-95 hover:shadow-md ring-blue-100/50 cursor-pointer" style="<?= _el_statusBadge($log['status']) ?>">
                                 <i class="fa-solid <?= _el_statusIcon($log['status']) ?> text-[9px]"></i>
-                                <?= $log['status'] ?>
+                                <span class="status-label"><?= $log['status'] ?></span>
                             </button>
                         </td>
                         <td class="px-5 py-3.5 text-xs text-gray-500 whitespace-nowrap">
@@ -396,13 +397,16 @@ $_el_filterQs = http_build_query(array_filter([
                             <code class="text-[10px] bg-gray-100 px-1.5 py-0.5 rounded text-gray-600 break-all"><?= htmlspecialchars($log['source']) ?></code>
                         </td>
                         <td class="px-5 py-3.5">
-                            <p class="text-sm text-gray-700 line-clamp-2 max-w-xl"><?= htmlspecialchars($log['message']) ?></p>
-                            <?php if ($log['resolve_comment']): ?>
-                            <div class="mt-1.5 flex items-start gap-2 bg-green-50/50 border border-green-100 p-2 rounded-lg max-w-xl">
-                                <i class="fa-solid fa-comment-dots text-[10px] text-green-500 mt-1"></i>
-                                <p class="text-[11px] text-green-700 font-medium italic"><?= htmlspecialchars($log['resolve_comment']) ?></p>
+                        <td class="px-5 py-3.5">
+                            <div id="message-container-<?= $log['id'] ?>">
+                                <p class="text-sm text-gray-700 line-clamp-2 max-w-xl"><?= htmlspecialchars($log['message']) ?></p>
+                                <div class="resolve-comment-area mt-1.5 <?= $log['resolve_comment'] ? '' : 'hidden' ?>">
+                                    <div class="flex items-start gap-2 bg-green-50/50 border border-green-100 p-2 rounded-lg max-w-xl">
+                                        <i class="fa-solid fa-comment-dots text-[10px] text-green-500 mt-1"></i>
+                                        <p class="text-[11px] text-green-700 font-medium italic comment-text"><?= htmlspecialchars($log['resolve_comment'] ?: '') ?></p>
+                                    </div>
+                                </div>
                             </div>
-                            <?php endif; ?>
                             <?php if (!empty($log['context'])): ?>
                             <button onclick="this.nextElementSibling.classList.toggle('hidden')" class="mt-1 text-[10px] text-blue-500 hover:underline font-semibold">
                                 <i class="fa-solid fa-code text-[9px]"></i> ดู context
@@ -469,32 +473,32 @@ $_el_filterQs = http_build_query(array_filter([
                 <i class="fa-solid fa-xmark"></i>
             </button>
         </div>
-        <form method="POST" action="index.php?section=error_logs" class="p-6">
+        <form id="statusUpdateForm" onsubmit="handleStatusUpdate(event)" class="p-6">
             <input type="hidden" name="action" value="update_status">
             <input type="hidden" name="log_id" id="modal_log_id">
             
             <div class="mb-5">
-                <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest mb-2 block">สถานะปัจจุบัน</label>
+                <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest mb-2 block">เลือกสถานะ</label>
                 <div class="grid grid-cols-3 gap-3">
-                    <label class="relative cursor-pointer">
+                    <label class="relative cursor-pointer group">
                         <input type="radio" name="status" value="New" class="peer sr-only" id="status_new">
-                        <div class="px-3 py-2.5 rounded-xl border-2 border-gray-100 text-center peer-checked:border-gray-400 peer-checked:bg-gray-50 transition-all">
+                        <div class="px-3 py-3 rounded-2xl border-2 border-gray-100 text-center peer-checked:border-gray-400 peer-checked:bg-gray-50 transition-all group-hover:border-gray-200 group-active:scale-95">
                             <i class="fa-solid fa-sparkles block mb-1 text-gray-400 peer-checked:text-gray-600"></i>
-                            <span class="text-xs font-bold text-gray-500 peer-checked:text-gray-700">New</span>
+                            <span class="text-[10px] font-black text-gray-400 peer-checked:text-gray-700">NEW</span>
                         </div>
                     </label>
-                    <label class="relative cursor-pointer">
+                    <label class="relative cursor-pointer group">
                         <input type="radio" name="status" value="Active" class="peer sr-only" id="status_active">
-                        <div class="px-3 py-2.5 rounded-xl border-2 border-gray-100 text-center peer-checked:border-blue-400 peer-checked:bg-blue-50 transition-all">
-                            <i class="fa-solid fa-spinner block mb-1 text-gray-400 peer-checked:text-blue-500"></i>
-                            <span class="text-xs font-bold text-gray-500 peer-checked:text-blue-700">Active</span>
+                        <div class="px-3 py-3 rounded-2xl border-2 border-gray-100 text-center peer-checked:border-blue-400 peer-checked:bg-blue-50 transition-all group-hover:border-blue-200 group-active:scale-95">
+                            <i class="fa-solid fa-spinner fa-spin-pulse block mb-1 text-gray-400 peer-checked:text-blue-500"></i>
+                            <span class="text-[10px] font-black text-gray-400 peer-checked:text-blue-700">ACTIVE</span>
                         </div>
                     </label>
-                    <label class="relative cursor-pointer">
+                    <label class="relative cursor-pointer group">
                         <input type="radio" name="status" value="Resolved" class="peer sr-only" id="status_resolved" onchange="toggleCommentField(this.checked)">
-                        <div class="px-3 py-2.5 rounded-xl border-2 border-gray-100 text-center peer-checked:border-green-400 peer-checked:bg-green-50 transition-all">
+                        <div class="px-3 py-3 rounded-2xl border-2 border-gray-100 text-center peer-checked:border-green-400 peer-checked:bg-green-50 transition-all group-hover:border-green-200 group-active:scale-95">
                             <i class="fa-solid fa-check-circle block mb-1 text-gray-400 peer-checked:text-green-500"></i>
-                            <span class="text-xs font-bold text-gray-500 peer-checked:text-green-700">Resolved</span>
+                            <span class="text-[10px] font-black text-gray-400 peer-checked:text-green-700">RESOLVED</span>
                         </div>
                     </label>
                 </div>
@@ -503,15 +507,16 @@ $_el_filterQs = http_build_query(array_filter([
             <div id="comment_field" class="mb-6 hidden">
                 <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest mb-2 block">บันทึกการแก้ไข (Comment)</label>
                 <textarea name="resolve_comment" id="modal_comment" placeholder="ระบุรายละเอียดการแก้ไขปัญหา..."
-                    class="w-full px-4 py-3 border border-gray-200 rounded-2xl text-sm outline-none focus:ring-4 focus:ring-green-50 focus:border-green-400 transition-all h-28 resize-none"></textarea>
+                    class="w-full px-4 py-3 border border-gray-200 rounded-2xl text-sm outline-none focus:ring-4 focus:ring-green-50 focus:border-green-400 transition-all h-28 resize-none shadow-sm font-medium"></textarea>
             </div>
 
             <div class="flex gap-3">
-                <button type="button" onclick="closeStatusModal()" class="flex-1 px-5 py-3 border border-gray-200 text-gray-500 text-sm font-bold rounded-2xl hover:bg-gray-50 transition-colors">
+                <button type="button" onclick="closeStatusModal()" class="flex-1 px-5 py-3.5 border border-gray-200 text-gray-500 text-xs font-black uppercase tracking-widest rounded-2xl hover:bg-gray-50 transition-all active:scale-95">
                     ยกเลิก
                 </button>
-                <button type="submit" class="flex-1 px-5 py-3 bg-gray-900 text-white text-sm font-bold rounded-2xl hover:bg-black transition-all shadow-lg shadow-gray-200">
-                    บันทึกการเปลี่ยนแปลง
+                <button type="submit" id="statusSubmitBtn" class="flex-1 px-5 py-3.5 bg-gray-900 text-white text-xs font-black uppercase tracking-widest rounded-2xl hover:bg-black transition-all active:scale-95 shadow-lg shadow-gray-200 flex items-center justify-center gap-2">
+                    <span id="submitBtnText">บันทึกการเปลี่ยนแปลง</span>
+                    <i id="submitBtnIcon" class="fa-solid fa-check"></i>
                 </button>
             </div>
         </form>
@@ -519,6 +524,108 @@ $_el_filterQs = http_build_query(array_filter([
 </div>
 
 <script>
+async function handleStatusUpdate(e) {
+    e.preventDefault();
+    const form = e.target;
+    const logId = document.getElementById('modal_log_id').value;
+    const status = form.querySelector('input[name="status"]:checked').value;
+    const comment = document.getElementById('modal_comment').value;
+    const submitBtn = document.getElementById('statusSubmitBtn');
+    const btnText = document.getElementById('submitBtnText');
+    const btnIcon = document.getElementById('submitBtnIcon');
+
+    // Show loading
+    submitBtn.disabled = true;
+    submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
+    btnText.textContent = 'กำลังบันทึก...';
+    btnIcon.className = 'fa-solid fa-spinner fa-spin';
+
+    try {
+        const fd = new FormData();
+        fd.append('action', 'update_status');
+        fd.append('log_id', logId);
+        fd.append('status', status);
+        fd.append('resolve_comment', comment);
+
+        const res = await fetch('ajax_error_logs.php', {
+            method: 'POST',
+            body: fd
+        });
+        const data = await res.json();
+
+        if (data.ok) {
+            // Update UI
+            updateStatusUI(logId, status, comment);
+            
+            // Show Success
+            Swal.fire({
+                icon: 'success',
+                title: 'สำเร็จ',
+                text: 'อัปเดตสถานะเรียบร้อยแล้ว',
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true
+            });
+            
+            closeStatusModal();
+        } else {
+            throw new Error(data.error || 'Update failed');
+        }
+    } catch (err) {
+        Swal.fire({
+            icon: 'error',
+            title: 'ผิดพลาด',
+            text: err.message
+        });
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+        btnText.textContent = 'บันทึกการเปลี่ยนแปลง';
+        btnIcon.className = 'fa-solid fa-check';
+    }
+}
+
+function updateStatusUI(id, status, comment) {
+    const btn = document.getElementById('status-btn-' + id);
+    const label = btn.querySelector('.status-label');
+    const icon = btn.querySelector('i');
+    
+    // Update badge styles
+    let styles = '';
+    let iconClass = '';
+    if (status === 'New') {
+        styles = 'background:#f8fafc;border:1px solid #e2e8f0;color:#64748b';
+        iconClass = 'fa-solid fa-sparkles';
+    } else if (status === 'Active') {
+        styles = 'background:#eff6ff;border:1px solid #bfdbfe;color:#1d4ed8';
+        iconClass = 'fa-solid fa-spinner fa-spin';
+    } else {
+        styles = 'background:#f0fdf4;border:1px solid #bbf7d0;color:#15803d';
+        iconClass = 'fa-solid fa-check-circle';
+    }
+    
+    btn.style.cssText = styles + '; transition: all .15s';
+    label.textContent = status;
+    icon.className = iconClass + ' text-[9px]';
+    
+    // Update comment area
+    const container = document.getElementById('message-container-' + id);
+    const commentArea = container.querySelector('.resolve-comment-area');
+    const commentText = container.querySelector('.comment-text');
+    
+    if (status === 'Resolved' && comment) {
+        commentArea.classList.remove('hidden');
+        commentText.textContent = comment;
+    } else {
+        commentArea.classList.add('hidden');
+    }
+    
+    // Update button onclick for next time
+    btn.setAttribute('onclick', `openStatusModal(${id}, '${status}', ${JSON.stringify(comment || '')})`);
+}
+
 function openStatusModal(id, status, comment) {
     document.getElementById('modal_log_id').value = id;
     document.getElementById('modal_comment').value = comment || '';
