@@ -1554,17 +1554,15 @@ $adminListForSelect = $pdo->query("SELECT id, full_name, username FROM sys_admin
                                     </div>
 
                                     <!-- e-Borrow Card -->
-                                    <div id="govEbCard" class="premium-role-card orange p-4" style="border-radius:18px;border:1.5px solid #fed7aa;background:#fffaf5">
+                                    <div id="govEbCard" onclick="toggleGovAccess('govEbAccess', 'govEbRole', this)" class="premium-role-card orange p-4" style="border-radius:18px;border:1.5px solid #fed7aa;background:#fffaf5;cursor:pointer;transition:all 0.2s">
                                         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
                                             <div style="display:flex;align-items:center;gap:10px">
-                                                <div style="width:32px;height:32px;background:#ffedd5;color:#ea580c;border-radius:8px;display:flex;align-items:center;justify-content:center"><i class="fa-solid fa-box-archive"></i></div>
+                                                <div id="govEbIcon" style="width:32px;height:32px;background:#ffedd5;color:#ea580c;border-radius:8px;display:flex;align-items:center;justify-content:center"><i class="fa-solid fa-box-archive"></i></div>
                                                 <span style="font-weight:900;font-size:13px;color:#9a3412">e-Borrow & Inventory</span>
                                             </div>
-                                            <div class="toggle-wrap">
-                                                <input type="checkbox" id="govEbAccess" name="eb_access" value="1" checked style="display:none">
-                                            </div>
+                                            <input type="checkbox" id="govEbAccess" name="eb_access" value="1" checked style="width:18px;height:18px;cursor:pointer" onclick="event.stopPropagation(); syncGovUI('govEbAccess', 'govEbRole', 'govEbCard')">
                                         </div>
-                                        <select name="eb_role" id="govEbRole" class="premium-input" style="width:100%;font-size:12px;border-color:#fed7aa">
+                                        <select name="eb_role" id="govEbRole" class="premium-input" style="width:100%;font-size:12px;border-color:#fed7aa" onclick="event.stopPropagation()">
                                             <option value="employee">Employee (เจ้าหน้าที่ทั่วไป)</option>
                                             <option value="librarian">Librarian (บรรณารักษ์)</option>
                                             <option value="technician">Technician (ช่างเทคนิค)</option>
@@ -2346,6 +2344,7 @@ $adminListForSelect = $pdo->query("SELECT id, full_name, username FROM sys_admin
                 }
             }
             // Update UI States
+            syncGovUI('govEbAccess', 'govEbRole', 'govEbCard');
             syncGovUI('govEcAccess', 'govEcRole', 'govEcCard');
 
             m.style.display = 'flex';
