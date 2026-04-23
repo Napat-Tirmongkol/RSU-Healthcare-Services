@@ -1262,6 +1262,31 @@ $adminListForSelect = $pdo->query("SELECT id, full_name, username FROM sys_admin
                                 <div style="width:4px;height:18px;background:#2563eb;border-radius:99px;flex-shrink:0"></div>
                                 <span style="font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.14em;color:#374151">Staff Permission Matrix</span>
                             </div>
+                            <!-- Matrix Legend -->
+                            <div style="padding:12px 24px;background:#f8fafc;border-bottom:1px solid #f1f5f9;display:flex;flex-wrap:wrap;gap:20px;align-items:center">
+                                <div style="font-size:10px;font-weight:900;color:#94a3b8;text-transform:uppercase;letter-spacing:.1em">Matrix Legend:</div>
+                                <div style="display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:#475569">
+                                    <span style="color:#ea580c"><i class="fa-solid fa-shield-halved"></i></span> Admin
+                                </div>
+                                <div style="display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:#475569">
+                                    <span style="color:#7c3aed"><i class="fa-solid fa-crown"></i></span> Super
+                                </div>
+                                <div style="display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:#475569">
+                                    <span style="color:#2563eb"><i class="fa-solid fa-pen-to-square"></i></span> Editor
+                                </div>
+                                <div style="display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:#475569">
+                                    <span style="color:#16a34a"><i class="fa-solid fa-user"></i></span> Standard
+                                </div>
+                                <div style="display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:#94a3b8">
+                                    <i class="fa-solid fa-circle-xmark"></i> No Access
+                                </div>
+                                <div style="display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:#475569">
+                                    <i class="fa-solid fa-circle-check text-emerald-500"></i> Active Flag
+                                </div>
+                                <div style="display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:#475569">
+                                    <i class="fa-solid fa-circle-minus text-slate-200"></i> Disabled
+                                </div>
+                            </div>
                             <div style="overflow-x:auto">
                                 <table style="width:100%;border-collapse:collapse;font-size:13px" id="idStaffTable">
                                     <thead>
@@ -1351,25 +1376,7 @@ $adminListForSelect = $pdo->query("SELECT id, full_name, username FROM sys_admin
                                     </tbody>
                                 </table>
                             </div>
-                            <!-- Matrix Legend -->
-                            <div style="padding:16px 24px;background:#f8fafc;border-top:1px solid #f1f5f9;display:flex;flex-wrap:wrap;gap:20px;align-items:center">
-                                <div style="font-size:10px;font-weight:900;color:#94a3b8;text-transform:uppercase;letter-spacing:.1em">Matrix Legend:</div>
-                                <div style="display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:#475569">
-                                    <span style="color:#ea580c"><i class="fa-solid fa-shield-halved"></i></span> Administrator
-                                </div>
-                                <div style="display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:#475569">
-                                    <span style="color:#7c3aed"><i class="fa-solid fa-crown"></i></span> Super Admin
-                                </div>
-                                <div style="display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:#475569">
-                                    <span style="color:#2563eb"><i class="fa-solid fa-pen-to-square"></i></span> Editor/Librarian
-                                </div>
-                                <div style="display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:#475569">
-                                    <span style="color:#16a34a"><i class="fa-solid fa-user"></i></span> Standard
-                                </div>
-                                <div style="display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:#94a3b8">
-                                    <i class="fa-solid fa-circle-xmark"></i> No Access
-                                </div>
-                            </div>
+
                         </div>
                     </div>
 
