@@ -23,9 +23,13 @@ try {
     $pdo = db();
     $today = date('Y-m-d');
 
-    $stmt = $pdo->prepare("SELECT * FROM sys_users WHERE line_user_id = :line_id LIMIT 1");
-    $stmt->execute([':line_id' => $lineUserId]);
-    $user = $stmt->fetch();
+    if ($isTest) {
+        $user = ['id' => 0, 'full_name' => 'Test Automation', 'student_personnel_id' => 'TEST001'];
+    } else {
+        $stmt = $pdo->prepare("SELECT * FROM sys_users WHERE line_user_id = :line_id LIMIT 1");
+        $stmt->execute([':line_id' => $lineUserId]);
+        $user = $stmt->fetch();
+    }
 
     if (!$user) { header('Location: index.php'); exit; }
 
