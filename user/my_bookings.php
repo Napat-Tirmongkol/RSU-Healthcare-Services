@@ -279,7 +279,7 @@ function renderBookingCard($b): void {
                 class="flex-1 py-2.5 text-sm font-bold rounded-xl text-gray-500 hover:text-gray-700 transition-all">
             <i class="fa-solid fa-clock-rotate-left mr-1.5 text-xs"></i>
             <?= __('bookings.tab_history') ?>
-            <span class="ml-1 bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full text-[100px]"><?= count($historyBookings) ?></span>
+            <span class="ml-1 bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full text-[10px]"><?= count($historyBookings) ?></span>
         </button>
     </div>
 
