@@ -23,6 +23,7 @@ $__siteSettings = file_exists($__siteSettingsFile) ? json_decode(file_get_conten
 defined('SITE_NAME') || define('SITE_NAME', $__siteSettings['site_name'] ?? 'e-Campaign V2');
 defined('SITE_LOGO') || define('SITE_LOGO', $__siteSettings['site_logo'] ?? ''); // Empty means use default icon
 defined('GEMINI_API_KEY') || define('GEMINI_API_KEY', $__siteSettings['gemini_api_key'] ?? '');
+defined('SITE_SHOW_INSURANCE') || define('SITE_SHOW_INSURANCE', $__siteSettings['show_insurance'] ?? true);
 
 
 /**
