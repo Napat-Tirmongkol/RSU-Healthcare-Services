@@ -33,7 +33,7 @@ if ($adminRole === 'superadmin') {
     $allAdmins = $pdo->query("SELECT * FROM sys_admins ORDER BY id DESC")->fetchAll(PDO::FETCH_ASSOC);
     try {
         $allStaff = $pdo->query("
-            SELECT id, username, full_name, role, account_status, linked_line_user_id,
+            SELECT id, username, full_name, email, role, account_status, linked_line_user_id,
                    IFNULL(access_eborrow, 1) AS access_eborrow,
                    IFNULL(access_ecampaign, 0) AS access_ecampaign,
                    IFNULL(ecampaign_role, 'admin') AS ecampaign_role
