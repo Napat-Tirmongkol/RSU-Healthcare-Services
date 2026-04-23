@@ -24,10 +24,10 @@ Options -Indexes
 </IfModule>
 
 # ─── Force HTTPS ──────────────────────────────────────────────────────────
-<IfModule mod_rewrite.c>
-    RewriteCond %{HTTPS} off
-    RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
-</IfModule>
+# <IfModule mod_rewrite.c>
+#     RewriteCond %{HTTPS} off
+#     RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+# </IfModule>
 
 # Enable Rewrite
 RewriteEngine On
