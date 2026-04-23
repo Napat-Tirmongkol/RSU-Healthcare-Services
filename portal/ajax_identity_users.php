@@ -4,9 +4,10 @@
  * Handles server-side search and pagination for Identity & Governance Users
  */
 declare(strict_types=1);
-session_start();
+
+// Load configuration and authentication
 require_once __DIR__ . '/../config.php';
-require_once __DIR__ . '/includes/auth.php'; // Ensure security
+require_once __DIR__ . '/includes/auth.php'; // Ensure security and starts session
 
 header('Content-Type: application/json');
 
@@ -21,11 +22,14 @@ try {
     $countSql = "SELECT COUNT(*) FROM sys_users WHERE 1=1";
     $countParams = [];
     if ($search !== '') {
-        $countSql .= " AND (full_name LIKE :s OR student_personnel_id LIKE :s OR citizen_id LIKE :s OR email LIKE :s)";
-        $countParams[':s'] = "%$search%";
+        $countSql .= " AND (full_name LIKE :s1 OR student_personnel_id LIKE :s2 OR citizen_id LIKE :s3 OR email LIKE :s4)";
+        $like = "%$search%";
+        $countParams[':s1'] = $like;
+        $countParams[':s2'] = $like;
+        $countParams[':s3'] = $like;
+        $countParams[':s4'] = $like;
     }
-    $totalRecords = (int)$pdo->prepare($countSql)->execute($countParams) ? $pdo->prepare($countSql)->execute($countParams)->fetchColumn() : 0;
-    // Re-do count properly
+    
     $stmtCount = $pdo->prepare($countSql);
     $stmtCount->execute($countParams);
     $totalRecords = (int)$stmtCount->fetchColumn();
@@ -35,17 +39,29 @@ try {
             FROM sys_users WHERE 1=1";
     $params = [];
     if ($search !== '') {
-        $sql .= " AND (full_name LIKE :s OR student_personnel_id LIKE :s OR citizen_id LIKE :s OR email LIKE :s)";
-        $params[':s'] = "%$search%";
+        $sql .= " AND (full_name LIKE :s1 OR student_personnel_id LIKE :s2 OR citizen_id LIKE :s3 OR email LIKE :s4)";
+        $like = "%$search%";
+        $params[':s1'] = $like;
+        $params[':s2'] = $like;
+        $params[':s3'] = $like;
+        $params[':s4'] = $like;
     }
     $sql .= " ORDER BY created_at DESC LIMIT :limit OFFSET :offset";
     
     $stmt = $pdo->prepare($sql);
+    
+    // Bind search parameters if any
+    if ($search !== '') {
+        $stmt->bindValue(':s1', $params[':s1'], PDO::PARAM_STR);
+        $stmt->bindValue(':s2', $params[':s2'], PDO::PARAM_STR);
+        $stmt->bindValue(':s3', $params[':s3'], PDO::PARAM_STR);
+        $stmt->bindValue(':s4', $params[':s4'], PDO::PARAM_STR);
+    }
+    
+    // Bind pagination parameters
     $stmt->bindValue(':limit', $pageSize, PDO::PARAM_INT);
     $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
-    if ($search !== '') {
-        $stmt->bindValue(':s', "%$search%", PDO::PARAM_STR);
-    }
+    
     $stmt->execute();
     $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -61,7 +77,8 @@ try {
         ]
     ]);
 
-} catch (PDOException $e) {
+} catch (Exception $e) {
+    http_response_code(500);
     echo json_encode([
         'status' => 'error',
         'message' => $e->getMessage()
