@@ -54,19 +54,23 @@ $base_url = explode('/e_Borrow', $_SERVER['SCRIPT_NAME'])[0] . '/e_Borrow/';
     </script>
 
     <header class="header">
-        <h1>E-Borrow</h1>
-        
-        <a href="../portal/index.php"
-            class="flex items-center gap-2 px-4 py-2 text-sm font-bold transition-all bg-white border border-gray-100 rounded-2xl text-slate-700 hover:text-indigo-600 hover:border-indigo-200 hover:shadow-xl hover:shadow-indigo-500/10 hover:-translate-y-0.5 active:scale-95 group dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300 dark:hover:text-white">
-            <div class="flex items-center justify-center w-8 h-8 transition-colors bg-indigo-50 rounded-xl group-hover:bg-indigo-100 dark:bg-indigo-900/30 dark:group-hover:bg-indigo-900/50">
-                <i class="fas fa-home text-indigo-500 text-[14px] dark:text-indigo-400"></i>
-            </div>
-            <span class="hidden sm:inline">หน้าหลัก Portal</span>
-        </a>
+        <div class="flex items-center gap-3">
+            <h1 class="hidden xs:block">E-Borrow</h1>
+            <a href="../portal/index.php"
+                class="flex items-center gap-2 p-2 sm:px-4 sm:py-2 text-sm font-bold transition-all bg-white border border-gray-100 rounded-2xl text-slate-700 hover:text-indigo-600 hover:border-indigo-200 hover:shadow-xl hover:shadow-indigo-500/10 hover:-translate-y-0.5 active:scale-95 group dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300 dark:hover:text-white"
+                title="กลับหน้าหลัก Portal">
+                <div class="flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 transition-colors bg-indigo-50 rounded-xl group-hover:bg-indigo-100 dark:bg-indigo-900/30 dark:group-hover:bg-indigo-900/50">
+                    <i class="fas fa-home text-indigo-500 text-[13px] sm:text-[14px] dark:text-indigo-400"></i>
+                </div>
+                <span class="hidden md:inline">หน้าหลัก Portal</span>
+            </a>
+        </div>
 
         <div class="user-info">
             <div class="user-greeting">
-                สวัสดี, <strong><?php echo htmlspecialchars($_SESSION['full_name'] ?? 'ผู้ใช้'); ?></strong>
+                <span>สวัสดี,</span> 
+                <strong><?php echo htmlspecialchars($_SESSION['full_name'] ?? 'ผู้ใช้'); ?></strong>
+                <span class="hidden sm:inline">
                 (<?php
                 $role = $_SESSION['role'] ?? 'viewer';
                 if ($role == 'admin') {
@@ -77,16 +81,17 @@ $base_url = explode('/e_Borrow', $_SERVER['SCRIPT_NAME'])[0] . '/e_Borrow/';
                     echo htmlspecialchars($role);
                 }
                 ?>)
+                </span>
             </div>
 
-            <button type="button" class="theme-toggle-btn" id="theme-toggle-btn" title="สลับโหมด">
+            <button id="theme-toggle" class="theme-toggle" title="สลับโหมด มืด/สว่าง">
                 <i class="fas fa-moon"></i>
                 <i class="fas fa-sun"></i>
             </button>
 
             <a href="admin/logout.php" class="btn btn-logout" title="ออกจากระบบ">
                 <i class="fa-solid fa-arrow-right-from-bracket"></i>
-                <span class="logout-text">ออกจากระบบ</span>
+                <span class="logout-text">ออก</span>
             </a>
         </div>
     </header>
