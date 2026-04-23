@@ -16,12 +16,30 @@ if (!$staffId) {
 $action = $_GET['action'] ?? 'list_users';
 $pdo = db();
 
+// Auto-create table if not exists
+$pdo->exec("CREATE TABLE IF NOT EXISTS sys_chat_messages (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    sender_type ENUM('user', 'staff') NOT NULL,
+    user_id INT UNSIGNED NOT NULL,
+    staff_id INT UNSIGNED NULL,
+    message TEXT NOT NULL,
+    is_read TINYINT(1) DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_user (user_id),
+    INDEX idx_created (created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+
 try {
     if ($action === 'list_users') {
-        // Get list of users with their latest message
+        // แสดงเฉพาะผู้ใช้งานที่ส่งข้อความมาแล้ว
         $stmt = $pdo->query("
-            SELECT u.id, u.full_name, u.picture_url, m.message as last_message, m.created_at,
-                   (SELECT COUNT(*) FROM sys_chat_messages WHERE user_id = u.id AND is_read = 0 AND sender_type = 'user') as unread_count
+            SELECT 
+                u.id, 
+                u.full_name, 
+                u.picture_url,
+                m.message as last_message,
+                m.created_at,
+                COALESCE(unread.cnt, 0) as unread_count
             FROM sys_users u
             JOIN (
                 SELECT user_id, MAX(id) as max_id
@@ -29,10 +47,21 @@ try {
                 GROUP BY user_id
             ) latest ON u.id = latest.user_id
             JOIN sys_chat_messages m ON latest.max_id = m.id
+            LEFT JOIN (
+                SELECT user_id, COUNT(*) as cnt
+                FROM sys_chat_messages
+                WHERE is_read = 0 AND sender_type = 'user'
+                GROUP BY user_id
+            ) unread ON u.id = unread.user_id
             ORDER BY m.created_at DESC
         ");
         $users = $stmt->fetchAll();
-        echo json_encode(['success' => true, 'users' => $users]);
+
+        if (empty($users)) {
+            echo json_encode(['success' => true, 'users' => [], 'empty_message' => 'ยังไม่มีผู้ใช้งานส่งข้อความเข้ามา']);
+        } else {
+            echo json_encode(['success' => true, 'users' => $users]);
+        }
         exit;
     }
 
