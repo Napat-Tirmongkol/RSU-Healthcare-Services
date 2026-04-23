@@ -87,6 +87,7 @@ try {
 
 $page_title = "Dashboard - ภาพรวม";
 $current_page = "index";
+$user_role = $_SESSION['role'] ?? 'employee'; // รับค่า Role เพื่อนำไปจัด Layout
 include('../includes/header.php');
 ?>
 
@@ -298,7 +299,8 @@ include('../includes/header.php');
         </div>
     </div>
 
-    <!-- STATS GRID แบบใหม่ -->
+    <!-- STATS GRID แบบใหม่ (Role-Based) -->
+    <?php if ($user_role === 'admin' || $user_role === 'editor'): ?>
     <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 mb-10">
 
         <!-- STAT 1: พร้อมใช้งาน -->
@@ -394,12 +396,25 @@ include('../includes/header.php');
         </div>
 
     </div>
+    <?php else: ?>
+    <!-- STAFF QUICK ACTIONS (Mobile First) -->
+    <div class="grid grid-cols-2 gap-4 mb-8 animate-slide-up">
+        <a href="admin/return_dashboard.php" class="bg-blue-600 text-white p-5 rounded-[20px] shadow-lg shadow-blue-600/30 flex flex-col items-center justify-center text-center hover:bg-blue-700 transition-colors">
+            <i class="fas fa-undo-alt text-3xl mb-2 opacity-90"></i>
+            <span class="font-bold text-[15px]">รับคืนอุปกรณ์</span>
+        </a>
+        <a href="admin/walkin_borrow.php" class="bg-emerald-600 text-white p-5 rounded-[20px] shadow-lg shadow-emerald-600/30 flex flex-col items-center justify-center text-center hover:bg-emerald-700 transition-colors">
+            <i class="fas fa-qrcode text-3xl mb-2 opacity-90"></i>
+            <span class="font-bold text-[15px]">จ่ายอุปกรณ์</span>
+        </a>
+    </div>
+    <?php endif; ?>
 
     <!-- BOTTOM SECTION: LISTS & ACTIVITY -->
     <div class="grid grid-cols-1 xl:grid-cols-3 gap-8 animate-slide-up delay-200">
 
-        <!-- LEFT COLUMN (Span 2) -->
-        <div class="xl:col-span-2 flex flex-col gap-8">
+        <!-- LEFT COLUMN -->
+        <div class="xl:col-span-<?= ($user_role === 'employee') ? '3' : '2' ?> flex flex-col gap-8">
 
             <!-- รอดำเนินการ (รออนุมัติ) -->
             <div class="bg-white rounded-[24px] shadow-sm border border-gray-100 flex flex-col">
@@ -567,6 +582,7 @@ include('../includes/header.php');
 
         </div>
 
+        <?php if ($user_role === 'admin' || $user_role === 'editor'): ?>
         <!-- RIGHT COLUMN (Span 1 on XL -> 3) -->
         <div class="flex flex-col gap-6">
 
@@ -672,6 +688,7 @@ include('../includes/header.php');
             </div>
 
         </div>
+        <?php endif; ?>
     </div>
 </div>
 
