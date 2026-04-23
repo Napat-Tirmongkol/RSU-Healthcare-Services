@@ -82,6 +82,29 @@ include('../includes/header.php');
         border-color: #334155 !important;
     }
 
+    /* ตารางรายการที่จะยืม - Dark Mode Fix */
+    body.dark-mode .table-container thead {
+        background: #0f172a !important;
+    }
+    body.dark-mode .table-container th {
+        color: #94a3b8 !important;
+        border-bottom-color: #334155 !important;
+    }
+    body.dark-mode .table-container td {
+        color: #f1f5f9 !important;
+        border-bottom-color: #334155 !important;
+    }
+
+    /* ช่องค้นหา - Dark Mode Fix */
+    body.dark-mode .search-input-group input {
+        background: #0f172a !important;
+        border-color: #334155 !important;
+        color: #ffffff !important;
+    }
+    body.dark-mode .search-input-group input::placeholder {
+        color: #475569 !important;
+    }
+
     /* Mobile Responsive */
     @media (max-width: 768px) {
         .dashboard-grid { grid-template-columns: 1fr !important; gap: 15px; }
