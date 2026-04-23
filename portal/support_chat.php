@@ -548,9 +548,19 @@ $pdo = db();
         let currentUserId = null;
         let allUsers = [];
 
+        // ── Safe HTML escape helper ──
+        function esc(str) {
+            if (str == null) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
         function filterUsers(query) {
             const q = query.toLowerCase();
-            const container = document.getElementById('user-list-container');
             const filtered = allUsers.filter(u => u.full_name.toLowerCase().includes(q));
             renderUserList(filtered);
         }
@@ -558,28 +568,47 @@ $pdo = db();
         function renderUserList(users) {
             const container = document.getElementById('user-list-container');
             if (users.length === 0) {
-                container.innerHTML = `<div style="padding:40px;text-align:center;color:#CBD5E1;font-size:13px;font-weight:700">ไม่พบการสนทนา</div>`;
+                container.innerHTML = '<div style="padding:40px;text-align:center;color:#CBD5E1;font-size:13px;font-weight:700">ยังไม่มีข้อความเข้ามา</div>';
                 return;
             }
             container.innerHTML = users.map(u => {
                 const isActive = currentUserId == u.id;
-                const avatarUrl = u.picture_url || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(u.full_name) + '&background=EFF6FF&color=2563EB&bold=true';
+                const avatarUrl = esc(u.picture_url || ('https://ui-avatars.com/api/?name=' + encodeURIComponent(u.full_name) + '&background=EFF6FF&color=2563EB&bold=true'));
                 const time = new Date(u.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-                return `
-                    <div onclick="selectUser(${u.id}, ${JSON.stringify(u.full_name)}, ${JSON.stringify(u.picture_url)})"
-                        class="user-item${isActive ? ' active' : ''}">
-                        <img src="${avatarUrl}" alt="${u.full_name}" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(u.full_name)}&background=EFF6FF&color=2563EB&bold=true'">
-                        <div class="user-item-info">
-                            <div class="user-item-name">${u.full_name}</div>
-                            <div class="user-item-preview">${u.last_message}</div>
-                        </div>
-                        <div class="user-item-meta">
-                            <span class="user-item-time">${time}</span>
-                            ${u.unread_count > 0 ? `<span class="unread-badge">${u.unread_count}</span>` : ''}
-                        </div>
-                    </div>
-                `;
+                const fallbackAvatar = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(u.full_name) + '&background=EFF6FF&color=2563EB&bold=true';
+                return '<div onclick="selectUser(' + u.id + ')" class="user-item' + (isActive ? ' active' : '') + '" data-uid="' + u.id + '">'
+                    + '<img src="' + avatarUrl + '" alt="avatar" onerror="this.src=\'' + esc(fallbackAvatar) + '\'">'
+                    + '<div class="user-item-info">'
+                    + '<div class="user-item-name">' + esc(u.full_name) + '</div>'
+                    + '<div class="user-item-preview">' + esc(u.last_message) + '</div>'
+                    + '</div>'
+                    + '<div class="user-item-meta">'
+                    + '<span class="user-item-time">' + time + '</span>'
+                    + (u.unread_count > 0 ? '<span class="unread-badge">' + u.unread_count + '</span>' : '')
+                    + '</div>'
+                    + '</div>';
             }).join('');
+
+            // Store user data for selectUser lookup
+            allUsers.forEach(u => {
+                const el = container.querySelector('[data-uid="' + u.id + '"]');
+                if (el) el._userData = u;
+            });
+        }
+
+        function selectUser(id) {
+            const u = allUsers.find(x => x.id == id);
+            if (!u) return;
+            currentUserId = id;
+            document.getElementById('chat-placeholder').style.display = 'none';
+            document.getElementById('chat-active').classList.add('visible');
+            document.getElementById('active-user-name').innerText = u.full_name;
+            const imgEl = document.getElementById('active-user-img');
+            const fallback = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(u.full_name) + '&background=EFF6FF&color=2563EB&bold=true';
+            imgEl.src = u.picture_url || fallback;
+            imgEl.onerror = () => { imgEl.src = fallback; };
+            renderUserList(allUsers);
+            loadMessages();
         }
 
         async function loadUsers() {
@@ -612,18 +641,7 @@ $pdo = db();
             }
         }
 
-        function selectUser(id, name, img) {
-            currentUserId = id;
-            document.getElementById('chat-placeholder').style.display = 'none';
-            document.getElementById('chat-active').classList.add('visible');
-            document.getElementById('active-user-name').innerText = name;
-            const avatarUrl = img || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(name) + '&background=EFF6FF&color=2563EB&bold=true';
-            const imgEl = document.getElementById('active-user-img');
-            imgEl.src = avatarUrl;
-            imgEl.onerror = () => { imgEl.src = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(name) + '&background=EFF6FF&color=2563EB&bold=true'; };
-            renderUserList(allUsers); // re-render to update active state
-            loadMessages();
-        }
+
 
         async function loadMessages() {
             if (!currentUserId) return;
