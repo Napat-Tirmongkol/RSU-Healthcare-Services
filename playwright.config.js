@@ -9,7 +9,7 @@ module.exports = defineConfig({
   workers: process.env.CI ? 1 : undefined,
   reporter: 'html',
   use: {
-    baseURL: 'http://171.102.216.219/plesk-site-preview/dev.healthycampus.rsu.ac.th',
+    baseURL: 'http://171.102.216.219/plesk-site-preview/dev.healthycampus.rsu.ac.th/',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     video: 'on-first-retry',

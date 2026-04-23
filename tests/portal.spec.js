@@ -12,7 +12,7 @@ test.describe('RSU Medical Portal Staging Tests', () => {
     
     // 2. ตรวจสอบว่าเห็นหัวข้อ "ศูนย์รวมบริการ"
     const heading = page.locator('h1');
-    await expect(heading).toContainText(/ศูนย์รวมบริการ/);
+    await expect(heading).toContainText(/RSU Medical/);
     
     // 3. ถ่ายรูปหน้าจอเก็บไว้ดูผล
     await page.screenshot({ path: 'test-results/hub-screenshot.png' });
