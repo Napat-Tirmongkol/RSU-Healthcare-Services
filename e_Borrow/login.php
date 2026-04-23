@@ -16,6 +16,19 @@ if (!empty($_SESSION['student_id'])) {
 $reason = $_GET['reason'] ?? ($_GET['timeout'] ?? '');
 $timeout = $reason === 'timeout' || isset($_GET['timeout']);
 
+// [NEW] ตรวจสอบความผิดพลาดจากการเข้าถึง (Access Control Enforcement)
+$errorCode = $_GET['error'] ?? '';
+$showError = false;
+$errorMessage = '';
+
+if ($errorCode === 'access_revoked' || $errorCode === 'access_denied_eborrow') {
+    $showError = true;
+    $errorMessage = 'คุณไม่มีสิทธิ์เข้าถึงระบบนี้ในขณะนี้ กรุณาติดต่อผู้ดูแลระบบ';
+} elseif ($errorCode === 'no_staff_account') {
+    $showError = true;
+    $errorMessage = 'ไม่พบบัญชีเจ้าหน้าที่ในระบบ หรือสิทธิ์การใช้งานของคุณไม่ถูกต้อง';
+}
+
 // =========================================================
 // สร้าง LINE Auth URL (ดึงมาจาก line_config)
 // =========================================================
@@ -204,6 +217,13 @@ $authUrl = "https://access.line.me/oauth2/v2.1/authorize?" . http_build_query([
             <div class="notice">
                 <i class="fa-solid fa-triangle-exclamation" style="color:#d97706; font-size:1.2rem;"></i>
                 <span>เซสชั่นหมดอายุ กรุณาเข้าสู่ระบบอีกครั้งเพื่อดำเนินการต่อ</span>
+            </div>
+            <?php endif; ?>
+
+            <?php if ($showError): ?>
+            <div class="notice" style="background:#fef2f2; border-color:#fecaca; color:#dc2626;">
+                <i class="fa-solid fa-circle-exclamation" style="color:#ef4444; font-size:1.2rem;"></i>
+                <span style="font-weight:700;"><?= htmlspecialchars($errorMessage) ?></span>
             </div>
             <?php endif; ?>
 
