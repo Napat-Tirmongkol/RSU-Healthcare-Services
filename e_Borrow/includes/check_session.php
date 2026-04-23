@@ -9,14 +9,16 @@ if (!function_exists('_eborrow_abs_url')) {
     function _eborrow_abs_url(string $relativePath): string {
         $proto = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
         $host  = $_SERVER['HTTP_HOST'] ?? 'localhost';
-        // __DIR__ = .../archive/e_Borrow/includes
-        $adminDir = rtrim(str_replace(
-            str_replace('/', DIRECTORY_SEPARATOR, $_SERVER['DOCUMENT_ROOT']),
-            '',
-            realpath(__DIR__ . '/../admin')
-        ), DIRECTORY_SEPARATOR);
-        $adminUrl = $proto . '://' . $host . '/' . ltrim(str_replace(DIRECTORY_SEPARATOR, '/', $adminDir), '/');
-        return $adminUrl . '/' . ltrim($relativePath, '/');
+        
+        // Normalize slashes for robust replacement
+        $docRoot = str_replace('\\', '/', $_SERVER['DOCUMENT_ROOT']);
+        $targetDir = str_replace('\\', '/', realpath(__DIR__ . '/..'));
+        
+        // Use str_ireplace to handle case differences on Windows (e.g. C: vs c:)
+        $relativeDir = str_ireplace($docRoot, '', $targetDir);
+        
+        $adminUrl = $proto . '://' . $host . '/' . ltrim($relativeDir, '/');
+        return rtrim($adminUrl, '/') . '/' . ltrim($relativePath, '/');
     }
 }
 
@@ -33,12 +35,18 @@ if (!isset($_SESSION['user_id'])
         $p = db();
         $uname = $_SESSION['admin_username'] ?? '';
 
-        // ค้นหาใน sys_staff — ต้องมีบัญชีจริงและสถานะ active
-        $s = $p->prepare("SELECT id, full_name, role FROM sys_staff WHERE username = :u AND account_status = 'active' LIMIT 1");
+        // ค้นหาใน sys_staff — ต้องมีบัญชีจริง สถานะ active และมีสิทธิ์ access_eborrow
+        $s = $p->prepare("SELECT id, full_name, role, IFNULL(access_eborrow, 1) AS access_eborrow FROM sys_staff WHERE username = :u AND account_status = 'active' LIMIT 1");
         $s->execute([':u' => $uname]);
         $row = $s->fetch();
 
         if ($row) {
+            // ตรวจสอบสิทธิ์การเข้าถึง e-Borrow รายบุคคล
+            if (intval($row['access_eborrow']) === 0) {
+                header('Location: ' . _eborrow_abs_url('login.php?error=access_denied_eborrow'));
+                exit;
+            }
+            
             // พบบัญชี sys_staff → ใช้ role จาก staff record
             $allowedRoles = ['admin', 'editor', 'employee', 'librarian'];
             $_SESSION['user_id']   = $row['id'];
@@ -110,5 +118,24 @@ $_SESSION['LAST_ACTIVITY'] = time();
 if (!isset($_SESSION['user_id'])) {
     header('Location: ' . _eborrow_abs_url('login.php'));
     exit;
+} else {
+    // [ISO 27001] ตรวจสอบสิทธิ์การเข้าถึงแบบ Real-time สำหรับ Staff
+    // ป้องกันกรณีแอดมินปิดสิทธิ์ขณะที่เจ้าหน้าที่ล็อกอินค้างอยู่
+    if (!isset($_SESSION['is_portal_admin'])) {
+        try {
+            require_once __DIR__ . '/../includes/db_connect.php';
+            $db = db();
+            $check = $db->prepare("SELECT IFNULL(access_eborrow, 1) as access FROM sys_staff WHERE id = ? AND account_status = 'active' LIMIT 1");
+            $check->execute([$_SESSION['user_id']]);
+            $staffRow = $check->fetch();
+            if (!$staffRow || intval($staffRow['access']) === 0) {
+                // ถูกถอนสิทธิ์ หรือบัญชีถูกระงับ
+                session_unset();
+                session_destroy();
+                header('Location: ' . _eborrow_abs_url('login.php?error=access_revoked'));
+                exit;
+            }
+        } catch (Exception $e) { /* DB error - safe fallback to existing session */ }
+    }
 }
 ?>

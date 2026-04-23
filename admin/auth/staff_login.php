@@ -42,7 +42,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt = $pdo->prepare("
                 SELECT id, username, password_hash, full_name, role, account_status,
                        IFNULL(access_ecampaign, 0) AS access_ecampaign,
-                       IFNULL(ecampaign_role, 'editor') AS ecampaign_role
+                       IFNULL(ecampaign_role, 'editor') AS ecampaign_role,
+                       IFNULL(access_eborrow, 0) AS access_eborrow,
+                       IFNULL(access_insurance, 0) AS access_insurance,
+                       IFNULL(access_system_logs, 0) AS access_system_logs,
+                       IFNULL(access_site_settings, 0) AS access_site_settings
                 FROM sys_staff
                 WHERE username = :uname
                 LIMIT 1
@@ -54,8 +58,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 if ($staff['account_status'] === 'disabled') {
                     $error = 'บัญชีนี้ถูกระงับการใช้งาน กรุณาติดต่อผู้ดูแลระบบ';
-                } elseif (!(int)$staff['access_ecampaign']) {
-                    $error = 'บัญชีนี้ยังไม่ได้รับสิทธิ์เข้าใช้งาน e-Campaign กรุณาติดต่อผู้ดูแลระบบ';
+                } elseif (!(int)$staff['access_ecampaign'] && !(int)$staff['access_eborrow'] && !(int)$staff['access_insurance']) {
+                    $error = 'บัญชีนี้ยังไม่ได้รับสิทธิ์เข้าใช้งานระบบใดๆ กรุณาติดต่อผู้ดูแลระบบ';
                 } else {
                     // Whitelist ecampaign_role ป้องกัน privilege escalation
                     $allowedRoles = ['admin', 'editor', 'superadmin'];
@@ -70,6 +74,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $_SESSION['admin_username']        = $staff['full_name'] ?: $staff['username'];
                     $_SESSION['admin_role']            = $ecRole;
                     $_SESSION['is_ecampaign_staff']    = true;   // flag: ไม่ใช่ portal admin
+                    
+                    // Extended Access Flags
+                    $_SESSION['access_ecampaign']      = (int)$staff['access_ecampaign'];
+                    $_SESSION['access_eborrow']        = (int)$staff['access_eborrow'];
+                    $_SESSION['access_insurance']      = (int)$staff['access_insurance'];
+                    $_SESSION['access_system_logs']    = (int)$staff['access_system_logs'];
+                    $_SESSION['access_site_settings']  = (int)$staff['access_site_settings'];
+
                     $_SESSION['_admin_last_activity']  = time();
 
                     log_activity('staff_login', "เจ้าหน้าที่ '{$staff['full_name']}' (Username: {$staff['username']}) เข้าสู่ระบบ e-Campaign", (int)$staff['id']);
@@ -384,6 +396,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <button type="button" class="eye-btn" onclick="togglePw()" id="eyeBtn">
                     <i class="fa-regular fa-eye" id="eyeIcon"></i>
                 </button>
+            </div>
+
+            <div class="flex justify-end mb-4" style="margin-top:-0.5rem;">
+                <a href="forgot_password.php?type=staff" class="text-xs font-semibold text-gray-400 hover:text-indigo-600 transition-colors">
+                    ลืมรหัสผ่าน?
+                </a>
             </div>
 
             <button type="submit" class="btn-login">

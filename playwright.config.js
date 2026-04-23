@@ -9,7 +9,10 @@ module.exports = defineConfig({
   workers: process.env.CI ? 1 : undefined,
   reporter: 'html',
   use: {
+    /* Base URL to use in actions like `await page.goto('')`. */
     baseURL: 'http://171.102.216.219/plesk-site-preview/dev.healthycampus.rsu.ac.th/',
+
+    /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     video: 'on-first-retry',
@@ -19,11 +22,16 @@ module.exports = defineConfig({
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
     },
-    /*
     {
-      name: 'Mobile Chrome',
-      use: { ...devices['Pixel 5'] },
+      name: 'webkit',
+      use: { ...devices['Desktop Safari'] },
     },
-    */
   ],
+
+  /* Run your local dev server before starting the tests */
+  webServer: {
+    command: 'php -S localhost:8080',
+    url: 'http://localhost:8080',
+    reuseExistingServer: !process.env.CI,
+  },
 });

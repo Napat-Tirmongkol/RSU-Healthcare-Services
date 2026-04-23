@@ -19,17 +19,22 @@ try {
     $sql = "SELECT 
                 p.id as payment_id, p.amount_paid, p.payment_date, p.receipt_number,
                 p.payment_method, p.payment_slip_url,
-                f.amount as fine_amount, f.notes as fine_notes,
+                COALESCE(f.amount, p.amount_paid) as fine_amount, 
+                COALESCE(f.notes, '') as fine_notes,
                 t.due_date,
-                ei.name as equipment_name,
-                s.full_name as student_name, s.student_personnel_id,
-                u_staff.full_name as staff_name
+                COALESCE(bc.name, ei.name, 'ไม่ระบุชื่ออุปกรณ์') as equipment_name,
+                COALESCE(s.full_name, s2.full_name, 'ไม่ระบุชื่อผู้ยืม') as student_name, 
+                COALESCE(s.student_personnel_id, s2.student_personnel_id, '-') as student_personnel_id,
+                COALESCE(u_staff.full_name, u_admins.full_name, 'เจ้าหน้าที่') as staff_name
             FROM borrow_payments p
-            JOIN borrow_fines f ON p.fine_id = f.id
-            JOIN borrow_records t ON f.transaction_id = t.id
-            JOIN borrow_items ei ON t.equipment_id = ei.id
-            JOIN sys_users s ON f.student_id = s.id
-            JOIN sys_staff u_staff ON p.received_by_staff_id = u_staff.id
+            LEFT JOIN borrow_fines f ON p.fine_id = f.id
+            LEFT JOIN borrow_records t ON f.transaction_id = t.id
+            LEFT JOIN borrow_categories bc ON t.type_id = bc.id
+            LEFT JOIN borrow_items ei ON t.equipment_id = ei.id
+            LEFT JOIN sys_users s ON f.student_id = s.id
+            LEFT JOIN sys_users s2 ON t.borrower_student_id = s2.id
+            LEFT JOIN sys_staff u_staff ON p.received_by_staff_id = u_staff.id
+            LEFT JOIN sys_admins u_admins ON p.received_by_staff_id = u_admins.id
             WHERE p.id = ?";
             
     $stmt = $pdo->prepare($sql);
@@ -37,10 +42,11 @@ try {
     $data = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$data) {
-        die("ไม่พบข้อมูลการชำระเงินนี้");
+        die("ไม่พบข้อมูลการชำระเงินนี้ (ID: $payment_id)");
     }
 } catch (PDOException $e) {
-    error_log("print_receipt error: " . $e->getMessage()); exit("เกิดข้อผิดพลาด");
+    error_log("print_receipt error: " . $e->getMessage()); 
+    exit("เกิดข้อผิดพลาดในการดึงข้อมูล");
 }
 ?>
 <!DOCTYPE html>

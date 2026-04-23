@@ -7,11 +7,10 @@ require_once __DIR__ . '/../config.php';
 
 $adminRole = $_SESSION['admin_role'] ?? '';
 $isStaff   = !empty($_SESSION['is_ecampaign_staff']);
-if ($isStaff && $adminRole === '') {
-    header('Location: index.php'); exit;
-}
-$allowedRoles = ['admin', 'superadmin', 'editor'];
-if (!in_array($adminRole, $allowedRoles, true)) {
+
+// Granular Access Enforcement (ISO 27001 Compliance)
+$hasAccess = ($adminRole === 'superadmin') || !empty($_SESSION['access_insurance']);
+if (!$hasAccess) {
     header('Location: index.php'); exit;
 }
 

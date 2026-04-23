@@ -268,7 +268,71 @@ body.dark-mode .theme-toggle-btn {
     .content { margin-top: 50px; }
 }
 
-/* (เพิ่ม) ซ่อนข้อความใน Header เมื่อจอเล็ก */
+/* Modern Sticky Header */
+.header {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 20px;
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+}
+
+body.dark-mode .header {
+    background: rgba(15, 23, 42, 0.85);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.header h1 {
+    font-size: 1.25rem;
+    font-weight: 900;
+    color: var(--color-primary);
+    margin: 0;
+    letter-spacing: -0.5px;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.user-greeting {
+    font-size: 0.85rem;
+    color: #64748b;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* ซ่อนชื่อยาวๆ ในมือถือ เหลือแต่ชื่อ Staff */
+@media (max-width: 640px) {
+    .header {
+        padding: 10px 15px;
+    }
+    .header h1 {
+        font-size: 1.1rem;
+    }
+    .user-greeting span:first-child {
+        display: none; /* ซ่อนคำว่า "สวัสดี," */
+    }
+    .user-greeting strong {
+        max-width: 80px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: inline-block;
+    }
+    .logout-text {
+        display: none; /* ซ่อนตัวอักษร logout เหลือแต่ไอคอน */
+    }
+}
 @media (max-width: 768px) {
     .header h1 {
         font-size: 1.1em; /* (ลดขนาดหัวข้อ) */
