@@ -616,6 +616,7 @@ $adminListForSelect = $pdo->query("SELECT id, full_name, username FROM sys_admin
                 <div class="psb-icon"><i class="fa-solid fa-id-card-clip" style="color:#2563eb"></i></div>
                 <span class="psb-label" style="color:#1d4ed8;font-weight:900">Identity & Governance</span>
             </button>
+            <?php if ($adminRole === 'superadmin' || !empty($_SESSION['access_system_logs'])): ?>
             <button class="psb-item" data-section="activity_logs" onclick="switchSection('activity_logs',this)">
                 <div class="psb-icon"><i class="fa-solid fa-file-lines" style="color:#64748b"></i></div>
                 <span class="psb-label" style="color:#475569;font-weight:900">Activity Logs</span>
@@ -624,16 +625,19 @@ $adminListForSelect = $pdo->query("SELECT id, full_name, username FROM sys_admin
                 <div class="psb-icon"><i class="fa-solid fa-bug" style="color:#ef4444"></i></div>
                 <span class="psb-label" style="color:#dc2626;font-weight:900">Error Logs</span>
             </button>
+            <?php endif; ?>
             <?php if ($adminRole === 'superadmin'): ?>
             <button class="psb-item" data-section="privilege_inventory" onclick="switchSection('privilege_inventory',this)">
                 <div class="psb-icon"><i class="fa-solid fa-shield-halved" style="color:#10b981"></i></div>
                 <span class="psb-label" style="color:#059669;font-weight:900">ISO Governance</span>
             </button>
             <?php endif; ?>
+            <?php if ($adminRole === 'superadmin' || !empty($_SESSION['access_site_settings'])): ?>
             <button class="psb-item" data-section="settings" onclick="switchSection('settings',this)">
                 <div class="psb-icon"><i class="fa-solid fa-gear" style="color:#d97706"></i></div>
                 <span class="psb-label" style="color:#b45309;font-weight:900">Settings</span>
             </button>
+            <?php endif; ?>
         </div>
     </nav>
 
@@ -836,10 +840,28 @@ $adminListForSelect = $pdo->query("SELECT id, full_name, username FROM sys_admin
                             <div id="project-container" class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                                 <?php $cardIdx = 0;
                                 foreach ($projects as $proj):
-                                    // Staff เห็นเฉพาะ tile ที่ staff_visible = true
-                                    if ($isStaff && !($proj['staff_visible'] ?? false)) continue;
-                                    // Admin/Superadmin กรองตาม allowed_roles ปกติ
-                                    if (!$isStaff && !in_array($adminRole, $proj['allowed_roles'])) continue;
+                                    // Robust access control check
+                                    $hasAccess = false;
+                                    if ($adminRole === 'superadmin') {
+                                        $hasAccess = true;
+                                    } else {
+                                        // Check project-specific flags
+                                        if ($proj['id'] === 'e_borrow' && !empty($_SESSION['access_eborrow'])) $hasAccess = true;
+                                        elseif ($proj['id'] === 'e_campaign' && !empty($_SESSION['access_ecampaign'])) $hasAccess = true;
+                                        elseif ($proj['id'] === 'insurance_sync' && !empty($_SESSION['access_insurance'])) $hasAccess = true;
+                                        elseif ($proj['id'] === 'system_logs' && !empty($_SESSION['access_system_logs'])) $hasAccess = true;
+                                        elseif ($proj['id'] === 'line_messaging' && !empty($_SESSION['access_site_settings'])) $hasAccess = true;
+                                        elseif ($proj['id'] === 'privilege_inventory' && $adminRole === 'superadmin') $hasAccess = true;
+                                        elseif ($proj['id'] === 'identity_governance' && in_array($adminRole, ['admin', 'superadmin'])) $hasAccess = true;
+                                        
+                                        // Fallback to role-based or staff-visibility
+                                        if (!$hasAccess) {
+                                            if (in_array($adminRole, $proj['allowed_roles'])) $hasAccess = true;
+                                            if ($isStaff && ($proj['staff_visible'] ?? false)) $hasAccess = true;
+                                        }
+                                    }
+
+                                    if (!$hasAccess) continue;
                                     $cardDelay = round(0.1 + $cardIdx * 0.12, 2);
                                     $cardIdx++;
                                     $cat = $categoryMap[$proj['id']] ?? 'core';
@@ -1247,6 +1269,9 @@ $adminListForSelect = $pdo->query("SELECT id, full_name, username FROM sys_admin
                                             <th style="padding:16px 20px;text-align:left;font-size:10px;font-weight:900;color:#64748b;text-transform:uppercase;letter-spacing:.15em"><i class="fa-solid fa-user-gear mr-2"></i>Staff Details</th>
                                             <th style="padding:16px 20px;text-align:center;font-size:10px;font-weight:900;color:#64748b;text-transform:uppercase;letter-spacing:.15em;width:120px"><i class="fa-solid fa-box-archive mr-2"></i>e-Borrow</th>
                                             <th style="padding:16px 20px;text-align:center;font-size:10px;font-weight:900;color:#64748b;text-transform:uppercase;letter-spacing:.15em;width:120px"><i class="fa-solid fa-bullhorn mr-2"></i>e-Campaign</th>
+                                            <th style="padding:16px 20px;text-align:center;font-size:10px;font-weight:900;color:#64748b;text-transform:uppercase;letter-spacing:.15em;width:80px" title="Insurance Sync"><i class="fa-solid fa-shield-heart"></i></th>
+                                            <th style="padding:16px 20px;text-align:center;font-size:10px;font-weight:900;color:#64748b;text-transform:uppercase;letter-spacing:.15em;width:80px" title="System Logs"><i class="fa-solid fa-list-ul"></i></th>
+                                            <th style="padding:16px 20px;text-align:center;font-size:10px;font-weight:900;color:#64748b;text-transform:uppercase;letter-spacing:.15em;width:80px" title="System Settings"><i class="fa-solid fa-sliders"></i></th>
                                             <th style="padding:16px 20px;text-align:center;font-size:10px;font-weight:900;color:#64748b;text-transform:uppercase;letter-spacing:.15em;width:100px">Status</th>
                                             <th style="padding:16px 20px;text-align:right;font-size:10px;font-weight:900;color:#64748b;text-transform:uppercase;letter-spacing:.15em">Actions</th>
                                         </tr>
@@ -1280,6 +1305,15 @@ $adminListForSelect = $pdo->query("SELECT id, full_name, username FROM sys_admin
                                                     $ecIcon = '<div style="background:#eff6ff;color:#2563eb;border:1px solid #bfdbfe;width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;margin:0 auto" title="e-Campaign: Editor"><i class="fa-solid fa-file-signature"></i></div>';
                                                 }
                                             }
+
+                                            // Portal Extensions
+                                            $insAccess = (int)($st['access_insurance'] ?? 0);
+                                            $logsAccess = (int)($st['access_system_logs'] ?? 0);
+                                            $settAccess = (int)($st['access_site_settings'] ?? 0);
+                                            
+                                            $insIcon = $insAccess ? '<i class="fa-solid fa-circle-check text-emerald-500"></i>' : '<i class="fa-solid fa-circle-minus text-slate-200"></i>';
+                                            $logsIcon = $logsAccess ? '<i class="fa-solid fa-circle-check text-emerald-500"></i>' : '<i class="fa-solid fa-circle-minus text-slate-200"></i>';
+                                            $settIcon = $settAccess ? '<i class="fa-solid fa-circle-check text-emerald-500"></i>' : '<i class="fa-solid fa-circle-minus text-slate-200"></i>';
                                             ?>
                                             <tr style="border-bottom:1px solid #f1f5f9" class="id-staff-row hover:bg-slate-50/50 transition-colors">
                                                 <td style="padding:16px 20px">
@@ -1295,6 +1329,9 @@ $adminListForSelect = $pdo->query("SELECT id, full_name, username FROM sys_admin
                                                 </td>
                                                 <td style="padding:16px 20px;text-align:center"><?= $ebIcon ?></td>
                                                 <td style="padding:16px 20px;text-align:center"><?= $ecIcon ?></td>
+                                                <td style="padding:16px 20px;text-align:center"><?= $insIcon ?></td>
+                                                <td style="padding:16px 20px;text-align:center"><?= $logsIcon ?></td>
+                                                <td style="padding:16px 20px;text-align:center"><?= $settIcon ?></td>
                                                 <td style="padding:16px 20px;text-align:center">
                                                     <span style="font-size:10px;font-weight:900;padding:4px 10px;border-radius:99px;background:<?= $isActive ? '#f0fdf4;color:#16a34a;border:1px solid #bbf7d0' : '#fef2f2;color:#dc2626;border:1px solid #fecaca' ?>"><?= strtoupper($st['account_status']) ?></span>
                                                 </td>
@@ -1601,6 +1638,39 @@ $adminListForSelect = $pdo->query("SELECT id, full_name, username FROM sys_admin
                                             <option value="superadmin">Super Administrator (FULL CONTROL)</option>
                                         </select>
                                     </div>
+
+                                    <!-- Portal Extension Rights -->
+                                    <div style="display:flex;flex-direction:column;gap:12px">
+                                        <div style="font-size:11px;font-weight:900;color:#94a3b8;text-transform:uppercase;letter-spacing:.1em;display:flex;align-items:center;gap:8px">
+                                            <i class="fa-solid fa-puzzle-piece"></i> ส่วนขยาย (Extensions)
+                                        </div>
+                                        <div style="display:grid;grid-template-columns:1fr;gap:10px">
+                                            <!-- Insurance -->
+                                            <div onclick="document.getElementById('govInsAccess').click()" class="premium-role-card" style="border-radius:14px;border:1.5px solid #e2e8f0;background:#fff;cursor:pointer;padding:12px;transition:all 0.2s;display:flex;align-items:center;justify-content:space-between">
+                                                <div style="display:flex;align-items:center;gap:10px">
+                                                    <i class="fa-solid fa-shield-heart text-emerald-500"></i>
+                                                    <span style="font-weight:800;font-size:12px;color:#475569">Insurance Sync Hub</span>
+                                                </div>
+                                                <input type="checkbox" name="ins_access" id="govInsAccess" value="1" style="width:16px;height:16px" onclick="event.stopPropagation()">
+                                            </div>
+                                            <!-- Logs -->
+                                            <div onclick="document.getElementById('govLogsAccess').click()" class="premium-role-card" style="border-radius:14px;border:1.5px solid #e2e8f0;background:#fff;cursor:pointer;padding:12px;transition:all 0.2s;display:flex;align-items:center;justify-content:space-between">
+                                                <div style="display:flex;align-items:center;gap:10px">
+                                                    <i class="fa-solid fa-list-ul text-slate-500"></i>
+                                                    <span style="font-weight:800;font-size:12px;color:#475569">System Activity Logs</span>
+                                                </div>
+                                                <input type="checkbox" name="logs_access" id="govLogsAccess" value="1" style="width:16px;height:16px" onclick="event.stopPropagation()">
+                                            </div>
+                                            <!-- Settings -->
+                                            <div onclick="document.getElementById('govSettAccess').click()" class="premium-role-card" style="border-radius:14px;border:1.5px solid #e2e8f0;background:#fff;cursor:pointer;padding:12px;transition:all 0.2s;display:flex;align-items:center;justify-content:space-between">
+                                                <div style="display:flex;align-items:center;gap:10px">
+                                                    <i class="fa-solid fa-sliders text-slate-500"></i>
+                                                    <span style="font-weight:800;font-size:12px;color:#475569">Global Site Settings</span>
+                                                </div>
+                                                <input type="checkbox" name="sett_access" id="govSettAccess" value="1" style="width:16px;height:16px" onclick="event.stopPropagation()">
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
@@ -1708,10 +1778,15 @@ $adminListForSelect = $pdo->query("SELECT id, full_name, username FROM sys_admin
                 </div>
             */ ?>
 
-            <!-- ════════════ SECTION: SETTINGS ════════════ -->
             <div id="section-settings" class="portal-section"
                 style="<?= $activeSection==='settings'?'':'display:none;' ?> background:#f1f5f9; overflow-y:auto;">
-                <?php include __DIR__ . '/_partials/settings.php'; ?>
+                <?php 
+                if ($adminRole === 'superadmin' || !empty($_SESSION['access_site_settings'])) {
+                    include __DIR__ . '/_partials/settings.php'; 
+                } else {
+                    echo '<div style="padding:100px;text-align:center;font-weight:900;color:#dc2626"><i class="fa-solid fa-shield-slash mb-4" style="font-size:4rem;display:block"></i> ACCESS DENIED<br><span style="font-size:14px;color:#94a3b8;font-weight:600">You do not have permission to manage site settings.</span></div>';
+                }
+                ?>
             </div>
 
             <!-- ════════════ SECTION: AI ASSISTANT ════════════ -->
@@ -1729,25 +1804,49 @@ $adminListForSelect = $pdo->query("SELECT id, full_name, username FROM sys_admin
             <!-- ════════════ SECTION: ACTIVITY LOGS ════════════ -->
             <div id="section-activity_logs" class="portal-section"
                 style="<?= $activeSection==='activity_logs'?'':'display:none;' ?> background:#f8fafc; overflow-y:auto;">
-                <?php include __DIR__ . '/_partials/activity_logs.php'; ?>
+                <?php 
+                if ($adminRole === 'superadmin' || !empty($_SESSION['access_system_logs'])) {
+                    include __DIR__ . '/_partials/activity_logs.php'; 
+                } else {
+                    echo '<div style="padding:100px;text-align:center;font-weight:900;color:#dc2626"><i class="fa-solid fa-shield-slash mb-4" style="font-size:4rem;display:block"></i> ACCESS DENIED<br><span style="font-size:14px;color:#94a3b8;font-weight:600">You do not have permission to view activity logs.</span></div>';
+                }
+                ?>
             </div>
 
             <!-- ════════════ SECTION: ERROR LOGS ════════════ -->
             <div id="section-error_logs" class="portal-section"
                 style="<?= $activeSection==='error_logs'?'':'display:none;' ?> background:#f8fafc; overflow-y:auto;">
-                <?php include __DIR__ . '/_partials/error_logs.php'; ?>
+                <?php 
+                if ($adminRole === 'superadmin' || !empty($_SESSION['access_system_logs'])) {
+                    include __DIR__ . '/_partials/error_logs.php'; 
+                } else {
+                    echo '<div style="padding:100px;text-align:center;font-weight:900;color:#dc2626"><i class="fa-solid fa-shield-slash mb-4" style="font-size:4rem;display:block"></i> ACCESS DENIED<br><span style="font-size:14px;color:#94a3b8;font-weight:600">You do not have permission to view system error logs.</span></div>';
+                }
+                ?>
             </div>
 
             <!-- ════════════ SECTION: EMAIL LOGS ════════════ -->
             <div id="section-email_logs" class="portal-section"
                 style="<?= $activeSection==='email_logs'?'':'display:none;' ?> background:#f8fafc; overflow-y:auto;">
-                <?php include __DIR__ . '/_partials/email_logs.php'; ?>
+                <?php 
+                if ($adminRole === 'superadmin' || !empty($_SESSION['access_system_logs'])) {
+                    include __DIR__ . '/_partials/email_logs.php'; 
+                } else {
+                    echo '<div style="padding:100px;text-align:center;font-weight:900;color:#dc2626"><i class="fa-solid fa-shield-slash mb-4" style="font-size:4rem;display:block"></i> ACCESS DENIED</div>';
+                }
+                ?>
             </div>
 
             <!-- ════════════ SECTION: SMTP SETTINGS ════════════ -->
             <div id="section-smtp_settings" class="portal-section"
                 style="<?= $activeSection==='smtp_settings'?'':'display:none;' ?> background:#f8fafc; overflow-y:auto;">
-                <?php include __DIR__ . '/_partials/smtp_settings.php'; ?>
+                <?php 
+                if ($adminRole === 'superadmin' || !empty($_SESSION['access_site_settings'])) {
+                    include __DIR__ . '/_partials/smtp_settings.php'; 
+                } else {
+                    echo '<div style="padding:100px;text-align:center;font-weight:900;color:#dc2626"><i class="fa-solid fa-shield-slash mb-4" style="font-size:4rem;display:block"></i> ACCESS DENIED</div>';
+                }
+                ?>
             </div>
 
             <!-- ════════════ SECTION: SENTRY TEST ════════════ -->
@@ -1759,7 +1858,13 @@ $adminListForSelect = $pdo->query("SELECT id, full_name, username FROM sys_admin
             <!-- ════════════ SECTION: LINE MESSAGING API ════════════ -->
             <div id="section-line_settings" class="portal-section"
                 style="<?= $activeSection==='line_settings'?'':'display:none;' ?> background:#f8fafc; overflow-y:auto;">
-                <?php include __DIR__ . '/_partials/line_settings.php'; ?>
+                <?php 
+                if ($adminRole === 'superadmin' || !empty($_SESSION['access_site_settings'])) {
+                    include __DIR__ . '/_partials/line_settings.php'; 
+                } else {
+                    echo '<div style="padding:100px;text-align:center;font-weight:900;color:#dc2626"><i class="fa-solid fa-shield-slash mb-4" style="font-size:4rem;display:block"></i> ACCESS DENIED</div>';
+                }
+                ?>
             </div>
 
             <!-- ════════════ SECTION: PRIVILEGE INVENTORY (ISO 27001) ════════════ -->
@@ -2338,15 +2443,24 @@ $adminListForSelect = $pdo->query("SELECT id, full_name, username FROM sys_admin
                 document.getElementById('govEmail').value = data.email || '';
                 document.getElementById('govStatus').value = data.account_status || data.status || 'active';
                 
-                if (type === 'admin') {
-                    document.getElementById('govAdminRole').value = data.role || 'admin';
+                    if (type === 'admin') {
+                        document.getElementById('govAdminRole').value = data.role || 'admin';
+                    } else {
+                        document.getElementById('govEbAccess').checked = (data.access_eborrow === undefined) ? true : (parseInt(data.access_eborrow) === 1);
+                        document.getElementById('govEbRole').value = data.role || 'employee';
+                        document.getElementById('govEcAccess').checked = parseInt(data.access_ecampaign) === 1;
+                        document.getElementById('govEcRole').value = data.ecampaign_role || 'editor';
+                        
+                        document.getElementById('govInsAccess').checked = parseInt(data.access_insurance) === 1;
+                        document.getElementById('govLogsAccess').checked = parseInt(data.access_system_logs) === 1;
+                        document.getElementById('govSettAccess').checked = parseInt(data.access_site_settings) === 1;
+                    }
                 } else {
-                    document.getElementById('govEbAccess').checked = (data.access_eborrow === undefined) ? true : (parseInt(data.access_eborrow) === 1);
-                    document.getElementById('govEbRole').value = data.role || 'employee';
-                    document.getElementById('govEcAccess').checked = parseInt(data.access_ecampaign) === 1;
-                    document.getElementById('govEcRole').value = data.ecampaign_role || 'editor';
+                    // Reset Extension Checkboxes for new records
+                    document.getElementById('govInsAccess').checked = false;
+                    document.getElementById('govLogsAccess').checked = false;
+                    document.getElementById('govSettAccess').checked = false;
                 }
-            }
             // Update UI States
             syncGovUI('govEbAccess', 'govEbRole', 'govEbCard');
             syncGovUI('govEcAccess', 'govEcRole', 'govEcCard');

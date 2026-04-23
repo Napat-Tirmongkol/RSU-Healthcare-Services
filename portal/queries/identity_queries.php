@@ -35,18 +35,24 @@ if ($adminRole === 'superadmin') {
     // Auto-migrate sys_staff columns if missing (only check once per load)
     try {
         $cols = $pdo->query("DESCRIBE sys_staff")->fetchAll(PDO::FETCH_COLUMN);
-        if (!in_array('access_eborrow', $cols)) {
-            $pdo->exec("ALTER TABLE sys_staff ADD COLUMN access_eborrow TINYINT(1) DEFAULT 1 AFTER role");
+        if (!in_array('access_insurance', $cols)) {
+            $pdo->exec("ALTER TABLE sys_staff ADD COLUMN access_insurance TINYINT(1) DEFAULT 0");
         }
-        if (!in_array('email', $cols)) {
-            $pdo->exec("ALTER TABLE sys_staff ADD COLUMN email VARCHAR(255) NULL AFTER full_name");
+        if (!in_array('access_system_logs', $cols)) {
+            $pdo->exec("ALTER TABLE sys_staff ADD COLUMN access_system_logs TINYINT(1) DEFAULT 0");
+        }
+        if (!in_array('access_site_settings', $cols)) {
+            $pdo->exec("ALTER TABLE sys_staff ADD COLUMN access_site_settings TINYINT(1) DEFAULT 0");
         }
         
         $allStaff = $pdo->query("
             SELECT id, username, full_name, email, role, account_status, linked_line_user_id,
                    IFNULL(access_eborrow, 1) AS access_eborrow,
                    IFNULL(access_ecampaign, 0) AS access_ecampaign,
-                   IFNULL(ecampaign_role, 'admin') AS ecampaign_role
+                   IFNULL(ecampaign_role, 'admin') AS ecampaign_role,
+                   IFNULL(access_insurance, 0) AS access_insurance,
+                   IFNULL(access_system_logs, 0) AS access_system_logs,
+                   IFNULL(access_site_settings, 0) AS access_site_settings
             FROM sys_staff ORDER BY role ASC, full_name ASC
         ")->fetchAll(PDO::FETCH_ASSOC);
     } catch (PDOException $e) {

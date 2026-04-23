@@ -85,15 +85,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $ebRole   = $_POST['eb_role'] ?? 'employee';
                     $ecAccess = (int)($_POST['ec_access'] ?? 0);
                     $ecRole   = $_POST['ec_role'] ?? 'editor';
+                    $insAccess = (int)($_POST['ins_access'] ?? 0);
+                    $logsAccess = (int)($_POST['logs_access'] ?? 0);
+                    $settAccess = (int)($_POST['sett_access'] ?? 0);
                     
                     if ($action === 'add_identity_gov') {
                         $hashed = password_hash($password ?: bin2hex(random_bytes(8)), PASSWORD_DEFAULT);
-                        $pdo->prepare("INSERT INTO sys_staff (full_name, username, email, password_hash, role, access_eborrow, account_status, access_ecampaign, ecampaign_role) VALUES (?,?,?,?,?,?,?,?,?)")
-                            ->execute([$fullName, $username, $email, $hashed, $ebRole, $ebAccess, $status, $ecAccess, $ecRole]);
+                        $pdo->prepare("INSERT INTO sys_staff (full_name, username, email, password_hash, role, access_eborrow, account_status, access_ecampaign, ecampaign_role, access_insurance, access_system_logs, access_site_settings) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)")
+                            ->execute([$fullName, $username, $email, $hashed, $ebRole, $ebAccess, $status, $ecAccess, $ecRole, $insAccess, $logsAccess, $settAccess]);
                         $targetId = (int)$pdo->lastInsertId();
                     } else {
-                        $pdo->prepare("UPDATE sys_staff SET full_name=?, username=?, email=?, role=?, access_eborrow=?, account_status=?, access_ecampaign=?, ecampaign_role=? WHERE id=?")
-                            ->execute([$fullName, $username, $email, $ebRole, $ebAccess, $status, $ecAccess, $ecRole, $targetId]);
+                        $pdo->prepare("UPDATE sys_staff SET full_name=?, username=?, email=?, role=?, access_eborrow=?, account_status=?, access_ecampaign=?, ecampaign_role=?, access_insurance=?, access_system_logs=?, access_site_settings=? WHERE id=?")
+                            ->execute([$fullName, $username, $email, $ebRole, $ebAccess, $status, $ecAccess, $ecRole, $insAccess, $logsAccess, $settAccess, $targetId]);
                         if (!empty($password)) $pdo->prepare("UPDATE sys_staff SET password_hash=? WHERE id=?")->execute([password_hash($password, PASSWORD_DEFAULT), $targetId]);
                     }
                 }
