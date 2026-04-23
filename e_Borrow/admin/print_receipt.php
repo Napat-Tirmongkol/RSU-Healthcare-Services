@@ -45,7 +45,7 @@ try {
         die("ไม่พบข้อมูลการชำระเงินนี้ (ID: $payment_id)");
     }
 } catch (PDOException $e) {
-    error_log("print_receipt error: " . $e->getMessage()); exit("เกิดข้อผิดพลาด");
+    die("เกิดข้อผิดพลาดทางฐานข้อมูล: " . $e->getMessage());
 }
 ?>
 <!DOCTYPE html>
