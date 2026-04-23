@@ -148,6 +148,7 @@ $greeting = ($hour >= 5 && $hour < 12) ? "สวัสดีตอนเช้�
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://js.pusher.com/8.0.1/pusher.min.js"></script>
+    <script src="https://js.pusher.com/beams/2.1.0/push-notifications-cdn.js"></script>
     <style>
         @font-face {
             font-family: 'RSU';
@@ -770,6 +771,18 @@ $greeting = ($hour >= 5 && $hour < 12) ? "สวัสดีตอนเช้�
             } else {
                 // Fallback to Long Polling (Every 3 seconds)
                 setInterval(fetchMessages, 3000);
+            }
+
+            // ── Pusher Beams (Push Notifications) ──
+            const BEAMS_ID = '<?= defined('PUSHER_BEAMS_INSTANCE_ID') ? PUSHER_BEAMS_INSTANCE_ID : '' ?>';
+            if (BEAMS_ID) {
+                const beamsClient = new PusherPushNotifications.Client({
+                    instanceId: BEAMS_ID,
+                });
+                beamsClient.start()
+                    .then(() => beamsClient.addDeviceInterest('user-<?= (int)($_SESSION['user_id'] ?? 0) ?>'))
+                    .then(() => console.log('Successfully registered with Pusher Beams'))
+                    .catch(console.error);
             }
         });
     </script>
