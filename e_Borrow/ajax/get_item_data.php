@@ -8,7 +8,7 @@ include('../includes/check_session_ajax.php');
 require_once(__DIR__ . '/../includes/db_connect.php');
 
 // 2. ตรวจสอบสิทธิ์ Admin และตั้งค่า Header
-$allowed_roles = ['admin', 'editor'];
+$allowed_roles = ['admin', 'employee', 'editor'];
 if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], $allowed_roles)) {
     header('Content-Type: application/json');
     echo json_encode(['status' => 'error', 'message' => 'คุณไม่มีสิทธิ์ดำเนินการ']);

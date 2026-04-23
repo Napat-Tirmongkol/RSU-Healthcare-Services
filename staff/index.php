@@ -14,6 +14,27 @@ if (!$viaStaffLogin && !$viaPortalLogin) {
     exit;
 }
 
+// [ISO 27001] ตรวจสอบสิทธิ์การเข้าถึงแบบ Real-time สำหรับ Staff
+require_once __DIR__ . '/../config.php';
+if ($viaStaffLogin || $viaPortalLogin) {
+    try {
+        $p = db();
+        $staffId = $_SESSION['staff_id'] ?? ($_SESSION['admin_id'] ?? 0);
+        $uname   = $_SESSION['staff_username'] ?? ($_SESSION['admin_username'] ?? '');
+        
+        $check = $p->prepare("SELECT IFNULL(access_ecampaign, 0) as access FROM sys_staff WHERE (id = ? OR username = ?) AND account_status = 'active' LIMIT 1");
+        $check->execute([$staffId, $uname]);
+        $row = $check->fetch();
+        
+        if (!$row || (int)$row['access'] === 0) {
+            // ถูกถอนสิทธิ์ หรือไม่มีสิทธิ์เข้าถึง e-Campaign
+            session_destroy();
+            header('Location: login.php?error=access_denied');
+            exit;
+        }
+    } catch (Exception $e) { /* fallback to current session */ }
+}
+
 // normalize ชื่อให้แสดงใน topbar ได้ไม่ว่าจะ login ทางไหน
 if (empty($_SESSION['staff_name']) && !empty($_SESSION['admin_username'])) {
     $_SESSION['staff_name'] = $_SESSION['admin_username'];

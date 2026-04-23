@@ -30,11 +30,6 @@ $user_role = $_SESSION['role'] ?? 'employee';
     <?php endif; ?>
 
     <?php if ($user_role == 'admin'): ?>
-    <a href="admin/manage_students.php" class="<?php echo ($current_page == 'manage_user') ? 'active' : ''; ?>">
-        <i class="fas fa-users-cog"></i>
-        <span>จัดการผู้ใช้งาน</span>
-    </a>
-    
     <a href="admin/report_borrowed.php" class="<?php echo ($current_page == 'report') ? 'active' : ''; ?>">
         <i class="fas fa-chart-line"></i>
         <span>รายงาน</span>
