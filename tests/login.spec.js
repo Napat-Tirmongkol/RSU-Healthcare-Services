@@ -2,7 +2,7 @@ const { test, expect } = require('@playwright/test');
 
 test('ทดสอบระบบ Login แอดมิน RSU Healthcare', async ({ page }) => {
   // 1. สั่งให้บอทเปิดหน้าเว็บ Login ของเรา (เปลี่ยน URL ตามเครื่องคุณโฟร์ก)
-  await page.goto('http://localhost/rsu_clinic/admin/login.php');
+  await page.goto('/admin/login.php');
 
   // 2. สั่งให้บอทพิมพ์ Username และ Password
   await page.locator('input[name="username"]').fill('admin_folk');
