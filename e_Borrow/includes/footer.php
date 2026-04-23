@@ -35,6 +35,12 @@ $user_role = $_SESSION['role'] ?? 'employee';
         <span>รายงาน</span>
     </a>
     <?php endif; ?>
+
+    <!-- เมนูจัดการโปรไฟล์ (ย้ายมาไว้ที่นี่) -->
+    <a href="../portal/profile.php">
+        <i class="fas fa-user-circle"></i>
+        <span>โปรไฟล์</span>
+    </a>
 </nav>
 
 <!-- Scripts -->
