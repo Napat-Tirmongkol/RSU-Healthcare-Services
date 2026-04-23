@@ -10,7 +10,7 @@ module.exports = defineConfig({
   reporter: 'html',
   use: {
     /* Base URL to use in actions like `await page.goto('')`. */
-    baseURL: 'http://171.102.216.219/plesk-site-preview/dev.healthycampus.rsu.ac.th/',
+    baseURL: 'https://dev.healthycampus.rsu.ac.th/',
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
