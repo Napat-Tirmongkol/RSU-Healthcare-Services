@@ -95,7 +95,9 @@ try {
                 <i class="fa-solid fa-chevron-left"></i>
             </button>
             <h1 class="text-lg font-black text-slate-900 tracking-tight"><?= __('profile.heading_edit') ?></h1>
-            <div class="w-11 h-11"></div>
+            <a href="logout.php" class="w-11 h-11 flex items-center justify-center bg-red-50 text-red-500 rounded-2xl active:scale-90 transition-all shadow-sm">
+                <i class="fa-solid fa-power-off"></i>
+            </a>
         </header>
 
         <main class="px-6 pt-8 pb-12">
