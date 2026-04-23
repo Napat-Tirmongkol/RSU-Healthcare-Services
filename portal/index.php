@@ -1028,7 +1028,7 @@ $adminListForSelect = $pdo->query("SELECT id, full_name, username FROM sys_admin
                     <div
                         style="display:flex;gap:6px;margin-bottom:20px;padding-bottom:2px;border-bottom:1px solid #f1f5f9">
                         <button class="id-tab active" data-tab="users" onclick="switchIdTab('users',this)">System Users
-                            (<?= count($idUsers) ?>)</button>
+                            (<?= number_format($totalIdUsers) ?>)</button>
                         <?php if ($adminRole === 'superadmin'): ?>
                             <button class="id-tab" data-tab="admins" onclick="switchIdTab('admins',this)">System Admins
                                 (<?= count($allAdmins) ?>)</button>
@@ -1095,7 +1095,7 @@ $adminListForSelect = $pdo->query("SELECT id, full_name, username FROM sys_admin
                                     style="font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.14em;color:#374151">Master
                                     Records</span>
                                 <span
-                                    style="margin-left:auto;font-size:11px;font-weight:700;color:#94a3b8"><?= number_format(count($idUsers)) ?>
+                                    style="margin-left:auto;font-size:11px;font-weight:700;color:#94a3b8"><?= number_format($totalIdUsers) ?>
                                     รายการ</span>
                             </div>
                             <div style="overflow-x:auto" id="idTableWrap">
@@ -1117,70 +1117,12 @@ $adminListForSelect = $pdo->query("SELECT id, full_name, username FROM sys_admin
                                         </tr>
                                     </thead>
                                     <tbody id="idUserTbody">
-                                        <?php foreach ($idUsers as $u):
-                                            $statusTH = match ($u['status']) { 'student' => 'นักศึกษา', 'staff' => 'บุคลากร', 'other' => $u['status_other'] ?: 'บุคคลทั่วไป', default => 'ไม่ระบุ'};
-                                            $initial = mb_substr($u['full_name'], 0, 1);
-                                            ?>
-                                            <tr style="border-bottom:1px solid #f1f5f9" class="id-user-row">
-                                                <td style="padding:14px 20px">
-                                                    <div style="display:flex;align-items:center;gap:12px">
-                                                        <div
-                                                            style="width:38px;height:38px;border-radius:11px;background:#f1f5f9;color:#64748b;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;flex-shrink:0">
-                                                            <?= htmlspecialchars($initial) ?>
-                                                        </div>
-                                                        <div>
-                                                            <div style="font-weight:750;color:#0f172a">
-                                                                <?= htmlspecialchars($u['full_name']) ?>
-                                                            </div>
-                                                            <div
-                                                                style="font-size:10px;color:#94a3b8;font-weight:700;margin-top:2px">
-                                                                #<?= htmlspecialchars($u['student_personnel_id'] ?? '—') ?>
-                                                                · <?= htmlspecialchars($statusTH) ?></div>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td style="padding:14px 20px">
-                                                    <div style="font-size:12px;color:#374151;font-weight:600">
-                                                        <?= htmlspecialchars($u['phone_number'] ?: '—') ?>
-                                                    </div>
-                                                    <div style="font-size:11px;color:#94a3b8;margin-top:2px">
-                                                        <?= htmlspecialchars($u['email'] ?? '—') ?>
-                                                    </div>
-                                                </td>
-                                                <td style="padding:14px 20px">
-                                                    <div style="font-size:12px;font-weight:700;color:#374151">
-                                                        <?= date('d M Y', strtotime($u['created_at'])) ?>
-                                                    </div>
-                                                    <div style="font-size:10px;color:#94a3b8;margin-top:1px">
-                                                        <?= date('H:i', strtotime($u['created_at'])) ?>
-                                                    </div>
-                                                </td>
-                                                <td style="padding:14px 20px;text-align:right">
-                                                    <div style="display:flex;gap:6px;justify-content:flex-end">
-                                                        <button
-                                                            onclick='idOpenView(<?= json_encode($u, JSON_HEX_APOS | JSON_HEX_TAG) ?>)'
-                                                            style="width:32px;height:32px;border-radius:8px;border:1px solid #e2e8f0;background:#fff;color:#64748b;cursor:pointer;transition:all .15s"
-                                                            title="ดูข้อมูล">
-                                                            <i class="fa-solid fa-eye" style="font-size:11px"></i>
-                                                        </button>
-                                                        <button
-                                                            onclick='idOpenEdit(<?= json_encode($u, JSON_HEX_APOS | JSON_HEX_TAG) ?>)'
-                                                            style="width:32px;height:32px;border-radius:8px;border:1px solid #e2e8f0;background:#fff;color:#64748b;cursor:pointer;transition:all .15s"
-                                                            title="แก้ไข">
-                                                            <i class="fa-solid fa-pen" style="font-size:11px"></i>
-                                                        </button>
-                                                        <a href="../admin/user_history.php?id=<?= $u['id'] ?>"
-                                                            style="width:32px;height:32px;border-radius:8px;border:1px solid #e2e8f0;background:#fff;color:#64748b;display:flex;align-items:center;justify-content:center;text-decoration:none;transition:all .15s"
-                                                            onmouseover="this.style.background='#fffbeb';this.style.color='#d97706'"
-                                                            onmouseout="this.style.background='#fff';this.style.color='#64748b'"
-                                                            title="ประวัติการใช้งาน">
-                                                            <i class="fa-solid fa-clock-rotate-left"
-                                                                style="font-size:11px"></i>
-                                                        </a>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        <?php endforeach; ?>
+                                        <!-- Dynamically loaded via AJAX -->
+                                        <tr>
+                                            <td colspan="4" style="padding:40px;text-align:center;color:#94a3b8">
+                                                <i class="fa-solid fa-spinner fa-spin mr-2"></i> กำลังโหลดข้อมูล...
+                                            </td>
+                                        </tr>
                                     </tbody>
                                 </table>
                             </div>
@@ -2417,53 +2359,151 @@ $adminListForSelect = $pdo->query("SELECT id, full_name, username FROM sys_admin
             }).join('');
             document.getElementById('idViewModal').style.display = 'flex';
         }
-        /* ── Identity pagination ── */
+        /* ── Identity & Governance AJAX Pagination ── */
         (function () {
-            var allRows = [];
-            var filtered = [];
             var currentPage = 1;
             var pageSize = 25;
+            var searchQuery = '';
+            var isInitialLoad = true;
 
-            function init() {
-                var tableBody = document.getElementById('idUserTbody');
-                if (!tableBody) return;
-                allRows = Array.from(tableBody.querySelectorAll('.id-user-row'));
-                filtered = allRows.slice();
-                render();
+            function loadUsers() {
+                var tbody = document.getElementById('idUserTbody');
+                if (!tbody) return;
+
+                // Show loading state
+                tbody.style.opacity = '0.5';
+                
+                var url = 'ajax_identity_users.php?page=' + currentPage + '&pageSize=' + pageSize + '&search=' + encodeURIComponent(searchQuery);
+
+                fetch(url)
+                    .then(res => res.json())
+                    .then(res => {
+                        tbody.style.opacity = '1';
+                        if (res.status === 'success') {
+                            renderRows(res.data);
+                            renderPagination(res.pagination);
+                        } else {
+                            tbody.innerHTML = '<tr><td colspan="4" style="padding:40px;text-align:center;color:#ef4444">เกิดข้อผิดพลาด: ' + res.message + '</td></tr>';
+                        }
+                    })
+                    .catch(err => {
+                        tbody.style.opacity = '1';
+                        tbody.innerHTML = '<tr><td colspan="4" style="padding:40px;text-align:center;color:#ef4444">ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้</td></tr>';
+                    });
             }
 
-            function render() {
-                var total = filtered.length;
-                var totalPages = Math.max(1, Math.ceil(total / pageSize));
-                if (currentPage > totalPages) currentPage = totalPages;
-                var start = (currentPage - 1) * pageSize;
-                var end = start + pageSize;
+            function renderRows(users) {
+                var tbody = document.getElementById('idUserTbody');
+                if (!tbody) return;
 
-                allRows.forEach(function (r) { r.style.display = 'none'; });
-                filtered.slice(start, end).forEach(function (r) { r.style.display = ''; });
+                if (users.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="4" style="padding:60px;text-align:center;color:#94a3b8"><i class="fa-solid fa-ghost text-3xl mb-3 block"></i>ไม่พบข้อมูลผู้ใช้งาน</td></tr>';
+                    return;
+                }
 
-                var from = total === 0 ? 0 : start + 1;
-                var to = Math.min(end, total);
+                var statusMap = { student: 'นักศึกษา', staff: 'บุคลากร', other: 'บุคคลทั่วไป' };
+                
+                var html = users.map(function(u) {
+                    var statusTH = statusMap[u.status] || u.status_other || 'ไม่ระบุ';
+                    var initial = (u.full_name || '?').charAt(0);
+                    var dateObj = new Date(u.created_at.replace(' ', 'T'));
+                    var dateStr = dateObj.toLocaleDateString('th-TH', { day: '2-digit', month: 'short', year: 'numeric' });
+                    var timeStr = dateObj.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
+
+                    return `
+                        <tr style="border-bottom:1px solid #f1f5f9" class="id-user-row animate-fade-in">
+                            <td style="padding:14px 20px">
+                                <div style="display:flex;align-items:center;gap:12px">
+                                    <div style="width:38px;height:38px;border-radius:11px;background:#f1f5f9;color:#64748b;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;flex-shrink:0">
+                                        ${initial}
+                                    </div>
+                                    <div>
+                                        <div style="font-weight:750;color:#0f172a">${u.full_name}</div>
+                                        <div style="font-size:10px;color:#94a3b8;font-weight:700;margin-top:2px">
+                                            #${u.student_personnel_id || '—'} · ${statusTH}
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td style="padding:14px 20px">
+                                <div style="font-size:12px;color:#374151;font-weight:600">${u.phone_number || '—'}</div>
+                                <div style="font-size:11px;color:#94a3b8;margin-top:2px">${u.email || '—'}</div>
+                            </td>
+                            <td style="padding:14px 20px">
+                                <div style="font-size:12px;font-weight:700;color:#374151">${dateStr}</div>
+                                <div style="font-size:10px;color:#94a3b8;margin-top:1px">${timeStr}</div>
+                            </td>
+                            <td style="padding:14px 20px;text-align:right">
+                                <div style="display:flex;gap:6px;justify-content:flex-end">
+                                    <button onclick='idOpenView(${JSON.stringify(u).replace(/'/g, "&apos;")})'
+                                        style="width:32px;height:32px;border-radius:8px;border:1px solid #e2e8f0;background:#fff;color:#64748b;cursor:pointer;transition:all .15s"
+                                        title="ดูข้อมูล">
+                                        <i class="fa-solid fa-eye" style="font-size:11px"></i>
+                                    </button>
+                                    <button onclick='idOpenEdit(${JSON.stringify(u).replace(/'/g, "&apos;")})'
+                                        style="width:32px;height:32px;border-radius:8px;border:1px solid #e2e8f0;background:#fff;color:#64748b;cursor:pointer;transition:all .15s"
+                                        title="แก้ไข">
+                                        <i class="fa-solid fa-pen" style="font-size:11px"></i>
+                                    </button>
+                                    <a href="../admin/user_history.php?id=${u.id}"
+                                        style="width:32px;height:32px;border-radius:8px;border:1px solid #e2e8f0;background:#fff;color:#64748b;display:flex;align-items:center;justify-content:center;text-decoration:none;transition:all .15s"
+                                        onmouseover="this.style.background='#fffbeb';this.style.color='#d97706'"
+                                        onmouseout="this.style.background='#fff';this.style.color='#64748b'"
+                                        title="ประวัติการใช้งาน">
+                                        <i class="fa-solid fa-clock-rotate-left" style="font-size:11px"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>`;
+                }).join('');
+                tbody.innerHTML = html;
+            }
+
+            function renderPagination(p) {
                 var info = document.getElementById('id-page-info');
-                if (info) info.textContent = total === 0 ? 'ไม่พบรายการ' : from + '–' + to + ' จาก ' + total.toLocaleString();
+                if (info) {
+                    var from = p.total === 0 ? 0 : (p.page - 1) * p.pageSize + 1;
+                    var to = Math.min(p.page * p.pageSize, p.total);
+                    info.textContent = p.total === 0 ? 'ไม่พบรายการ' : from + '–' + to + ' จาก ' + p.total.toLocaleString();
+                }
 
                 var prev = document.getElementById('id-page-prev');
                 var next = document.getElementById('id-page-next');
-                if (prev) { prev.disabled = currentPage <= 1; prev.style.opacity = currentPage <= 1 ? '.35' : '1'; }
-                if (next) { next.disabled = currentPage >= totalPages; next.style.opacity = currentPage >= totalPages ? '.35' : '1'; }
+                if (prev) {
+                    prev.disabled = p.page <= 1;
+                    prev.style.opacity = p.page <= 1 ? '.35' : '1';
+                }
+                if (next) {
+                    next.disabled = p.page >= p.totalPages;
+                    next.style.opacity = p.page >= p.totalPages ? '.35' : '1';
+                }
             }
 
-            window.idFilterUsers = function (val) {
-                val = val.toLowerCase().trim();
-                filtered = val ? allRows.filter(function (r) { return r.innerText.toLowerCase().includes(val); }) : allRows.slice();
-                currentPage = 1;
-                render();
+            window.idUniversalFilter = function (val) {
+                // If on users tab, use AJAX. Otherwise use client-side filter
+                const activeTab = document.querySelector('.id-tab.active');
+                if (activeTab && activeTab.dataset.tab === 'users') {
+                    searchQuery = val;
+                    currentPage = 1;
+                    clearTimeout(window._idSearchTimer);
+                    window._idSearchTimer = setTimeout(loadUsers, 400);
+                } else {
+                    // Original client-side filter for admins/staff
+                    val = val.toLowerCase().trim();
+                    const activePanel = document.querySelector('.id-panel.active');
+                    if (!activePanel) return;
+                    const rows = activePanel.querySelectorAll('tbody tr');
+                    rows.forEach(row => {
+                        if (row.cells.length < 2) return;
+                        row.style.display = row.innerText.toLowerCase().includes(val) ? '' : 'none';
+                    });
+                }
             };
 
             window.idSetPageSize = function (size) {
                 pageSize = size;
                 currentPage = 1;
-                render();
+                loadUsers();
                 document.querySelectorAll('.id-ps-btn').forEach(function (b) {
                     var active = parseInt(b.dataset.size) === size;
                     b.style.background = active ? '#2e9e63' : '#f8fafc';
@@ -2472,16 +2512,13 @@ $adminListForSelect = $pdo->query("SELECT id, full_name, username FROM sys_admin
                 });
             };
 
-            window.idPrevPage = function () { if (currentPage > 1) { currentPage--; render(); } };
-            window.idNextPage = function () {
-                if (currentPage < Math.ceil(filtered.length / pageSize)) { currentPage++; render(); }
-            };
+            window.idPrevPage = function () { if (currentPage > 1) { currentPage--; loadUsers(); } };
+            window.idNextPage = function () { currentPage++; loadUsers(); };
 
-            // run after DOM is ready
-            if (document.readyState === 'loading') {
-                document.addEventListener('DOMContentLoaded', init);
-            } else {
-                init();
+            // Initialize
+            if (isInitialLoad) {
+                isInitialLoad = false;
+                loadUsers();
             }
         })();
         // Close modals on backdrop click

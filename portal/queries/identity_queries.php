@@ -7,20 +7,9 @@
 $idSearch = $_GET['id_search'] ?? '';
 
 // (0b) IDENTITY SECTION — USER QUERY
-$idSql = "SELECT id, full_name, student_personnel_id, citizen_id, phone_number, email, department, gender, status, status_other, created_at FROM sys_users";
-if ($idSearch !== '') {
-    $idSql .= " WHERE full_name LIKE :s OR student_personnel_id LIKE :s2 OR citizen_id LIKE :s3";
-}
-$idSql .= " ORDER BY created_at DESC";
-$idStmt = $pdo->prepare($idSql);
-
-if ($idSearch !== '') {
-    $like = "%{$idSearch}%";
-    $idStmt->execute([':s' => $like, ':s2' => $like, ':s3' => $like]);
-} else {
-    $idStmt->execute();
-}
-$idUsers = $idStmt->fetchAll(PDO::FETCH_ASSOC);
+// [REFACTORED] Now handled via AJAX in portal/ajax_identity_users.php to prevent performance issues
+$idUsers = []; 
+$totalIdUsers = (int) $pdo->query("SELECT COUNT(*) FROM sys_users")->fetchColumn();
 
 $idActiveCount = (int) $pdo->query("
     SELECT COUNT(DISTINCT id) FROM sys_users
