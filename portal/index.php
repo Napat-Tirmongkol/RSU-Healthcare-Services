@@ -1617,7 +1617,7 @@ $adminListForSelect = $pdo->query("SELECT id, full_name, username FROM sys_admin
                         <!-- Modal Footer -->
                         <div style="padding:24px 30px;background:#f8fafc;border-top:1px solid #f1f5f9;display:flex;gap:12px">
                             <button type="button" onclick="document.getElementById('idGovModal').style.display='none'" style="flex:1;padding:13px;border-radius:14px;border:1.5px solid #e2e8f0;background:#fff;color:#475569;font-weight:800;font-size:14px;cursor:pointer">ยกเลิก</button>
-                            <button type="submit" form="idGovForm" style="flex:2;padding:13px;border-radius:14px;border:none;background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;font-weight:900;font-size:14px;cursor:pointer;box-shadow:0 10px 20px -5px rgba(37,99,235,0.3);display:flex;align-items:center;justify-content:center;gap:8px">
+                            <button type="button" onclick="confirmGovSubmit()" style="flex:2;padding:13px;border-radius:14px;border:none;background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;font-weight:900;font-size:14px;cursor:pointer;box-shadow:0 10px 20px -5px rgba(37,99,235,0.3);display:flex;align-items:center;justify-content:center;gap:8px">
                                 <i class="fa-solid fa-check-double"></i> ยืนยันการปรับปรุงสิทธิ์
                             </button>
                         </div>
@@ -2384,6 +2384,43 @@ $adminListForSelect = $pdo->query("SELECT id, full_name, username FROM sys_admin
             }
         }
 
+
+        function confirmGovSubmit() {
+            const reason = document.getElementById('govJustification').value.trim();
+            if (!reason) {
+                Swal.fire({
+                    title: 'ระบุเหตุผล',
+                    text: 'กรุณากรอกเหตุผลความจำเป็นในการปรับสิทธิ์ก่อนบันทึกครับ (ISO 27001 Requirement)',
+                    icon: 'warning',
+                    confirmButtonColor: '#ef4444'
+                });
+                return;
+            }
+
+            Swal.fire({
+                title: 'ยืนยันการบันทึกสิทธิ์?',
+                text: "การเปลี่ยนแปลงสิทธิ์จะถูกบันทึกเข้าสู่ Audit Log พร้อมเหตุผลที่คุณระบุ และจะมีผลต่อการเข้าถึงระบบทันที",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#2563eb',
+                cancelButtonColor: '#94a3b8',
+                confirmButtonText: 'ใช่, ยืนยันการบันทึก',
+                cancelButtonText: 'ยกเลิก',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        title: 'กำลังบันทึกข้อมูล...',
+                        text: 'กรุณารอสักครู่ ระบบกำลังดำเนินการปรับปรุงสิทธิ์และบันทึก Audit Log',
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+                    document.getElementById('idGovForm').submit();
+                }
+            });
+        }
 
         function idOpenEdit(u) {
             document.getElementById('id_edit_uid').value = u.id;
