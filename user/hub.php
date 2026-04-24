@@ -253,9 +253,9 @@ $greeting = ($hour >= 5 && $hour < 12) ? "สวัสดีตอนเช้�
         function hideUpcoming() { document.getElementById('upcoming-modal').classList.add('hidden'); }
 
         // Suppress Tailwind CDN production warning
-        (function () {
+        (function() {
             const originalWarn = console.warn;
-            console.warn = function (...args) {
+            console.warn = function(...args) {
                 if (args[0]?.includes?.('cdn.tailwindcss.com')) return;
                 originalWarn.apply(console, args);
             };
