@@ -249,7 +249,18 @@ $header_actions = '
         <i class="fa-solid fa-user-plus"></i> เพิ่ม Staff
     </button>
 </div>';
-renderPageHeader("System Governance", "Hub บริหารจัดการ: เพิ่ม แก้ไข และควบคุมสิทธิ์การเข้าถึงระบบกลางของเจ้าหน้าที่", $header_actions); 
+    <div class="mb-6 md:mb-10 flex flex-col md:flex-row md:justify-between md:items-end gap-4 md:gap-6 au d1">
+        <div class="relative">
+            <h1 class="text-xl sm:text-3xl md:text-4xl font-[950] text-gray-900 tracking-tight flex items-center gap-3 sm:gap-4">
+                <div class="w-1.5 h-8 sm:w-2 sm:h-10 rounded-full shadow-lg flex-shrink-0" style="background:linear-gradient(180deg,#4f46e5,#818cf8);box-shadow:0 4px 10px rgba(79,70,229,.3)"></div>
+                System Governance
+            </h1>
+            <p class="text-[10px] sm:text-[11px] font-black uppercase tracking-[0.25em] mt-2 sm:mt-3 ml-5 sm:ml-6 opacity-60" style="color:#4f46e5">Hub บริหารจัดการ: เพิ่ม แก้ไข และควบคุมสิทธิ์การเข้าถึงระบบกลางของเจ้าหน้าที่</p>
+        </div>
+        <div class="flex flex-wrap gap-3 items-center ml-5 sm:ml-6 md:ml-0" style="position:relative;z-index:100">
+            <?= $header_actions ?>
+        </div>
+    </div>
 ?>
 
     <!-- สรุปภาพรวม (Admin KPIs) -->

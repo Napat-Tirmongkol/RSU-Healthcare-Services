@@ -75,8 +75,10 @@ $csrfToken = get_csrf_token();
                     <div class="toggle-thumb"></div>
                 </label>
             </div>
-            <a href="ajax_insurance_export.php?type=active" class="bg-emerald-600 text-white px-5 py-2.5 rounded-2xl text-xs font-black hover:opacity-90 transition-all flex items-center gap-2 shadow-lg shadow-emerald-600/20">
-                <i class="fa-solid fa-file-arrow-down"></i> Export Active List
+            <a href="ajax_insurance_export.php?type=active" 
+               class="bg-gradient-to-br from-emerald-500 to-teal-600 text-white px-6 py-3 rounded-2xl text-[11px] font-black hover:opacity-95 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center gap-2 shadow-xl shadow-emerald-500/30 border border-emerald-400/20">
+                <i class="fa-solid fa-file-arrow-down text-sm"></i> 
+                <span class="uppercase tracking-wider">Export Active List</span>
             </a>
         </div>
     </div>
