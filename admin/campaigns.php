@@ -165,10 +165,12 @@ function getCampaignTypeDetails($type)
 }
 
 function buildShareUrl(string $token): string {
-    $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+    // บังคับใช้ https เสมอเพื่อความปลอดภัยและป้องกันปัญหา Redirect ใน Browser มือถือ
+    $scheme = 'https';
     $host = $_SERVER['HTTP_HOST'];
-    $adminDir = dirname($_SERVER['SCRIPT_NAME']); // /e-campaignv2/admin
-    $baseDir  = dirname($adminDir);               // /e-campaignv2
+    $adminDir = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME']));
+    $baseDir  = str_replace('\\', '/', dirname($adminDir));
+    if ($baseDir === '/') $baseDir = '';
     return $scheme . '://' . $host . $baseDir . '/user/c.php?t=' . $token;
 }
 
