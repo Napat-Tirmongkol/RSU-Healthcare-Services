@@ -431,7 +431,11 @@ function processCheckin(qrData, isManual, isConfirmed = false) {
                     } else {
                         setStatus('พร้อมสแกน', 'green');
                         if (!isManual && html5QrCode) {
-                            setTimeout(() => html5QrCode.resume(), 300);
+                            if (html5QrCode.getState() === 3) {
+                                setTimeout(() => html5QrCode.resume(), 300);
+                            } else if (html5QrCode.getState() === 1) {
+                                startCamera();
+                            }
                         }
                     }
                 });
@@ -459,7 +463,11 @@ function processCheckin(qrData, isManual, isConfirmed = false) {
             }
 
             if (!isManual && html5QrCode) {
-                setTimeout(() => html5QrCode.resume(), 1500);
+                if (html5QrCode.getState() === 3) {
+                    setTimeout(() => html5QrCode.resume(), 1500);
+                } else if (html5QrCode.getState() === 1) {
+                    startCamera();
+                }
             }
             if (isManual) document.getElementById('manualId').value = '';
         })
@@ -467,7 +475,10 @@ function processCheckin(qrData, isManual, isConfirmed = false) {
             isProcessing = false;
             showToast('error', 'ไม่สามารถเชื่อมต่อ server ได้');
             setStatus('พร้อมสแกน', 'green');
-            if (!isManual && html5QrCode) html5QrCode.resume();
+            if (!isManual && html5QrCode) {
+                if (html5QrCode.getState() === 3) html5QrCode.resume();
+                else if (html5QrCode.getState() === 1) startCamera();
+            }
         });
 }
 
@@ -588,6 +599,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.target.files.length === 0) return;
         const file = e.target.files[0];
         
+        const wasScanning = html5QrCode && html5QrCode.isScanning;
+        
         // Ensure html5QrCode is initialized
         if (!html5QrCode) {
             html5QrCode = new Html5Qrcode('qr-reader');
@@ -596,23 +609,23 @@ document.addEventListener('DOMContentLoaded', () => {
         setStatus('กำลังอ่านรูปภาพ...', 'orange');
         
         try {
-            // หยุดกล้องชั่วคราวถ้ากำลังสแกนอยู่
-            if (html5QrCode.isScanning) {
-                await html5QrCode.pause();
+            // ต้องหยุดกล้องก่อนสแกนไฟล์
+            if (wasScanning) {
+                await stopCamera();
             }
 
             const decoded = await html5QrCode.scanFile(file, true);
-            processCheckin(decoded, false);
             e.target.value = '';
+            processCheckin(decoded, false);
         } catch (err) {
             console.error(err);
             showToast('error', 'ไม่พบ QR Code ในรูปภาพนี้');
             setStatus('พร้อมสแกน', 'green');
             e.target.value = '';
             
-            // กลับมาเปิดกล้องต่อ
-            if (html5QrCode.getState() === 3) { // PAUSED
-                html5QrCode.resume();
+            // กลับมาเปิดกล้องต่อถ้าก่อนหน้าเปิดอยู่
+            if (wasScanning) {
+                startCamera();
             }
         }
     });

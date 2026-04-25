@@ -169,7 +169,8 @@ document.addEventListener('DOMContentLoaded', function() {
                         } else {
                             document.getElementById('scan-status').innerText = 'พร้อมสแกน...';
                             document.getElementById('scan-status').className = 'text-sm font-bold text-green-500 animate-pulse';
-                            html5QrCode.resume();
+                            if (html5QrCode.getState() === 3) html5QrCode.resume();
+                            else if (html5QrCode.getState() === 1) startCamera();
                         }
                     });
                 } else if (data.status === 'success') {
@@ -181,7 +182,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     Swal.fire(swalConfig).then(() => { 
                         document.getElementById('scan-status').innerText = 'พร้อมสแกน...';
                         document.getElementById('scan-status').className = 'text-sm font-bold text-green-500 animate-pulse';
-                        html5QrCode.resume();
+                        if (html5QrCode.getState() === 3) html5QrCode.resume();
+                        else if (html5QrCode.getState() === 1) startCamera();
                     });
                 } else if (data.status === 'warning') {
                     isProcessing = false;
@@ -189,7 +191,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     Swal.fire(swalConfig).then(() => { 
                         document.getElementById('scan-status').innerText = 'พร้อมสแกน...';
                         document.getElementById('scan-status').className = 'text-sm font-bold text-green-500 animate-pulse';
-                        html5QrCode.resume();
+                        if (html5QrCode.getState() === 3) html5QrCode.resume();
+                        else if (html5QrCode.getState() === 1) startCamera();
                     });
                 } else {
                     isProcessing = false;
@@ -197,14 +200,16 @@ document.addEventListener('DOMContentLoaded', function() {
                     Swal.fire(swalConfig).then(() => { 
                         document.getElementById('scan-status').innerText = 'พร้อมสแกน...';
                         document.getElementById('scan-status').className = 'text-sm font-bold text-green-500 animate-pulse';
-                        html5QrCode.resume();
+                        if (html5QrCode.getState() === 3) html5QrCode.resume();
+                        else if (html5QrCode.getState() === 1) startCamera();
                     });
                 }
             })
             .catch(err => {
                 isProcessing = false;
                 Swal.fire('Error', 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้', 'error').then(() => { 
-                    html5QrCode.resume();
+                    if (html5QrCode.getState() === 3) html5QrCode.resume();
+                    else if (html5QrCode.getState() === 1) startCamera();
                 });
             });
     }
@@ -262,16 +267,22 @@ document.addEventListener('DOMContentLoaded', function() {
         if (e.target.files.length === 0) return;
         const imageFile = e.target.files[0];
         
+        const wasScanning = html5QrCode.isScanning;
         document.getElementById('scan-status').innerText = 'กำลังประมวลผลรูปภาพ...';
         document.getElementById('scan-status').className = 'text-sm font-bold text-orange-500 animate-pulse';
 
         try {
-            if (html5QrCode.isScanning) {
-                await html5QrCode.pause();
+            // ต้องหยุดกล้องก่อนสแกนไฟล์ (Cannot start file scan - ongoing camera scan)
+            if (wasScanning) {
+                await stopCamera();
             }
+
             const decodedText = await html5QrCode.scanFile(imageFile, true);
-            processQRCode(decodedText);
             fileInput.value = '';
+            processQRCode(decodedText);
+            
+            // ถ้าก่อนหน้านี้เปิดกล้องอยู่ ให้เปิดกลับมาใหม่หลังสแกนไฟล์เสร็จ (ผ่าน processQRCode หรือ Error)
+            // แต่ในกรณีสำเร็จ processQRCode จะมีปุ่มให้กดต่อ ซึ่งเราจะจัดการที่นั่น
         } catch (err) {
             console.error(err);
             Swal.fire({
@@ -284,8 +295,10 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('scan-status').innerText = 'พร้อมสแกน...';
             document.getElementById('scan-status').className = 'text-sm font-bold text-green-500 animate-pulse';
             fileInput.value = '';
-            if (html5QrCode.getState() === 3) { 
-                html5QrCode.resume();
+            
+            // ถ้าก่อนหน้าเปิดกล้องอยู่ ให้เปิดกลับมา
+            if (wasScanning) {
+                startCamera();
             }
         }
     });
