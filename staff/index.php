@@ -80,7 +80,7 @@ require_once __DIR__ . '/../config.php';
 <div class="max-w-md mx-auto p-5 mt-4">
     <!-- ปุ่มเปิด/ปิดกล้อง -->
     <div class="flex justify-center mb-6">
-        <button id="btn-toggle-camera" class="bg-blue-600 text-white px-6 py-2.5 rounded-2xl font-bold text-sm shadow-lg hover:bg-blue-700 active:scale-95 transition-all flex items-center gap-2">
+        <button id="btn-toggle-camera" class="bg-emerald-600 text-white px-6 py-2.5 rounded-2xl font-bold text-sm shadow-lg hover:bg-emerald-700 active:scale-95 transition-all flex items-center gap-2">
             <i class="fa-solid fa-camera"></i>
             <span id="toggle-text">ปิดกล้อง</span>
         </button>
@@ -226,7 +226,7 @@ document.addEventListener('DOMContentLoaded', function() {
             );
             document.getElementById('scan-status').innerText = 'พร้อมสแกน...';
             document.getElementById('scan-status').className = 'text-sm font-bold text-green-500 animate-pulse';
-            toggleBtn.className = 'bg-blue-600 text-white px-6 py-2.5 rounded-2xl font-bold text-sm shadow-lg hover:bg-blue-700 active:scale-95 transition-all flex items-center gap-2';
+            toggleBtn.className = 'bg-emerald-600 text-white px-6 py-2.5 rounded-2xl font-bold text-sm shadow-lg hover:bg-emerald-700 active:scale-95 transition-all flex items-center gap-2';
             toggleText.innerText = 'ปิดกล้อง';
         } catch (err) {
             console.error("Camera error", err);
@@ -240,7 +240,7 @@ document.addEventListener('DOMContentLoaded', function() {
             await html5QrCode.stop();
             document.getElementById('scan-status').innerText = 'ปิดกล้องแล้ว';
             document.getElementById('scan-status').className = 'text-sm font-bold text-gray-400';
-            toggleBtn.className = 'bg-gray-500 text-white px-6 py-2.5 rounded-2xl font-bold text-sm shadow-lg hover:bg-gray-600 active:scale-95 transition-all flex items-center gap-2';
+            toggleBtn.className = 'bg-slate-700 text-white px-6 py-2.5 rounded-2xl font-bold text-sm shadow-lg hover:bg-slate-800 active:scale-95 transition-all flex items-center gap-2';
             toggleText.innerText = 'เปิดกล้อง';
         }
     }

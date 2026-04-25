@@ -243,7 +243,7 @@ $typeColor = ['vaccine' => '#0052CC', 'training' => '#6366f1', 'health_check' =>
     <div class="bg-white rounded-3xl shadow-lg border border-gray-100 overflow-hidden mb-4">
         <div class="p-4">
             <div class="flex justify-end mb-3">
-                <button id="btnToggleCam" class="text-[10px] font-bold text-[#0052CC] bg-blue-50 px-3 py-1.5 rounded-lg hover:bg-blue-100 transition-colors">
+                <button id="btnToggleCam" class="text-[10px] font-bold text-white bg-emerald-600 px-3 py-1.5 rounded-lg hover:bg-emerald-700 transition-colors">
                     <i class="fa-solid fa-video mr-1"></i>ปิดกล้อง
                 </button>
             </div>
@@ -375,7 +375,9 @@ function startCamera() {
         () => { /* frame errors: ignore */ }
     ).then(() => {
         setStatus('พร้อมสแกน', 'green');
-        document.getElementById('btnToggleCam').innerHTML = '<i class="fa-solid fa-video mr-1"></i>ปิดกล้อง';
+        const btn = document.getElementById('btnToggleCam');
+        btn.innerHTML = '<i class="fa-solid fa-video mr-1"></i>ปิดกล้อง';
+        btn.className = 'text-[10px] font-bold text-white bg-emerald-600 px-3 py-1.5 rounded-lg hover:bg-emerald-700 transition-colors';
     }).catch(err => {
         console.error(err);
         setStatus('ไม่สามารถเปิดกล้องได้ — ลองกรอก ID แทน', 'red');
@@ -565,9 +567,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Camera Toggle handler
     document.getElementById('btnToggleCam')?.addEventListener('click', async () => {
+        const btn = document.getElementById('btnToggleCam');
         if (html5QrCode && html5QrCode.isScanning) {
             await html5QrCode.stop();
-            document.getElementById('btnToggleCam').innerHTML = '<i class="fa-solid fa-video-slash mr-1"></i>เปิดกล้อง';
+            btn.innerHTML = '<i class="fa-solid fa-video-slash mr-1"></i>เปิดกล้อง';
+            btn.className = 'text-[10px] font-bold text-white bg-slate-700 px-3 py-1.5 rounded-lg hover:bg-slate-800 transition-colors';
             setStatus('ปิดกล้องแล้ว', 'gray');
         } else {
             startCamera();
