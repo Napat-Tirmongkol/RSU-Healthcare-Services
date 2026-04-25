@@ -7,9 +7,13 @@ session_start();
 $lineUserId = $_SESSION['line_user_id'] ?? '';
 if ($lineUserId === '') {
     $_SESSION['invite_token'] = trim($_GET['t'] ?? '');
-    header('Location: ../archive/line_api/line_login.php', true, 302);
-    // แผนสำรองกรณี Header โดนบล็อก
-    echo '<!DOCTYPE html><html><head><meta http-equiv="refresh" content="0;url=../archive/line_api/line_login.php"></head><body></body></html>';
+    
+    // ใช้ Absolute URL เต็มรูปแบบ เพื่อป้องกันความสับสนของ Browser
+    $loginUrl = "https://healthycampus.rsu.ac.th/e-campaignv2/archive/line_api/line_login.php";
+    
+    header("Location: $loginUrl", true, 302);
+    // แผนสำรองกรณี Header โดนบล็อก (ใช้ Absolute URL เช่นกัน)
+    echo '<!DOCTYPE html><html><head><meta http-equiv="refresh" content="0;url=' . $loginUrl . '"></head><body></body></html>';
     exit;
 }
 
