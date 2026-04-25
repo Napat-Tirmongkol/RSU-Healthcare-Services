@@ -5,19 +5,25 @@ session_start();
 require_once __DIR__ . '/../config.php';
 check_maintenance('e_campaign');
 
+// ตรวจสอบว่า login แล้วหรือยัง (ผ่าน LINE)
 $lineUserId = $_SESSION['line_user_id'] ?? '';
 if ($lineUserId === '') {
+    // เก็บ token ไว้ใน session เพื่อใช้หลังจาก login สำเร็จ
     $_SESSION['invite_token'] = trim($_GET['t'] ?? '');
-    header('Location: index.php', true, 303);
+    // ใช้ Meta Refresh หรือ Javascript Redirect เป็นทางเลือกสำรองหาก Header Redirect ถูกบล็อก
+    header('Location: index.php', true, 302);
     exit;
 }
 
 $pdo = db();
-$stmt = $pdo->prepare("SELECT * FROM sys_users WHERE line_user_id = :line_id LIMIT 1");
+// ดึงข้อมูล User (ดึงมาเพื่อเช็คสถานะโปรไฟล์เฉยๆ)
+$stmt = $pdo->prepare("SELECT id FROM sys_users WHERE line_user_id = :line_id LIMIT 1");
 $stmt->execute([':line_id' => $lineUserId]);
 $user = $stmt->fetch();
 
 if (!$user) {
+    // กรณีมี Session แต่ไม่มีข้อมูลใน DB (อาจถูกลบหรือข้อมูลค้าง)
+    session_destroy();
     header('Location: index.php');
     exit;
 }
