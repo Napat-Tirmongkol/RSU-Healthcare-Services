@@ -360,17 +360,29 @@ if ($action === 'save_member') {
 // ACTION: set_visibility — toggle insurance card on user/hub.php
 // ══════════════════════════════════════════════════════════════════════════════
 if ($action === 'set_visibility') {
-    $active           = ($_POST['active'] ?? '0') === '1';
-    $settingsFile     = __DIR__ . '/../config/site_settings.json';
-    $settings         = file_exists($settingsFile) ? (json_decode(file_get_contents($settingsFile), true) ?? []) : [];
-    $settings['show_insurance'] = $active;
+    $active       = ($_POST['active'] ?? '0') === '1';
+    $activeVal    = $active ? '1' : '0';
+    $settingsFile = __DIR__ . '/../config/site_settings.json';
 
-    if (file_put_contents($settingsFile, json_encode($settings, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)) !== false) {
-        log_activity('update_site_settings', 'Toggle Insurance Card: ' . ($active ? 'ON' : 'OFF'));
-        echo json_encode(['status' => 'success']);
-    } else {
-        echo json_encode(['status' => 'error', 'message' => 'ไม่สามารถบันทึกข้อมูลได้']);
+    // Write JSON
+    $settings = file_exists($settingsFile) ? (json_decode(file_get_contents($settingsFile), true) ?? []) : [];
+    $settings['show_insurance'] = $active;
+    file_put_contents($settingsFile, json_encode($settings, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+
+    // Write DB (DB takes precedence over JSON in config.php)
+    try {
+        $pdo->prepare("
+            INSERT INTO sys_site_settings (setting_key, setting_value)
+            VALUES ('show_insurance', :val)
+            ON DUPLICATE KEY UPDATE setting_value = :val2
+        ")->execute([':val' => $activeVal, ':val2' => $activeVal]);
+    } catch (Exception $e) {
+        echo json_encode(['status' => 'error', 'message' => 'ไม่สามารถบันทึกข้อมูลได้: ' . $e->getMessage()]);
+        exit;
     }
+
+    log_activity('update_site_settings', 'Toggle Insurance Card: ' . ($active ? 'ON' : 'OFF'));
+    echo json_encode(['status' => 'success']);
     exit;
 }
 
