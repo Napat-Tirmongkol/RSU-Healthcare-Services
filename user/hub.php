@@ -135,8 +135,8 @@ function getInitials($name)
 function getCampStyle($type): array
 {
     return match ($type) {
-        'vaccine' => ['label' => 'วัคซีน', 'class' => 'bg-blue-50 text-blue-600 border-blue-100', 'icon' => 'fa-syringe'],
-        'health_check' => ['label' => 'ตรวจสุขภาพ', 'class' => 'bg-emerald-50 text-emerald-600 border-emerald-100', 'icon' => 'fa-stethoscope'],
+        'vaccine' => ['label' => 'วัคซีน', 'class' => 'bg-emerald-50 text-emerald-600 border-emerald-100', 'icon' => 'fa-syringe'],
+        'health_check' => ['label' => 'ตรวจสุขภาพ', 'class' => 'bg-green-50 text-green-600 border-green-100', 'icon' => 'fa-stethoscope'],
         default => ['label' => 'ทั่วไป', 'class' => 'bg-gray-50 text-gray-600 border-gray-100', 'icon' => 'fa-star'],
     };
 }
@@ -144,8 +144,8 @@ function getCampStyle($type): array
 function getStatusStyle($status): array
 {
     return match ($status) {
-        'confirmed', 'booked' => ['label' => 'ยืนยันแล้ว', 'class' => 'bg-blue-50 text-blue-600'],
-        'completed' => ['label' => 'สำเร็จแล้ว', 'class' => 'bg-emerald-50 text-emerald-600'],
+        'confirmed', 'booked' => ['label' => 'ยืนยันแล้ว', 'class' => 'bg-emerald-50 text-emerald-600'],
+        'completed' => ['label' => 'สำเร็จแล้ว', 'class' => 'bg-green-50 text-green-600'],
         'cancelled' => ['label' => 'ยกเลิกแล้ว', 'class' => 'bg-red-50 text-red-600'],
         default => ['label' => 'รอดำเนินการ', 'class' => 'bg-gray-50 text-gray-600'],
     };
@@ -216,7 +216,7 @@ $greeting = ($hour >= 5 && $hour < 12) ? "สวัสดีตอนเช้�
         }
 
         .glass-header {
-            background: rgba(0, 82, 204, 0.95);
+            background: rgba(46, 158, 99, 0.95);
             backdrop-filter: blur(25px);
             -webkit-backdrop-filter: blur(25px);
         }
@@ -226,7 +226,7 @@ $greeting = ($hour >= 5 && $hour < 12) ? "สวัสดีตอนเช้�
         }
 
         .premium-shadow {
-            box-shadow: 0 20px 40px -15px rgba(0, 82, 204, 0.15);
+            box-shadow: 0 20px 40px -15px rgba(46, 158, 99, 0.15);
         }
 
         .card-glow {
@@ -308,7 +308,7 @@ $greeting = ($hour >= 5 && $hour < 12) ? "สวัสดีตอนเช้�
             class="bg-white/80 backdrop-blur-xl sticky top-0 z-[60] px-6 py-4 flex items-center justify-between border-b border-slate-50 shadow-sm shadow-slate-100">
             <div class="flex items-center gap-4">
                 <button onclick="showCampaigns()"
-                    class="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-blue-100 active:scale-90 transition-all">
+                    class="w-12 h-12 bg-[#2e9e63] rounded-2xl flex items-center justify-center text-white shadow-lg shadow-green-100 active:scale-90 transition-all">
                     <i class="fa-solid fa-plus text-xl"></i>
                 </button>
                 <div class="flex flex-col">
@@ -319,7 +319,7 @@ $greeting = ($hour >= 5 && $hour < 12) ? "สวัสดีตอนเช้�
             </div>
             <div class="flex items-center gap-3">
                 <button onclick="showQR()"
-                    class="w-10 h-10 flex items-center justify-center text-slate-600 hover:text-blue-600 transition-colors">
+                    class="w-10 h-10 flex items-center justify-center text-slate-600 hover:text-green-600 transition-colors">
                     <i class="fa-solid fa-qrcode text-lg"></i>
                 </button>
                 <button onclick="showNotifications()"
@@ -347,12 +347,12 @@ $greeting = ($hour >= 5 && $hour < 12) ? "สวัสดีตอนเช้�
 
             <!-- ── Premium Identity Card (Wallet Style) ── -->
             <div onclick="window.location.href='profile.php'"
-                class="relative overflow-hidden bg-gradient-to-br from-[#0052CC] via-[#0066FF] to-[#0052CC] rounded-[3rem] p-8 shadow-[0_25px_50px_-12px_rgba(0,82,204,0.3)] group active:scale-[0.97] transition-all cursor-pointer">
+                class="relative overflow-hidden bg-gradient-to-br from-[#2e9e63] via-[#10b981] to-[#2e9e63] rounded-[3rem] p-8 shadow-[0_25px_50px_-12px_rgba(46,158,99,0.3)] group active:scale-[0.97] transition-all cursor-pointer">
                 <!-- Abstract Decorations -->
                 <div
                     class="absolute -right-6 -top-6 w-48 h-48 bg-white/10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-1000">
                 </div>
-                <div class="absolute -left-12 -bottom-12 w-56 h-56 bg-blue-400/20 rounded-full blur-3xl"></div>
+                <div class="absolute -left-12 -bottom-12 w-56 h-56 bg-emerald-400/20 rounded-full blur-3xl"></div>
 
                 <div class="relative z-10">
                     <div class="flex items-center gap-5 mb-10">
@@ -362,15 +362,15 @@ $greeting = ($hour >= 5 && $hour < 12) ? "สวัสดีตอนเช้�
                                     class="w-full h-full object-cover">
                             </div>
                             <div
-                                class="absolute -bottom-1 -right-1 w-6 h-6 bg-emerald-400 rounded-full border-4 border-[#005edb] animate-pulse">
+                                class="absolute -bottom-1 -right-1 w-6 h-6 bg-emerald-400 rounded-full border-4 border-[#237a4c] animate-pulse">
                             </div>
                         </div>
                         <div class="flex-1 min-w-0">
-                            <p class="text-blue-100/80 text-sm font-bold mb-1">สวัสดี 👋</p>
+                            <p class="text-emerald-50 text-sm font-bold mb-1">สวัสดี 👋</p>
                             <h3 class="text-white text-2xl font-black tracking-tight leading-tight mb-1 truncate">
                                 <?= $user['full_name'] ?>
                             </h3>
-                            <p class="text-blue-100/60 text-[11px] font-black uppercase tracking-[0.1em]">ID:
+                            <p class="text-emerald-100/60 text-[11px] font-black uppercase tracking-[0.1em]">ID:
                                 <?= !empty($user['student_personnel_id']) ? $user['student_personnel_id'] : 'N/A' ?>
                             </p>
                         </div>
@@ -382,8 +382,8 @@ $greeting = ($hour >= 5 && $hour < 12) ? "สวัสดีตอนเช้�
 
                     <div class="relative flex items-center justify-between pt-6 border-t border-white/10">
                         <div class="flex items-center gap-3 text-white">
-                            <i class="fa-solid fa-graduation-cap text-blue-200 text-sm"></i>
-                            <p class="text-blue-50 text-[11px] font-bold tracking-wide truncate max-w-[200px]">
+                            <i class="fa-solid fa-graduation-cap text-emerald-200 text-sm"></i>
+                            <p class="text-emerald-50 text-[11px] font-bold tracking-wide truncate max-w-[200px]">
                                 <?php
                                 $dept = !empty($user['department']) ? $user['department'] : 'วิทยาลัยนวัตกรรมดิจิทัลเทคโนโลยี';
                                 $status_label = [
@@ -410,8 +410,8 @@ $greeting = ($hour >= 5 && $hour < 12) ? "สวัสดีตอนเช้�
                 <button onclick="showUpcoming('ประวัติการเข้าพบ')"
                     class="bg-white rounded-[2.5rem] p-6 border border-slate-100 shadow-[0_15px_30px_rgba(0,0,0,0.03)] flex flex-col items-center text-center active:scale-95 transition-all group">
                     <div
-                        class="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                        <i class="fa-solid fa-calendar-check text-blue-600 text-lg"></i>
+                        class="w-12 h-12 bg-green-50 rounded-2xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-calendar-check text-green-600 text-lg"></i>
                     </div>
                     <p class="font-black text-xl text-slate-900 mb-0.5"><?= count($booking_list) ?></p>
                     <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest">การเข้าใช้บริการ</p>
@@ -432,7 +432,7 @@ $greeting = ($hour >= 5 && $hour < 12) ? "สวัสดีตอนเช้�
                 <div class="flex items-center justify-between px-1">
                     <h3 class="text-slate-900 font-black text-sm uppercase tracking-widest">Main Menu</h3>
                     <button onclick="showUpcoming('เมนูทั้งหมด')"
-                        class="text-blue-600 text-[10px] font-black uppercase tracking-widest bg-blue-50 px-3 py-1.5 rounded-full">All
+                        class="text-green-600 text-[10px] font-black uppercase tracking-widest bg-green-50 px-3 py-1.5 rounded-full">All
                         Services</button>
                 </div>
 
@@ -440,7 +440,7 @@ $greeting = ($hour >= 5 && $hour < 12) ? "สวัสดีตอนเช้�
                     class="bg-white rounded-[3rem] border border-slate-100 shadow-[0_20px_50px_rgba(0,0,0,0.04)] p-6 pt-8">
                     <div class="grid grid-cols-2 gap-4 mb-8">
                         <button onclick="showCampaigns()"
-                            class="relative flex flex-col items-start p-6 rounded-[2.2rem] bg-[#0052CC] shadow-[0_15px_30px_rgba(0,82,204,0.25)] active:scale-95 transition-all text-white overflow-hidden text-left group">
+                            class="relative flex flex-col items-start p-6 rounded-[2.2rem] bg-[#2e9e63] shadow-[0_15px_30px_rgba(46,158,99,0.25)] active:scale-95 transition-all text-white overflow-hidden text-left group">
                             <div
                                 class="absolute -right-4 -top-4 w-16 h-16 bg-white/10 rounded-full blur-xl group-hover:scale-150 transition-transform">
                             </div>
@@ -531,7 +531,7 @@ $greeting = ($hour >= 5 && $hour < 12) ? "สวัสดีตอนเช้�
                     <div class="flex items-center justify-between px-7 pt-7 pb-4 border-b border-slate-50">
                         <h3 class="text-slate-900 font-black text-xs uppercase tracking-widest">Latest Queue</h3>
                         <span
-                            class="bg-blue-50 text-blue-600 text-[9px] font-black px-3 py-1 rounded-full uppercase"><?= $upcoming_count ?>
+                            class="bg-green-50 text-green-600 text-[9px] font-black px-3 py-1 rounded-full uppercase"><?= $upcoming_count ?>
                             Active</span>
                     </div>
                     <div class="p-6 space-y-4">
@@ -549,7 +549,7 @@ $greeting = ($hour >= 5 && $hour < 12) ? "สวัสดีตอนเช้�
                                     <div class="flex items-start justify-between mb-5">
                                         <div class="flex items-center gap-4">
                                             <div
-                                                class="w-12 h-12 bg-white rounded-2xl flex items-center justify-center shadow-sm text-blue-600 border border-slate-100">
+                                                class="w-12 h-12 bg-white rounded-2xl flex items-center justify-center shadow-sm text-green-600 border border-slate-100">
                                                 <i class="fa-solid fa-calendar-check text-base"></i>
                                             </div>
                                             <div>
@@ -557,7 +557,7 @@ $greeting = ($hour >= 5 && $hour < 12) ? "สวัสดีตอนเช้�
                                                     <?= htmlspecialchars($b['camp_name']) ?>
                                                 </h4>
                                                 <div class="flex items-center gap-2">
-                                                    <span class="w-1.5 h-1.5 bg-blue-500 rounded-full"></span>
+                                                    <span class="w-1.5 h-1.5 bg-green-500 rounded-full"></span>
                                                     <p class="text-slate-400 text-[9px] font-black uppercase tracking-[0.1em]">
                                                         Confirmed Slot</p>
                                                 </div>
@@ -569,7 +569,7 @@ $greeting = ($hour >= 5 && $hour < 12) ? "สวัสดีตอนเช้�
                                     <div class="grid grid-cols-2 gap-4">
                                         <div
                                             class="bg-white p-4 rounded-2xl border border-slate-100/50 shadow-sm flex items-center gap-3">
-                                            <i class="fa-regular fa-calendar text-blue-500 text-xs"></i>
+                                            <i class="fa-regular fa-calendar text-green-500 text-xs"></i>
                                             <div>
                                                 <p
                                                     class="text-slate-400 text-[8px] font-black uppercase tracking-widest leading-none mb-1">
@@ -581,7 +581,7 @@ $greeting = ($hour >= 5 && $hour < 12) ? "สวัสดีตอนเช้�
                                         </div>
                                         <div
                                             class="bg-white p-4 rounded-2xl border border-slate-100/50 shadow-sm flex items-center gap-3">
-                                            <i class="fa-regular fa-clock text-blue-500 text-xs"></i>
+                                            <i class="fa-regular fa-clock text-green-500 text-xs"></i>
                                             <div>
                                                 <p
                                                     class="text-slate-400 text-[8px] font-black uppercase tracking-widest leading-none mb-1">
@@ -644,7 +644,7 @@ $greeting = ($hour >= 5 && $hour < 12) ? "สวัสดีตอนเช้�
                     </div>
 
                     <!-- Info Banner -->
-                    <div class="bg-blue-600 rounded-[2.2rem] p-6 shadow-xl shadow-blue-100 relative overflow-hidden group">
+                    <div class="bg-[#2e9e63] rounded-[2.2rem] p-6 shadow-xl shadow-green-100 relative overflow-hidden group">
                         <div
                             class="absolute -right-4 -top-4 w-20 h-20 bg-white/10 rounded-full blur-xl group-hover:scale-150 transition-transform">
                         </div>
@@ -680,7 +680,7 @@ $greeting = ($hour >= 5 && $hour < 12) ? "สวัสดีตอนเช้�
         <nav
             class="fixed bottom-0 left-0 right-0 z-[70] bg-white/90 backdrop-blur-2xl border-t border-slate-50 px-8 py-4 pb-10 flex justify-between items-center max-w-md mx-auto shadow-[0_-20px_40px_rgba(0,0,0,0.04)]">
             <button onclick="location.reload()"
-                class="flex flex-col items-center gap-1.5 text-blue-600 transition-all scale-110">
+                class="flex flex-col items-center gap-1.5 text-green-600 transition-all scale-110">
                 <i class="fa-solid fa-house-chimney text-xl"></i>
                 <span class="text-[8px] font-black uppercase tracking-[0.1em]">Home</span>
             </button>
@@ -691,7 +691,7 @@ $greeting = ($hour >= 5 && $hour < 12) ? "สวัสดีตอนเช้�
             </button>
             <div class="relative -mt-14">
                 <button onclick="showCampaigns()"
-                    class="w-16 h-16 bg-blue-600 rounded-[1.8rem] rotate-45 flex items-center justify-center text-white shadow-[0_15px_30px_rgba(0,82,204,0.4)] border-[6px] border-[#F8FAFF] active:scale-90 transition-all group">
+                    class="w-16 h-16 bg-[#2e9e63] rounded-[1.8rem] rotate-45 flex items-center justify-center text-white shadow-[0_15px_30px_rgba(46,158,99,0.4)] border-[6px] border-[#F8FAFF] active:scale-90 transition-all group">
                     <i class="fa-solid fa-plus text-2xl -rotate-45 group-hover:scale-125 transition-transform"></i>
                 </button>
             </div>
@@ -732,7 +732,7 @@ $greeting = ($hour >= 5 && $hour < 12) ? "สวัสดีตอนเช้�
             const userBubble = `
                 <div class="flex flex-row-reverse items-start gap-3 max-w-[85%] ml-auto animate-in slide-in-from-right-2 duration-300">
                     <div class="space-y-1 text-right">
-                        <div class="bg-blue-600 p-4 rounded-2xl rounded-tr-none shadow-lg shadow-blue-100"><p class="text-white text-xs leading-relaxed text-left">${message}</p></div>
+                        <div class="bg-[#2e9e63] p-4 rounded-2xl rounded-tr-none shadow-lg shadow-green-100"><p class="text-white text-xs leading-relaxed text-left">${message}</p></div>
                         <span class="text-[9px] text-white/40 font-black mr-1 uppercase">${time}</span>
                     </div>
                 </div>
@@ -797,7 +797,7 @@ $greeting = ($hour >= 5 && $hour < 12) ? "สวัสดีตอนเช้�
                             const userBubble = `
                                 <div class="flex flex-row-reverse items-start gap-3 max-w-[85%] ml-auto">
                                     <div class="space-y-1 text-right">
-                                        <div class="bg-blue-600 p-4 rounded-2xl rounded-tr-none shadow-lg shadow-blue-100"><p class="text-white text-xs leading-relaxed text-left">${msg.message}</p></div>
+                                        <div class="bg-[#2e9e63] p-4 rounded-2xl rounded-tr-none shadow-lg shadow-green-100"><p class="text-white text-xs leading-relaxed text-left">${msg.message}</p></div>
                                         <span class="text-[9px] text-white/40 font-black mr-1 uppercase">${time}</span>
                                     </div>
                                 </div>
@@ -853,7 +853,7 @@ $greeting = ($hour >= 5 && $hour < 12) ? "สวัสดีตอนเช้�
                 </div>
             </div>
             <h3 class="text-slate-900 font-black text-xl mb-1.5">Identity QR Code</h3>
-            <p class="text-blue-600 font-mono font-black text-sm tracking-[0.2em] mb-8">
+            <p class="text-[#2e9e63] font-mono font-black text-sm tracking-[0.2em] mb-8">
                 <?= $user['student_personnel_id'] ?>
             </p><button onclick="hideQR()"
                 class="w-full h-16 bg-slate-900 text-white font-black rounded-2xl active:scale-95 transition-all shadow-xl shadow-slate-200">ปิดหน้าต่าง</button>
@@ -866,15 +866,15 @@ $greeting = ($hour >= 5 && $hour < 12) ? "สวัสดีตอนเช้�
             <div class="w-12 h-1.5 bg-slate-100 rounded-full mx-auto mt-5 mb-3 flex-shrink-0"></div>
             <div class="px-8 py-5 border-b border-slate-50 flex items-center justify-between">
                 <h3 class="text-slate-900 font-black text-lg tracking-tight">Notifications</h3><span
-                    class="bg-blue-50 text-blue-600 text-[10px] font-black px-3 py-1.5 rounded-full uppercase tracking-widest"><?= $upcoming_count ?>
+                    class="bg-blue-50 text-[#2e9e63] text-[10px] font-black px-3 py-1.5 rounded-full uppercase tracking-widest"><?= $upcoming_count ?>
                     NEW</span>
             </div>
             <div class="flex-1 overflow-y-auto custom-scrollbar divide-y divide-slate-50">
                 <div class="flex gap-5 p-6 bg-blue-50/30 relative">
-                    <div class="absolute left-0 top-0 bottom-0 w-1.5 bg-blue-600"></div>
+                    <div class="absolute left-0 top-0 bottom-0 w-1.5 bg-[#2e9e63]"></div>
                     <div
                         class="w-12 h-12 rounded-2xl bg-blue-100 flex items-center justify-center shrink-0 border border-blue-200/50 shadow-sm">
-                        <i class="fa-solid fa-calendar-check text-blue-600 text-base"></i>
+                        <i class="fa-solid fa-calendar-check text-[#2e9e63] text-base"></i>
                     </div>
                     <div class="flex-1 min-w-0 text-left">
                         <div class="flex justify-between items-start mb-1.5">
@@ -900,7 +900,7 @@ $greeting = ($hour >= 5 && $hour < 12) ? "สวัสดีตอนเช้�
             <div class="w-14 h-1.5 bg-slate-100 rounded-full mx-auto mt-6 mb-2 flex-shrink-0"></div>
             <div class="px-10 pt-8 pb-6 border-b border-slate-50 flex-shrink-0">
                 <div class="flex items-center gap-4 mb-2">
-                    <div class="w-2 h-6 bg-blue-600 rounded-full"></div>
+                    <div class="w-2 h-6 bg-[#2e9e63] rounded-full"></div>
                     <h3 class="text-slate-900 font-black text-2xl tracking-tight text-left">เลือกแคมเปญ</h3>
                 </div>
                 <p class="text-slate-400 text-xs font-bold tracking-wide text-left opacity-70">AVAILABLE MEDICAL
@@ -928,7 +928,7 @@ $greeting = ($hour >= 5 && $hour < 12) ? "สวัสดีตอนเช้�
                                 <?php else: ?>
                                     <div class="flex items-center gap-2">
                                         <span class="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></span>
-                                        <span class="text-blue-600 text-[10px] font-black uppercase tracking-widest"><?= $remaining ?> SLOTS LEFT</span>
+                                        <span class="text-[#2e9e63] text-[10px] font-black uppercase tracking-widest"><?= $remaining ?> SLOTS LEFT</span>
                                     </div>
                                 <?php endif; ?>
                             </div>
@@ -941,7 +941,7 @@ $greeting = ($hour >= 5 && $hour < 12) ? "สวัสดีตอนเช้�
                                 <button disabled class="w-full h-16 bg-slate-100 text-slate-400 font-black rounded-2xl cursor-not-allowed text-sm">NOT AVAILABLE</button>
                             <?php else: ?>
                                 <a href="booking_date.php?campaign_id=<?= $c['id'] ?>"
-                                    class="w-full h-16 bg-blue-600 text-white font-black rounded-2xl flex items-center justify-center gap-3 active:scale-95 transition-all text-sm shadow-lg shadow-blue-100">BOOK THIS CAMPAIGN <i class="fa-solid fa-chevron-right text-[10px]"></i></a>
+                                    class="w-full h-16 bg-[#2e9e63] text-white font-black rounded-2xl flex items-center justify-center gap-3 active:scale-95 transition-all text-sm shadow-lg shadow-green-100">BOOK THIS CAMPAIGN <i class="fa-solid fa-chevron-right text-[10px]"></i></a>
                             <?php endif; ?>
                         </div>
                     <?php endforeach; ?>
@@ -990,7 +990,7 @@ $greeting = ($hour >= 5 && $hour < 12) ? "สวัสดีตอนเช้�
                     </a>
                     <div class="flex items-start gap-6 p-6 bg-slate-50 rounded-[2rem] border border-slate-100">
                         <div
-                            class="w-14 h-14 bg-white rounded-2xl flex items-center justify-center text-blue-600 shadow-xl border border-slate-50 shrink-0">
+                            class="w-14 h-14 bg-white rounded-2xl flex items-center justify-center text-[#2e9e63] shadow-xl border border-slate-50 shrink-0">
                             <i class="fa-solid fa-map-location-dot text-lg"></i>
                         </div>
                         <div>
@@ -1061,7 +1061,7 @@ $greeting = ($hour >= 5 && $hour < 12) ? "สวัสดีตอนเช้�
                         id="chat-input" placeholder="Type your message..."
                         class="w-full h-18 bg-slate-50 border-none rounded-[1.8rem] pl-7 pr-20 text-[13px] font-bold focus:ring-4 focus:ring-blue-100 transition-all placeholder:text-slate-200 shadow-inner"><button
                         type="submit"
-                        class="absolute right-2.5 top-2.5 w-13 h-13 bg-blue-600 text-white rounded-2xl shadow-[0_10px_25px_rgba(0,82,204,0.3)] active:scale-90 transition-all flex items-center justify-center overflow-hidden"><i
+                        class="absolute right-2.5 top-2.5 w-13 h-13 bg-[#2e9e63] text-white rounded-2xl shadow-[0_10px_25px_rgba(0,82,204,0.3)] active:scale-90 transition-all flex items-center justify-center overflow-hidden"><i
                             class="fa-solid fa-paper-plane-top text-sm"></i></button></form>
             </div>
         </div>
@@ -1072,14 +1072,14 @@ $greeting = ($hour >= 5 && $hour < 12) ? "สวัสดีตอนเช้�
             class="relative bg-white w-full max-w-[340px] rounded-[3.5rem] shadow-[0_30px_60px_rgba(0,0,0,0.15)] p-10 text-center animate-in zoom-in duration-300 overflow-hidden">
             <div class="absolute -right-10 -top-10 w-32 h-32 bg-blue-50 rounded-full blur-2xl"></div>
             <div
-                class="w-24 h-24 bg-blue-50 rounded-[2.5rem] flex items-center justify-center mx-auto mb-8 text-blue-600 text-4xl shadow-inner border border-blue-100/50">
+                class="w-24 h-24 bg-blue-50 rounded-[2.5rem] flex items-center justify-center mx-auto mb-8 text-[#2e9e63] text-4xl shadow-inner border border-blue-100/50">
                 <i class="fa-solid fa-rocket animate-float"></i>
             </div>
             <h3 class="text-slate-900 font-black text-2xl mb-3 tracking-tight">Coming Soon</h3>
             <p class="text-slate-400 text-sm font-bold mb-10 leading-relaxed px-2">ฟีเจอร์ <span id="upcoming-name"
-                    class="text-blue-600 font-black bg-blue-50 px-2 py-0.5 rounded-lg"></span> อยู่ในแผนการพัฒนา
+                    class="text-[#2e9e63] font-black bg-blue-50 px-2 py-0.5 rounded-lg"></span> อยู่ในแผนการพัฒนา
                 และจะพร้อมให้คุณใช้งานในเร็วๆ นี้ครับ</p><button onclick="hideUpcoming()"
-                class="w-full h-18 bg-blue-600 text-white font-black rounded-2xl shadow-[0_15px_30px_rgba(0,82,204,0.3)] active:scale-95 transition-all text-sm tracking-widest">GOT
+                class="w-full h-18 bg-[#2e9e63] text-white font-black rounded-2xl shadow-[0_15px_30px_rgba(0,82,204,0.3)] active:scale-95 transition-all text-sm tracking-widest">GOT
                 IT</button>
         </div>
     </div>
