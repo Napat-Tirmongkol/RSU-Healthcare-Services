@@ -7,7 +7,8 @@ require_once __DIR__ . '/../includes/lang.php';
 check_maintenance('e_campaign');
 
 $lineUserId = $_SESSION['line_user_id'] ?? '';
-$isTest = (isset($_GET['test_token']) && $_GET['test_token'] === 'RSU_TEST_2024');
+$_testToken = $__secrets['PLAYWRIGHT_TEST_TOKEN'] ?? '';
+$isTest = $_testToken !== '' && isset($_GET['test_token']) && hash_equals($_testToken, $_GET['test_token']);
 
 if ($lineUserId === '' && !$isTest) {
     header('Location: index.php');
