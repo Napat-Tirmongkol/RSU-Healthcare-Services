@@ -1,6 +1,9 @@
 # ซ่อนไฟล์ใดไฟล์หนึ่งแบบเจาะจง (พิมพ์ชื่อไฟล์เต็มๆ)
 secrets.php
 config/db_connect.php
+e_borrow.sql
+.env
+
 
 # ซ่อนทั้งโฟลเดอร์ (ใส่เครื่องหมาย / ต่อท้าย)
 e_Borrow/uploads/
@@ -17,3 +20,10 @@ node_modules/
 /blob-report/
 /playwright/.cache/
 /playwright/.auth/
+
+# Staging Sandbox
+ux_staging/
+
+# Tailwind CLI binary (compile locally, do not commit)
+tailwindcss
+tailwindcss-*
