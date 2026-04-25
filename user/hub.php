@@ -89,6 +89,16 @@ try {
         $borrow_count = 0;
     }
 
+    // Insurance record (linked by student_personnel_id = member_id)
+    $insurance = null;
+    if (defined('SITE_SHOW_INSURANCE') && SITE_SHOW_INSURANCE && !empty($user['student_personnel_id'])) {
+        try {
+            $insStmt = $pdo->prepare("SELECT * FROM insurance_members WHERE member_id = :mid LIMIT 1");
+            $insStmt->execute([':mid' => $user['student_personnel_id']]);
+            $insurance = $insStmt->fetch(PDO::FETCH_ASSOC) ?: null;
+        } catch (Exception $e) { /* table may not exist yet */ }
+    }
+
 } catch (Exception $e) {
     error_log("Hub DB error: " . $e->getMessage());
 }
@@ -603,60 +613,89 @@ $greeting = ($hour >= 5 && $hour < 12) ? "สวัสดีตอนเช้�
             <?php if (defined('SITE_SHOW_INSURANCE') && SITE_SHOW_INSURANCE): ?>
                 <div class="space-y-4">
                     <p class="text-slate-500 text-[10px] font-black uppercase tracking-[0.3em] px-1">Medical Coverage</p>
-                    <div class="bg-slate-900 rounded-[3rem] p-8 shadow-2xl relative overflow-hidden premium-shadow">
-                        <div class="absolute -right-8 -bottom-8 w-40 h-40 bg-white/5 rounded-full blur-3xl"></div>
-                        <div class="flex items-start justify-between mb-10">
-                            <div>
-                                <h4 class="text-white font-black text-sm tracking-tight">Student Insurance (INTL)</h4>
-                                <p
-                                    class="text-white/30 text-[9px] font-black uppercase tracking-[0.2em] mt-1.5 leading-none">
-                                    Muang Thai Insurance</p>
+
+                    <?php if ($insurance === null): ?>
+                        <!-- ไม่พบข้อมูลประกันในระบบ -->
+                        <div class="bg-slate-900 rounded-[3rem] p-8 shadow-2xl relative overflow-hidden premium-shadow">
+                            <div class="absolute -right-8 -bottom-8 w-40 h-40 bg-white/5 rounded-full blur-3xl"></div>
+                            <div class="flex flex-col items-center justify-center py-6 text-center gap-3">
+                                <div class="w-14 h-14 rounded-2xl bg-white/10 flex items-center justify-center text-white/30 text-2xl">
+                                    <i class="fa-solid fa-shield-xmark"></i>
+                                </div>
+                                <p class="text-white/50 text-xs font-black uppercase tracking-widest">ไม่พบข้อมูลประกันในระบบ</p>
+                                <p class="text-white/25 text-[10px] font-bold">กรุณาติดต่อเจ้าหน้าที่</p>
+                            </div>
+                            <div class="pt-6 border-t border-white/10">
+                                <p class="text-white/30 text-[8px] font-black uppercase tracking-[0.2em] mb-1">Primary Holder</p>
+                                <p class="text-white text-[11px] font-black uppercase tracking-wider truncate"><?= htmlspecialchars($user['full_name']) ?></p>
                             </div>
                         </div>
 
-                        <div class="space-y-2 mb-8">
-                            <div class="flex items-center gap-2 opacity-40">
-                                <p class="text-white text-[10px] font-black uppercase tracking-[0.3em]">Remaining Balance
-                                </p>
-                                <i class="fa-solid fa-eye-low-vision text-[10px]"></i>
+                    <?php else:
+                        $isActive   = ($insurance['insurance_status'] ?? '') === 'Active';
+                        $memberType = $insurance['member_status'] ?? '';
+                        $coverEnd   = $insurance['coverage_end'] ?? null;
+                        $coverStart = $insurance['coverage_start'] ?? null;
+                        $policyNo   = $insurance['policy_number'] ?? '';
+                        $expireText = $coverEnd ? date('M Y', strtotime($coverEnd)) : 'N/A';
+                    ?>
+                    <!-- มีข้อมูลประกัน -->
+                    <div class="bg-slate-900 rounded-[3rem] p-8 shadow-2xl relative overflow-hidden premium-shadow">
+                        <div class="absolute -right-8 -bottom-8 w-40 h-40 bg-white/5 rounded-full blur-3xl"></div>
+
+                        <div class="flex items-start justify-between mb-8">
+                            <div>
+                                <h4 class="text-white font-black text-sm tracking-tight">
+                                    <?= $memberType === 'นักศึกษา' ? 'Student Insurance' : ($memberType === 'บุคลากร' ? 'Staff Insurance' : 'Health Insurance') ?>
+                                </h4>
+                                <?php if ($memberType): ?>
+                                    <p class="text-white/30 text-[9px] font-black uppercase tracking-[0.2em] mt-1.5 leading-none">
+                                        <?= htmlspecialchars($memberType) ?>
+                                    </p>
+                                <?php endif; ?>
                             </div>
-                            <div class="flex items-baseline gap-1">
-                                <span class="text-white text-[18px] font-black opacity-50">฿</span>
-                                <span class="text-white text-4xl font-black tracking-tighter">40,000</span>
-                            </div>
-                            <p class="text-white/20 text-[10px] font-bold">Max Limit per Incident: ฿ 40,000</p>
+                            <!-- Status badge -->
+                            <span class="px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest <?= $isActive ? 'bg-emerald-500/20 text-emerald-400' : 'bg-rose-500/20 text-rose-400' ?>">
+                                <?= $isActive ? 'Active' : 'Inactive' ?>
+                            </span>
                         </div>
+
+                        <?php if ($policyNo): ?>
+                        <div class="mb-6">
+                            <p class="text-white/30 text-[9px] font-black uppercase tracking-[0.2em] mb-1">Policy No.</p>
+                            <p class="text-white/70 text-xs font-black tracking-widest"><?= htmlspecialchars($policyNo) ?></p>
+                        </div>
+                        <?php endif; ?>
 
                         <div class="flex items-end justify-between pt-6 border-t border-white/10 relative z-10">
                             <div>
-                                <p class="text-white/30 text-[8px] font-black uppercase tracking-[0.2em] mb-1.5">Primary
-                                    Holder</p>
-                                <p
-                                    class="text-white text-[11px] font-black uppercase tracking-wider truncate max-w-[180px]">
-                                    <?= $user['full_name'] ?>
+                                <p class="text-white/30 text-[8px] font-black uppercase tracking-[0.2em] mb-1.5">Primary Holder</p>
+                                <p class="text-white text-[11px] font-black uppercase tracking-wider truncate max-w-[180px]">
+                                    <?= htmlspecialchars($user['full_name']) ?>
                                 </p>
                             </div>
                             <div class="text-right">
-                                <p class="text-white/30 text-[8px] font-black uppercase tracking-[0.2em] mb-1.5">Expires</p>
-                                <p class="text-white text-[11px] font-black uppercase tracking-widest">Coming Soon</p>
+                                <p class="text-white/30 text-[8px] font-black uppercase tracking-[0.2em] mb-1.5">
+                                    <?= $coverEnd ? 'Expires' : 'Coverage' ?>
+                                </p>
+                                <p class="text-white text-[11px] font-black uppercase tracking-widest <?= !$isActive ? 'text-rose-400' : '' ?>">
+                                    <?= $expireText ?>
+                                </p>
                             </div>
                         </div>
                     </div>
+                    <?php endif; ?>
 
                     <!-- Info Banner -->
                     <div class="bg-[#2e9e63] rounded-[2.2rem] p-6 shadow-xl shadow-green-100 relative overflow-hidden group">
-                        <div
-                            class="absolute -right-4 -top-4 w-20 h-20 bg-white/10 rounded-full blur-xl group-hover:scale-150 transition-transform">
-                        </div>
+                        <div class="absolute -right-4 -top-4 w-20 h-20 bg-white/10 rounded-full blur-xl group-hover:scale-150 transition-transform"></div>
                         <div class="flex items-start gap-4 relative z-10">
-                            <div
-                                class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center text-white shrink-0">
+                            <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center text-white shrink-0">
                                 <i class="fa-solid fa-circle-exclamation"></i>
                             </div>
                             <div class="space-y-1">
                                 <h5 class="text-white font-black text-xs uppercase tracking-widest">Required Documents</h5>
-                                <p class="text-white/80 text-[11px] leading-relaxed">Please present your <b>Original
-                                        Passport</b> at the hospital to receive medical services.</p>
+                                <p class="text-white/80 text-[11px] leading-relaxed">Please present your <b>Original Passport</b> at the hospital to receive medical services.</p>
                             </div>
                         </div>
                     </div>
