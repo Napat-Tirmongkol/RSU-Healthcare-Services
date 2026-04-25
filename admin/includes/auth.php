@@ -1,39 +1,10 @@
 <?php
 // admin/includes/auth.php
+require_once __DIR__ . '/../../includes/session_guard.php';
+start_secure_session();
 
-// ── Session Security Settings (ตั้งได้เฉพาะก่อน session_start) ──────────────
-if (session_status() === PHP_SESSION_NONE) {
-    ini_set('session.gc_maxlifetime', 7200);
-    ini_set('session.cookie_lifetime', 0);
-    ini_set('session.cookie_httponly', 1);
-    ini_set('session.cookie_samesite', 'Lax');
-    session_start();
-}
-
-// ── Idle Timeout: logout อัตโนมัติถ้าไม่มีการใช้งานนาน 2 ชั่วโมง ────────────
-const ADMIN_SESSION_TIMEOUT = 7200;
-
-if (isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] === true) {
-    if (isset($_SESSION['_admin_last_activity'])) {
-        if (time() - $_SESSION['_admin_last_activity'] > ADMIN_SESSION_TIMEOUT) {
-            // หมดเวลา — ล้าง session แล้ว redirect ไปหน้า login ที่เหมาะสม
-            $isStaff = !empty($_SESSION['is_ecampaign_staff']);
-            session_unset();
-            session_destroy();
-            $_inAjax = basename(dirname($_SERVER['SCRIPT_NAME'] ?? '')) === 'ajax';
-            $pfx = $_inAjax ? '../auth/' : 'auth/';
-            header('Location: ' . $pfx . ($isStaff ? 'staff_login.php' : 'login.php') . '?reason=timeout');
-            exit;
-        }
-    }
-    $_SESSION['_admin_last_activity'] = time(); // อัปเดตทุก request
-}
-
-// ── Auth Check ──────────────────────────────────────────────────────────────
-if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
-    $_inAjax = basename(dirname($_SERVER['SCRIPT_NAME'] ?? '')) === 'ajax';
-    header('Location: ' . ($_inAjax ? '../auth/login.php' : 'auth/login.php'));
-    exit;
-}
+$_inAjax = basename(dirname($_SERVER['SCRIPT_NAME'] ?? '')) === 'ajax';
+$_pfx    = $_inAjax ? '../auth/' : 'auth/';
+check_admin_session($_pfx . 'login.php', $_pfx . 'staff_login.php');
 
 require_once __DIR__ . '/../../config.php';
