@@ -266,15 +266,12 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('scan-status').className = 'text-sm font-bold text-orange-500 animate-pulse';
 
         try {
-            // หยุดการสแกนจากกล้องชั่วคราว (ถ้าเปิดอยู่) ก่อนจะสแกนไฟล์
             if (html5QrCode.isScanning) {
                 await html5QrCode.pause();
             }
-
-            // ใช้ html5QrCode สแกนจากไฟล์
             const decodedText = await html5QrCode.scanFile(imageFile, true);
             processQRCode(decodedText);
-            fileInput.value = ''; // clear input
+            fileInput.value = '';
         } catch (err) {
             console.error(err);
             Swal.fire({
@@ -284,22 +281,20 @@ document.addEventListener('DOMContentLoaded', function() {
                 confirmButtonColor: '#0052CC',
                 customClass: { title: 'font-prompt', popup: 'font-prompt rounded-3xl' }
             });
-            
-            // กลับไปสถานะเดิม
             document.getElementById('scan-status').innerText = 'พร้อมสแกน...';
             document.getElementById('scan-status').className = 'text-sm font-bold text-green-500 animate-pulse';
-            fileInput.value = ''; // clear input
-            
-            // กลับมาเปิดกล้องต่อ (ถ้าโดนหยุดไป)
-            if (html5QrCode.getState() === 3) { // 3 = PAUSED
+            fileInput.value = '';
+            if (html5QrCode.getState() === 3) { 
                 html5QrCode.resume();
             }
         }
+    });
+
     // จัดการการกรอกรหัส/เครื่องยิงบาร์โค้ด
     const manualInput = document.getElementById('manual-input-id');
     const btnSubmitManual = document.getElementById('btn-submit-manual');
 
-    function submitManual() {
+    function handleManualSubmit() {
         const val = manualInput.value.trim();
         if (val) {
             processQRCode(val);
@@ -308,9 +303,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     manualInput.addEventListener('keydown', e => {
-        if (e.key === 'Enter') submitManual();
+        if (e.key === 'Enter') handleManualSubmit();
     });
-    btnSubmitManual.addEventListener('click', submitManual);
+    btnSubmitManual.addEventListener('click', handleManualSubmit);
 });
 </script>
 </body>
