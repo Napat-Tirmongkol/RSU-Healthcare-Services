@@ -37,14 +37,17 @@ try {
     // ── Store user ID in session for AJAX endpoints ──
     $_SESSION['user_id'] = (int)$user['id'];
 
-    // Campaigns (all active)
+    // Campaigns (active, coming_soon, full)
+    // Draft and Archived are hidden from users
     $stmt = $pdo->prepare("
         SELECT c.*,
                (SELECT COUNT(*) FROM camp_bookings a WHERE a.campaign_id = c.id AND a.status IN ('booked', 'confirmed')) as used_seats
         FROM camp_list c
-        WHERE c.status = 'active'
+        WHERE c.status IN ('active', 'coming_soon', 'full')
         AND (c.available_until IS NULL OR c.available_until >= :today)
-        ORDER BY c.created_at DESC
+        ORDER BY 
+            CASE WHEN c.status = 'active' THEN 0 ELSE 1 END ASC,
+            c.created_at DESC
     ");
     $stmt->execute([':today' => $today]);
     $camp_list = $stmt->fetchAll();
@@ -907,30 +910,42 @@ $greeting = ($hour >= 5 && $hour < 12) ? "สวัสดีตอนเช้�
                 <?php if (empty($camp_list)): ?>
                     <div class="py-16 text-center text-slate-300 font-black text-sm italic">ขออภัย
                         ยังไม่มีแคมเปญที่เปิดรับจอง</div>
-                <?php else: ?>     <?php foreach ($camp_list as $c):
-                           $style = getCampStyle($c['type']);
-                           $remaining = $c['total_capacity'] - $c['used_seats'];
-                           $isFull = ($remaining <= 0); ?>
+                <?php else: ?>
+                    <?php foreach ($camp_list as $c):
+                        $style = getCampStyle($c['type']);
+                        $remaining = $c['total_capacity'] - $c['used_seats'];
+                        $isFull = ($remaining <= 0 || $c['status'] === 'full');
+                        $isComing = ($c['status'] === 'coming_soon');
+                        ?>
                         <div
-                            class="bg-white rounded-[2.5rem] p-7 border border-slate-100 shadow-[0_15px_30px_rgba(0,0,0,0.03)] relative transition-all hover:shadow-xl <?= $isFull ? 'opacity-60' : '' ?>">
-                            <div class="flex justify-between items-start mb-5"><span
-                                    class="px-4 py-1.5 rounded-xl border <?= $style['class'] ?> text-[10px] font-black uppercase tracking-widest"><?= $style['label'] ?></span><?php if ($isFull): ?><span
-                                        class="text-red-500 text-[10px] font-black uppercase tracking-widest">Fully
-                                        Booked</span><?php else: ?>
-                                    <div class="flex items-center gap-2"><span
-                                            class="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></span><span
-                                            class="text-blue-600 text-[10px] font-black uppercase tracking-widest"><?= $remaining ?>
-                                            SLOTS LEFT</span></div><?php endif; ?>
+                            class="bg-white rounded-[2.5rem] p-7 border border-slate-100 shadow-[0_15px_30px_rgba(0,0,0,0.03)] relative transition-all hover:shadow-xl <?= ($isFull || $isComing) ? 'opacity-70' : '' ?>">
+                            <div class="flex justify-between items-start mb-5">
+                                <span class="px-4 py-1.5 rounded-xl border <?= $style['class'] ?> text-[10px] font-black uppercase tracking-widest"><?= $style['label'] ?></span>
+                                <?php if ($isComing): ?>
+                                    <span class="text-purple-600 text-[10px] font-black uppercase tracking-widest">Coming Soon</span>
+                                <?php elseif ($isFull): ?>
+                                    <span class="text-red-500 text-[10px] font-black uppercase tracking-widest">Fully Booked</span>
+                                <?php else: ?>
+                                    <div class="flex items-center gap-2">
+                                        <span class="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></span>
+                                        <span class="text-blue-600 text-[10px] font-black uppercase tracking-widest"><?= $remaining ?> SLOTS LEFT</span>
+                                    </div>
+                                <?php endif; ?>
                             </div>
                             <h4 class="text-slate-900 font-black text-base mb-6 leading-snug">
                                 <?= htmlspecialchars($c['title']) ?>
-                            </h4><?php if (!$isFull): ?><a href="booking_date.php?campaign_id=<?= $c['id'] ?>"
-                                    class="w-full h-16 bg-blue-600 text-white font-black rounded-2xl flex items-center justify-center gap-3 active:scale-95 transition-all text-sm shadow-lg shadow-blue-100">BOOK
-                                    THIS CAMPAIGN <i class="fa-solid fa-chevron-right text-[10px]"></i></a><?php else: ?><button
-                                    disabled
-                                    class="w-full h-16 bg-slate-100 text-slate-400 font-black rounded-2xl cursor-not-allowed text-sm">NOT
-                                    AVAILABLE</button><?php endif; ?>
-                        </div><?php endforeach; ?><?php endif; ?>
+                            </h4>
+                            <?php if ($isComing): ?>
+                                <button disabled class="w-full h-16 bg-purple-50 text-purple-400 font-black rounded-2xl cursor-not-allowed text-sm">COMING SOON</button>
+                            <?php elseif ($isFull): ?>
+                                <button disabled class="w-full h-16 bg-slate-100 text-slate-400 font-black rounded-2xl cursor-not-allowed text-sm">NOT AVAILABLE</button>
+                            <?php else: ?>
+                                <a href="booking_date.php?campaign_id=<?= $c['id'] ?>"
+                                    class="w-full h-16 bg-blue-600 text-white font-black rounded-2xl flex items-center justify-center gap-3 active:scale-95 transition-all text-sm shadow-lg shadow-blue-100">BOOK THIS CAMPAIGN <i class="fa-solid fa-chevron-right text-[10px]"></i></a>
+                            <?php endif; ?>
+                        </div>
+                    <?php endforeach; ?>
+                <?php endif; ?>
             </div>
             <div class="p-8 border-t border-slate-50 flex-shrink-0 bg-white"><button onclick="hideCampaigns()"
                     class="w-full h-16 bg-slate-50 text-slate-400 font-black rounded-2xl active:scale-95 transition-all uppercase tracking-widest text-[10px]">Back
