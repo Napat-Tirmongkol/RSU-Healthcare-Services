@@ -102,10 +102,92 @@ $csrfToken = get_csrf_token();
             <button onclick="loadInsMembers(1)" class="h-10 px-5 bg-slate-900 text-white rounded-xl font-black text-sm active:scale-95 transition-all">
                 ค้นหา
             </button>
+            <button onclick="openInsMemberModal(null)" class="h-10 px-5 bg-[#0052CC] text-white rounded-xl font-black text-sm active:scale-95 transition-all flex items-center gap-2">
+                <i class="fa-solid fa-plus text-xs"></i> เพิ่มสมาชิก
+            </button>
         </div>
 
         <div id="insMembersResult" class="min-h-[200px]"></div>
         <div id="insMembersPager" class="px-8 py-4 flex justify-center border-t border-slate-100 hidden"></div>
+    </div>
+</div>
+
+<!-- ── Member Form Modal ─────────────────────────────────────────────────── -->
+<div id="insMemberModal" class="fixed inset-0 z-[120] hidden items-center justify-center bg-black/40 backdrop-blur-sm">
+    <div class="bg-white rounded-[2rem] w-full max-w-lg mx-4 shadow-2xl flex flex-col max-h-[90vh]">
+        <div class="px-8 pt-7 pb-5 border-b border-slate-100 flex items-center justify-between shrink-0">
+            <h3 id="insMemberModalTitle" class="text-base font-black text-slate-900">เพิ่มสมาชิก</h3>
+            <button onclick="closeInsMemberModal()" class="w-9 h-9 bg-slate-50 text-slate-400 hover:text-slate-600 rounded-full flex items-center justify-center transition-colors">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        <div class="overflow-y-auto flex-1 px-8 py-6 space-y-4">
+            <input type="hidden" id="imIsEdit" value="0">
+
+            <div class="grid grid-cols-2 gap-4">
+                <div class="col-span-2">
+                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">รหัสสมาชิก <span class="text-rose-500">*</span></label>
+                    <input type="text" id="imMemberId" placeholder="เช่น 6512345"
+                        class="w-full h-11 px-4 border border-slate-200 rounded-xl text-sm font-bold focus:ring-4 focus:ring-blue-500/10 outline-none bg-slate-50">
+                </div>
+                <div class="col-span-2">
+                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">ชื่อ-นามสกุล</label>
+                    <input type="text" id="imFullName" placeholder="ชื่อ นามสกุล"
+                        class="w-full h-11 px-4 border border-slate-200 rounded-xl text-sm font-bold focus:ring-4 focus:ring-blue-500/10 outline-none bg-slate-50">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">ประเภท</label>
+                    <select id="imMemberStatus" class="w-full h-11 px-4 border border-slate-200 rounded-xl text-sm font-bold focus:ring-4 focus:ring-blue-500/10 outline-none bg-slate-50">
+                        <option value="">— ไม่ระบุ —</option>
+                        <option value="บุคลากร">บุคลากร</option>
+                        <option value="นักศึกษา">นักศึกษา</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">สถานะสิทธิ์</label>
+                    <select id="imInsuranceStatus" class="w-full h-11 px-4 border border-slate-200 rounded-xl text-sm font-bold focus:ring-4 focus:ring-blue-500/10 outline-none bg-slate-50">
+                        <option value="Active">Active — มีสิทธิ์</option>
+                        <option value="Inactive">Inactive — ไม่มีสิทธิ์</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">เลขบัตรประชาชน</label>
+                    <input type="text" id="imCitizenId" maxlength="13" placeholder="13 หลัก"
+                        class="w-full h-11 px-4 border border-slate-200 rounded-xl text-sm font-bold focus:ring-4 focus:ring-blue-500/10 outline-none bg-slate-50">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">เลขกรมธรรม์</label>
+                    <input type="text" id="imPolicyNumber" placeholder="Policy No."
+                        class="w-full h-11 px-4 border border-slate-200 rounded-xl text-sm font-bold focus:ring-4 focus:ring-blue-500/10 outline-none bg-slate-50">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">วันเริ่มคุ้มครอง</label>
+                    <input type="date" id="imCoverageStart"
+                        class="w-full h-11 px-4 border border-slate-200 rounded-xl text-sm font-bold focus:ring-4 focus:ring-blue-500/10 outline-none bg-slate-50">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">วันสิ้นสุดคุ้มครอง</label>
+                    <input type="date" id="imCoverageEnd"
+                        class="w-full h-11 px-4 border border-slate-200 rounded-xl text-sm font-bold focus:ring-4 focus:ring-blue-500/10 outline-none bg-slate-50">
+                </div>
+                <div class="col-span-2">
+                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">หมายเหตุ</label>
+                    <input type="text" id="imRemarks" placeholder="หมายเหตุ (ถ้ามี)"
+                        class="w-full h-11 px-4 border border-slate-200 rounded-xl text-sm font-bold focus:ring-4 focus:ring-blue-500/10 outline-none bg-slate-50">
+                </div>
+            </div>
+
+            <div id="imError" class="hidden text-xs font-bold text-rose-600 bg-rose-50 border border-rose-100 rounded-xl px-4 py-3"></div>
+        </div>
+        <div class="px-8 pb-7 pt-4 border-t border-slate-100 flex gap-3 shrink-0">
+            <button id="imBtnSave" onclick="saveInsMember()"
+                class="flex-1 h-12 bg-[#0052CC] text-white font-black rounded-xl shadow-lg shadow-blue-200 active:scale-95 transition-all text-sm">
+                บันทึก
+            </button>
+            <button onclick="closeInsMemberModal()" class="px-6 h-12 bg-slate-50 text-slate-500 font-black rounded-xl text-sm active:scale-95 transition-all">
+                ยกเลิก
+            </button>
+        </div>
     </div>
 </div>
 
@@ -238,6 +320,7 @@ $csrfToken = get_csrf_token();
                             <th class="text-center px-6 py-4">ประเภท</th>
                             <th class="text-center px-6 py-4">สิทธิ์</th>
                             <th class="text-center px-6 py-4">ระยะเวลาคุ้มครอง</th>
+                            <th class="w-14"></th>
                         </tr></thead>
                         <tbody>${data.members.map(m => `
                             <tr class="hover:bg-slate-50 border-b border-slate-100">
@@ -248,6 +331,12 @@ $csrfToken = get_csrf_token();
                                     <span class="ins-badge badge-${m.insurance_status === 'Active' ? 'active' : 'inactive'}">${m.insurance_status}</span>
                                 </td>
                                 <td class="px-6 py-4 text-center text-xs text-slate-500 font-bold">${dateRange(m.coverage_start, m.coverage_end)}</td>
+                                <td class="px-6 py-4 text-right">
+                                    <button onclick='openInsMemberModal(${JSON.stringify(m)})'
+                                        class="h-8 px-3 bg-slate-100 hover:bg-blue-50 hover:text-blue-600 text-slate-500 rounded-lg text-xs font-black transition-colors">
+                                        <i class="fa-solid fa-pen-to-square"></i>
+                                    </button>
+                                </td>
                             </tr>
                         `).join('')}</tbody>
                     </table>
@@ -277,6 +366,71 @@ $csrfToken = get_csrf_token();
     document.getElementById('insMemberSearch').addEventListener('keydown', e => {
         if (e.key === 'Enter') loadInsMembers(1);
     });
+
+    // ── Member Modal ────────────────────────────────────────────────────────────
+    window.openInsMemberModal = function(member) {
+        const isEdit = member !== null;
+        document.getElementById('insMemberModalTitle').textContent = isEdit ? 'แก้ไขข้อมูลสมาชิก' : 'เพิ่มสมาชิก';
+        document.getElementById('imIsEdit').value   = isEdit ? '1' : '0';
+        document.getElementById('imMemberId').value          = member?.member_id        ?? '';
+        document.getElementById('imMemberId').readOnly       = isEdit;
+        document.getElementById('imMemberId').classList.toggle('opacity-50', isEdit);
+        document.getElementById('imFullName').value          = member?.full_name        ?? '';
+        document.getElementById('imMemberStatus').value      = member?.member_status    ?? '';
+        document.getElementById('imInsuranceStatus').value   = member?.insurance_status ?? 'Active';
+        document.getElementById('imCitizenId').value         = member?.citizen_id       ?? '';
+        document.getElementById('imPolicyNumber').value      = member?.policy_number    ?? '';
+        document.getElementById('imCoverageStart').value     = member?.coverage_start   ?? '';
+        document.getElementById('imCoverageEnd').value       = member?.coverage_end     ?? '';
+        document.getElementById('imRemarks').value           = member?.remarks          ?? '';
+        document.getElementById('imError').classList.add('hidden');
+        document.getElementById('insMemberModal').classList.replace('hidden', 'flex');
+    };
+
+    window.closeInsMemberModal = () => document.getElementById('insMemberModal').classList.replace('flex', 'hidden');
+
+    window.saveInsMember = async function() {
+        const btn    = document.getElementById('imBtnSave');
+        const errDiv = document.getElementById('imError');
+        const mid    = document.getElementById('imMemberId').value.trim();
+        if (!mid) { errDiv.textContent = 'กรุณาระบุรหัสสมาชิก'; errDiv.classList.remove('hidden'); return; }
+
+        btn.disabled = true;
+        btn.textContent = 'กำลังบันทึก...';
+        errDiv.classList.add('hidden');
+
+        const fd = new FormData();
+        fd.append('action',           'save_member');
+        fd.append('csrf_token',       CSRF);
+        fd.append('member_id',        mid);
+        fd.append('is_edit',          document.getElementById('imIsEdit').value);
+        fd.append('full_name',        document.getElementById('imFullName').value.trim());
+        fd.append('member_status',    document.getElementById('imMemberStatus').value);
+        fd.append('insurance_status', document.getElementById('imInsuranceStatus').value);
+        fd.append('citizen_id',       document.getElementById('imCitizenId').value.trim());
+        fd.append('policy_number',    document.getElementById('imPolicyNumber').value.trim());
+        fd.append('coverage_start',   document.getElementById('imCoverageStart').value);
+        fd.append('coverage_end',     document.getElementById('imCoverageEnd').value);
+        fd.append('remarks',          document.getElementById('imRemarks').value.trim());
+
+        try {
+            const res  = await fetch('ajax_insurance_sync.php', { method: 'POST', body: fd });
+            const data = await res.json();
+            if (data.status === 'success') {
+                closeInsMemberModal();
+                loadInsMembers(1);
+            } else {
+                errDiv.textContent = data.message;
+                errDiv.classList.remove('hidden');
+            }
+        } catch (err) {
+            errDiv.textContent = 'เกิดข้อผิดพลาด: ' + err.message;
+            errDiv.classList.remove('hidden');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = 'บันทึก';
+        }
+    };
 
     window.updateInsVisibility = function(cb) {
         const fd = new FormData();

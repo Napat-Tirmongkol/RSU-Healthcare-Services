@@ -261,6 +261,83 @@ if ($action === 'list_members') {
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
+// ACTION: save_member — insert or update a single member record
+// ══════════════════════════════════════════════════════════════════════════════
+if ($action === 'save_member') {
+    $mid     = trim($_POST['member_id']        ?? '');
+    $isEdit  = ($_POST['is_edit']              ?? '0') === '1';
+    $fn      = trim($_POST['full_name']        ?? '');
+    $ms      = trim($_POST['member_status']    ?? '');
+    $ins     = $_POST['insurance_status']      ?? 'Active';
+    $cid     = trim($_POST['citizen_id']       ?? '');
+    $pn      = trim($_POST['policy_number']    ?? '');
+    $cs      = trim($_POST['coverage_start']   ?? '') ?: null;
+    $ce      = trim($_POST['coverage_end']     ?? '') ?: null;
+    $rem     = trim($_POST['remarks']          ?? '');
+
+    if ($mid === '') {
+        echo json_encode(['status' => 'error', 'message' => 'กรุณาระบุรหัสสมาชิก']);
+        exit;
+    }
+    if (!in_array($ins, ['Active', 'Inactive'], true)) {
+        echo json_encode(['status' => 'error', 'message' => 'สถานะสิทธิ์ไม่ถูกต้อง']);
+        exit;
+    }
+
+    ensure_insurance_table($pdo);
+
+    if ($isEdit) {
+        $exists = (int)$pdo->prepare("SELECT COUNT(*) FROM insurance_members WHERE member_id = :mid")
+            ->execute([':mid' => $mid]) ?
+            (function() use ($pdo, $mid) {
+                $s = $pdo->prepare("SELECT COUNT(*) FROM insurance_members WHERE member_id = :mid");
+                $s->execute([':mid' => $mid]);
+                return (int)$s->fetchColumn();
+            })() : 0;
+
+        if (!$exists) {
+            echo json_encode(['status' => 'error', 'message' => 'ไม่พบสมาชิกรหัส ' . htmlspecialchars($mid)]);
+            exit;
+        }
+
+        $pdo->prepare("
+            UPDATE insurance_members SET
+                full_name        = :fn,
+                member_status    = :ms,
+                insurance_status = :ins,
+                citizen_id       = :cid,
+                policy_number    = :pn,
+                coverage_start   = :cs,
+                coverage_end     = :ce,
+                remarks          = :rem
+            WHERE member_id = :mid
+        ")->execute([':fn'=>$fn,':ms'=>$ms,':ins'=>$ins,':cid'=>$cid,':pn'=>$pn,':cs'=>$cs,':ce'=>$ce,':rem'=>$rem,':mid'=>$mid]);
+
+        log_activity('insurance_edit', "แก้ไขสมาชิก member_id={$mid}");
+    } else {
+        $dup = $pdo->prepare("SELECT COUNT(*) FROM insurance_members WHERE member_id = :mid");
+        $dup->execute([':mid' => $mid]);
+        if ((int)$dup->fetchColumn() > 0) {
+            echo json_encode(['status' => 'error', 'message' => "รหัสสมาชิก {$mid} มีอยู่ในระบบแล้ว"]);
+            exit;
+        }
+
+        $pdo->prepare("
+            INSERT INTO insurance_members
+                (member_id, full_name, member_status, insurance_status, citizen_id,
+                 policy_number, coverage_start, coverage_end, remarks)
+            VALUES
+                (:mid, :fn, :ms, :ins, :cid, :pn, :cs, :ce, :rem)
+        ")->execute([':mid'=>$mid,':fn'=>$fn,':ms'=>$ms,':ins'=>$ins,':cid'=>$cid,':pn'=>$pn,':cs'=>$cs,':ce'=>$ce,':rem'=>$rem]);
+
+        log_activity('insurance_add', "เพิ่มสมาชิก member_id={$mid}");
+    }
+
+    echo json_encode(['status' => 'success']);
+    exit;
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
 // ACTION: set_visibility — toggle insurance card on user/hub.php
 // ══════════════════════════════════════════════════════════════════════════════
 if ($action === 'set_visibility') {
