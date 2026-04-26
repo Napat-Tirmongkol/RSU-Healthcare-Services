@@ -338,9 +338,11 @@ function closeMobileSidebar(){
                     aria-label="การแจ้งเตือน">
                     <i class="fa-solid fa-bell text-sm"></i>
                     <span id="notif-badge"
-                        class="hidden absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 items-center justify-center text-[10px] font-black text-white bg-red-500 rounded-full leading-none">
+                        class="hidden absolute -top-1 -right-1 w-4 h-4 items-center justify-center text-[9px] font-black text-white bg-rose-500 rounded-full leading-none shadow-sm z-10 border border-white">
                         0
                     </span>
+                    <!-- Decorative pulse effect -->
+                    <span id="notif-ping" class="hidden absolute -top-1 -right-1 w-4 h-4 bg-rose-500 rounded-full animate-ping opacity-75"></span>
                 </button>
                 <!-- Dropdown panel -->
                 <div id="notif-panel"
@@ -417,11 +419,21 @@ function closeMobileSidebar(){
                         badge.textContent = total > 99 ? '99+' : total;
                         badge.classList.remove('hidden');
                         badge.classList.add('flex');
+                        
+                        // Show ping effect
+                        var ping = document.getElementById('notif-ping');
+                        if (ping) ping.classList.remove('hidden');
+
                         totalLabel.textContent = total + ' รายการ';
                         totalLabel.classList.remove('hidden');
                     } else {
                         badge.classList.add('hidden');
                         badge.classList.remove('flex');
+                        
+                        // Hide ping effect
+                        var ping = document.getElementById('notif-ping');
+                        if (ping) ping.classList.add('hidden');
+
                         totalLabel.classList.add('hidden');
                     }
                     if (notifOpen) renderItems(d);
