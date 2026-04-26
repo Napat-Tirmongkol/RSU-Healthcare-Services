@@ -346,11 +346,11 @@ function closeMobileSidebar(){
                 </button>
                 <!-- Dropdown panel -->
                 <div id="notif-panel"
-                    class="hidden absolute right-0 top-full mt-3 w-80 bg-white border border-gray-100 rounded-3xl overflow-hidden"
-                    style="z-index:200;box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);">
-                    <div class="flex items-center justify-between px-5 py-4 border-b border-gray-50 bg-gray-50/50">
-                        <span class="text-[15px] font-black text-gray-900">การแจ้งเตือน</span>
-                        <span id="notif-total-label" class="hidden text-[10px] font-black px-2.5 py-1 rounded-full shrink-0" style="background:#fee2e2;color:#b91c1c;"></span>
+                    class="hidden absolute right-0 top-full mt-3 bg-white border border-gray-100 rounded-3xl overflow-hidden"
+                    style="z-index:200; width: 320px; min-width: 320px; box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);">
+                    <div class="flex items-center justify-between px-5 py-4 border-b border-gray-50 bg-gray-50/50" style="display: flex; align-items: center; justify-content: space-between;">
+                        <span class="text-[15px] font-black text-gray-900" style="white-space: nowrap;">การแจ้งเตือน</span>
+                        <span id="notif-total-label" class="hidden text-[10px] font-black px-2.5 py-1 rounded-full shrink-0" style="background:#fee2e2;color:#b91c1c; white-space: nowrap;"></span>
                     </div>
                     <div id="notif-items" class="divide-y divide-gray-50 max-h-[400px] overflow-y-auto">
                         <div class="px-4 py-8 text-sm text-gray-400 text-center">กำลังโหลด...</div>
@@ -386,20 +386,22 @@ function closeMobileSidebar(){
         function renderItems(d) {
             var html = '';
             if (d.errors_today > 0) {
-                html += '<a href="' + errorUrl + '" class="flex items-center gap-4 px-5 py-4 hover:bg-rose-50/50 transition-all group">'
-                      + '<div class="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 shadow-sm group-hover:scale-110 transition-transform" style="background:#fff1f2;color:#e11d48;">'
+                html += '<a href="' + errorUrl + '" class="flex items-center gap-4 px-5 py-4 hover:bg-rose-50/50 transition-all group" style="display: flex; align-items: center; text-decoration: none;">'
+                      + '<div class="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 shadow-sm group-hover:scale-110 transition-transform" style="background:#fff1f2;color:#e11d48; flex-shrink: 0; display: flex; align-items: center; justify-content: center;">'
                       + '<i class="fa-solid fa-bug text-sm"></i></div>'
-                      + '<div class="flex-1 min-w-0"><div class="text-[13px] font-bold text-gray-900 mb-0.5">Error Logs วันนี้</div>'
-                      + '<div class="text-[11px] font-medium text-gray-500">' + d.errors_today + ' รายการใหม่</div></div>'
-                      + '<i class="fa-solid fa-chevron-right text-[10px] text-gray-300 group-hover:text-rose-400 transition-colors shrink-0"></i></a>';
+                      + '<div class="flex-1 min-w-0" style="flex: 1; min-width: 0; margin-left: 1rem;">'
+                      + '<div class="text-[13px] font-bold text-gray-900 mb-0.5" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Error Logs วันนี้</div>'
+                      + '<div class="text-[11px] font-medium text-gray-500" style="white-space: nowrap;">' + d.errors_today + ' รายการใหม่</div></div>'
+                      + '<i class="fa-solid fa-chevron-right text-[10px] text-gray-300 group-hover:text-rose-400 transition-colors shrink-0" style="flex-shrink: 0; margin-left: auto;"></i></a>';
             }
             if (d.pending_bookings > 0) {
-                html += '<a href="' + bookingUrl + '" class="flex items-center gap-4 px-5 py-4 hover:bg-amber-50/50 transition-all group">'
-                      + '<div class="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 shadow-sm group-hover:scale-110 transition-transform" style="background:#fffbeb;color:#d97706;">'
+                html += '<a href="' + bookingUrl + '" class="flex items-center gap-4 px-5 py-4 hover:bg-amber-50/50 transition-all group" style="display: flex; align-items: center; text-decoration: none;">'
+                      + '<div class="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 shadow-sm group-hover:scale-110 transition-transform" style="background:#fffbeb;color:#d97706; flex-shrink: 0; display: flex; align-items: center; justify-content: center;">'
                       + '<i class="fa-solid fa-clock-rotate-left text-sm"></i></div>'
-                      + '<div class="flex-1 min-w-0"><div class="text-[13px] font-bold text-gray-900 mb-0.5">รอการอนุมัติ</div>'
-                      + '<div class="text-[11px] font-medium text-gray-500">' + d.pending_bookings + ' คิวรอพิจารณา</div></div>'
-                      + '<i class="fa-solid fa-chevron-right text-[10px] text-gray-300 group-hover:text-amber-400 transition-colors shrink-0"></i></a>';
+                      + '<div class="flex-1 min-w-0" style="flex: 1; min-width: 0; margin-left: 1rem;">'
+                      + '<div class="text-[13px] font-bold text-gray-900 mb-0.5" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">รอการอนุมัติ</div>'
+                      + '<div class="text-[11px] font-medium text-gray-500" style="white-space: nowrap;">' + d.pending_bookings + ' คิวรอพิจารณา</div></div>'
+                      + '<i class="fa-solid fa-chevron-right text-[10px] text-gray-300 group-hover:text-amber-400 transition-colors shrink-0" style="flex-shrink: 0; margin-left: auto;"></i></a>';
             }
             if (html === '') {
                 html = '<div class="px-4 py-5 text-center">'
