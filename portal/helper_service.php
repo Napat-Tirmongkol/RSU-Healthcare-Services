@@ -14,9 +14,17 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit(json_encode(['ok' => false, 'error' => 'Method not allowed']));
 }
 
-/* ── TEMPORARILY DISABLED FOR DEBUGGING ── */
+/* ── CSRF Check Re-enabled ── */
+$token = $_POST['csrf_token'] ?? '';
+if (empty($token) || !verify_csrf_token($token)) {
+    http_response_code(403);
+    echo json_encode(['ok' => false, 'error' => 'Security token mismatch']);
+    exit;
+}
 
-$query = trim($_POST['m'] ?? '');
+$rawM = $_POST['m'] ?? '';
+$query = trim(base64_decode($rawM));
+
 if (!$query) {
     echo json_encode(['ok' => false, 'error' => 'กรุณาพิมพ์คำถาม']);
     exit;
