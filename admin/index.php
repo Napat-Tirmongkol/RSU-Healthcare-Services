@@ -354,10 +354,31 @@ document.addEventListener('DOMContentLoaded', function() {
     if (pendingEl)       animateValue(pendingEl,       0, <?= (int)$stats['pending_count'] ?>,    1000);
 
 
+    let isFetching = false;
+    let abortController = null;
+
     function updateDashboardRealtime() {
-        fetch('ajax/ajax_dashboard.php')
-            .then(response => response.json())
+        if (isFetching) {
+            // If the previous request is still pending and hasn't timed out, skip this cycle
+            // Or we could abort it. Let's abort it to ensure we get the latest data.
+            if (abortController) abortController.abort();
+        }
+
+        isFetching = true;
+        abortController = new AbortController();
+        const signal = abortController.signal;
+
+        fetch('./ajax/ajax_dashboard.php', { 
+            signal,
+            cache: 'no-store',
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+            .then(response => {
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                return response.json();
+            })
             .then(data => {
+                isFetching = false;
                 if(data.status === 'success') {
                     // Flash effect on update if the value changed
                     const updateWithFlash = (id, newVal) => {
@@ -382,18 +403,21 @@ document.addEventListener('DOMContentLoaded', function() {
                     
                     const container = document.getElementById('popular-camp_list-container');
                     if (container && data.popular_html) {
-                        // Very simple check to prevent unnecessary DOM redraws
                         if(container.innerHTML.trim() !== data.popular_html.trim()){
                             container.innerHTML = data.popular_html;
                         }
                     }
                 }
             })
-            .catch(error => console.error('Error fetching dashboard data:', error));
+            .catch(error => {
+                isFetching = false;
+                if (error.name === 'AbortError') return; // Ignore expected aborts
+                console.error('Error fetching dashboard data:', error);
+            });
     }
 
-    // Refresh every 3 seconds
-    setInterval(updateDashboardRealtime, 3000);
+    // Refresh every 5 seconds (slightly less aggressive than 3s)
+    setInterval(updateDashboardRealtime, 5000);
 });
 </script>
 
