@@ -1115,7 +1115,12 @@ try {
                     <!-- Header -->
                     <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:24px">
                         <div>
-                            <div class="sec-title" style="margin-bottom:4px">📢 จัดการประกาศ</div>
+                            <div class="sec-title" style="margin-bottom:4px">
+                                <div style="width:28px;height:28px;border-radius:8px;background:#fdf2f8;color:#db2777;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;">
+                                    <i class="fa-solid fa-bullhorn"></i>
+                                </div>
+                                จัดการประกาศ
+                            </div>
                             <p style="font-size:13px;color:#64748b">สร้างและแก้ไขประกาศที่จะปรากฏเป็น Popup ให้ผู้ใช้เห็นเมื่อเข้าหน้า Hub</p>
                         </div>
                         <button onclick="annOpenForm('create')"
