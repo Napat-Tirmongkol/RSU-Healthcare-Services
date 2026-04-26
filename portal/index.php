@@ -2369,8 +2369,8 @@ try {
             });
         });
 
-        /* ── 4. Global Search Filtering ───────────────────────── */
-        const globalSearch = document.getElementById('global-search');
+        /* ── 4. Global Search Filtering (Moved to Local) ──────── */
+        const globalSearch = document.getElementById('search-project');
         const projCards = document.querySelectorAll('.proj-card');
         const projEmpty = document.getElementById('proj-empty');
 
